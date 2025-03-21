@@ -1,0 +1,647 @@
+# Databricks notebook source
+# DBTITLE 1,Pip Install Libraries
+# MAGIC %pip install 'datacontract-cli[databricks,avro,csv,parquet,sql]' fastavro
+
+# COMMAND ----------
+
+# DBTITLE 1,Restart Python
+dbutils.library.restartPython()
+
+# COMMAND ----------
+
+# DBTITLE 1,Python Imports
+import ast, json, fastavro, os, time, yaml
+from datetime import datetime, date
+from datacontract.data_contract import DataContract
+
+# Data contract object initialization
+data_contract_obj = DataContract(spark=spark)
+
+# COMMAND ----------
+
+# DBTITLE 1,Remove DB Widgets
+dbutils.widgets.removeAll()
+time.sleep(5)
+
+# COMMAND ----------
+
+# DBTITLE 1,Workflow Widget Parameters
+# Get Databricks instance and personal access token dynamically
+databricks_instance = spark.conf.get("spark.databricks.workspaceUrl")
+databricks_pat = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
+
+
+# Data Contract Parameters
+dbutils.widgets.text("server_config_type", "databricks")
+server_config_type = dbutils.widgets.get("server_config_type")
+
+dbutils.widgets.text("product_domain", "flight")
+product_domain = dbutils.widgets.get("product_domain")
+
+dbutils.widgets.text("contract_status", "active")  # or "inactive"
+contract_status = dbutils.widgets.get("contract_status")
+
+
+# Folder Path Parameters
+dbutils.widgets.text("avro_folder_path", "./avro_data")  # should be a volume
+avro_folder_path = dbutils.widgets.get("avro_folder_path")
+
+dbutils.widgets.text("csv_folder_path", "./csv_data")  # should be a volume
+csv_folder_path = dbutils.widgets.get("csv_folder_path")
+
+dbutils.widgets.text("parquet_folder_path", "./parquet_data")  # should be a volume
+parquet_folder_path = dbutils.widgets.get("parquet_folder_path")
+
+dbutils.widgets.text("sql_folder_path", "./sql_data")  # should be a volume
+sql_folder_path = dbutils.widgets.get("sql_folder_path")
+
+dbutils.widgets.text("yaml_folder_path", "./data_contracts_data")  # should be a volume
+yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
+# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
+dbutils.jobs.taskValues.set(key="yaml_folder_path", value=yaml_folder_path) 
+
+
+# Databricks Database Parameters
+dbutils.widgets.text("environment", "development")
+environment = dbutils.widgets.get("environment")
+
+dbutils.widgets.text("catalog", "hive_metastore")
+catalog = dbutils.widgets.get("catalog")
+# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
+dbutils.jobs.taskValues.set(key="catalog", value=catalog) 
+
+dbutils.widgets.text("schema", "default")
+schema = dbutils.widgets.get("schema")
+# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
+dbutils.jobs.taskValues.set(key="schema", value=schema) 
+
+# Tables: Using a JSON widget to store multiple key-value pairs
+dbutils.widgets.text(
+    "tables", "{'customer': 'customer table description', \
+    'customer': 'customer table description', \
+    'customer1': 'customer1 table description', \
+    'customer2': 'customer2 table description', \
+    'my_managed_table': 'my_managed_table description', \
+    'my_managed_table1': 'my_managed_table1 description', \
+    'my_managed_table2': 'my_managed_table2 description'}"
+)
+tables = ast.literal_eval(dbutils.widgets.get("tables"))
+
+
+# Data Contract Information
+dbutils.widgets.text("data_contract_title", "Testing Data Contract")
+data_contract_title = dbutils.widgets.get("data_contract_title")
+
+dbutils.widgets.text("data_contract_version", "1.0.0")
+data_contract_version = dbutils.widgets.get("data_contract_version")
+
+dbutils.widgets.text(
+    "data_contract_description",
+    "The data model contains miscellaneous test data for testing purposes"
+)
+data_contract_description = dbutils.widgets.get("data_contract_description")
+
+dbutils.widgets.text("data_contract_tags", "['flight', 'das']")
+data_contract_tags = dbutils.widgets.get("data_contract_tags")
+data_contract_tags = ast.literal_eval(dbutils.widgets.get("data_contract_tags"))
+
+# COMMAND ----------
+
+# DBTITLE 1,Local Parameters
+# # Get Databricks instance and personal access token dynamically
+# databricks_instance = spark.conf.get("spark.databricks.workspaceUrl")
+# databricks_pat = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
+
+# # Data Contract Parameters
+# server_config_type = "databricks" # do not modify
+# product_domain = "flight"
+# contract_status = "active" # or inactive
+
+# # Folder Path Parameters
+# csv_folder_path = f"./csv_data" # should be a volume
+# yaml_folder_path = f"./data_contracts_data" # should be a volume
+
+# # Databricks Database Parameters
+# environment = "development"
+# catalog = "hive_metastore"
+# schema = "default"
+# # format is "table_name": "table_description"
+# tables = {
+#     "customer": "customer table description",
+#     "customer1": "customer1 table description",
+#     "customer2": "customer2 table description",
+#     "my_managed_table": "my_managed_table description", 
+#     "my_managed_table2": "my_managed_table2 description"
+# }
+
+# # Data Contract Information
+# data_contract_title = "Testing Data Contract"
+# data_contract_version = "1.0.0"
+# data_contract_description = "The data model contains miscelaneous test data for testing purposes"
+# data_contract_owner = "Curtis Orlowski"
+# data_contract_contact = {"name": "Boeing DAS Team", "email": "dasteam@boeing.com"}
+
+# # Data Quality Rules
+
+# COMMAND ----------
+
+# DBTITLE 1,Read the Tables and Save as CSV File
+def infer_avro_schema(df):
+    """
+    Infers an Avro schema from a given pandas DataFrame based on data types of the DataFrame's columns.
+    Args:
+        df (pandas.DataFrame): The DataFrame for which to infer the schema.
+    Returns:
+        dict: A dictionary representing the Avro schema with types mapped from DataFrame dtypes.
+    """
+    avro_types = {
+        "int64": "long",
+        "int32": "int",
+        "float64": "double",
+        "float32": "float",
+        "object": "string",
+        "bool": "boolean",
+        "date": "string"
+    }
+    fields = [{"name": col, "type": avro_types.get(str(df[col].dtype), "string")} for col in df.columns]
+    schema = {
+        "type": "record",
+        "name": "AutoGeneratedSchema",
+        "fields": fields
+    }
+    return schema
+
+
+def get_uc_table_ddl(catalog, schema, table):
+    """
+    Retrieves the DDL SQL statement to create a specified table from a Spark SQL catalog.
+    Args:
+        catalog (str): The catalog in which the table is located.
+        schema (str): The schema in which the table is located.
+        table (str): The name of the table for which to get the DDL.
+    Returns:
+        str: The DDL SQL statement for the specified table.
+    """
+    return spark.sql(f"""SHOW CREATE TABLE {catalog}.{schema}.{table};""").first()[0]
+
+
+
+def create_local_data(catalog, schema, uc_tables_dict, folder_path, method="csv"):
+    """
+    Creates local data files for given tables in specified formats (AVRO, CSV, PARQUET, SQL) and saves them to a designated folder path.
+    Args:
+        catalog (str): The catalog in Spark SQL from which to read tables.
+        schema (str): The schema in Spark SQL from which to read tables.
+        uc_tables_dict (dict): A dictionary with table names as keys and descriptions as values.
+        folder_path (str): The path to the folder where data files will be saved.
+        method (str, optional): The format of the data files (default is "csv").
+    Raises:
+        Exception: If there is an error fetching custom data quality rules.
+    Prints:
+        Messages indicating whether data files have been saved or if an error occurred.
+    """
+    for table, table_desc in uc_tables_dict.items():
+        file_name = f"{table}"
+        os.makedirs(folder_path, exist_ok=True)
+
+        df = spark.read.table(f"{catalog}.{schema}.{table}").limit(5)
+        file_path = f"{folder_path}/{file_name}.{method}"
+        
+        if df.count() > 0:
+            if method == "avro":
+                df_avro = df.toPandas()
+                for col in df_avro.select_dtypes(include=["datetime64", "datetime", "timedelta", "object"]).columns:
+                    df_avro[col] = df_avro[col].astype(str)
+                avro_records = df_avro.to_dict(orient="records")
+                avro_schema = infer_avro_schema(df_avro)
+                with open(file_path, "wb") as out:
+                    fastavro.writer(out, avro_schema, avro_records)
+                print(f"✅ AVRO file saved at: {file_path}")
+            elif method == "csv":
+                df.toPandas().to_csv(file_path, index=False)
+                print(f"✅ CSV file saved at: {file_path}")
+            elif method == "parquet":
+                df.toPandas().to_parquet(file_path)
+                print(f"✅ PARQUET file saved at: {file_path}")
+            elif method == "sql":
+                sql_ddl = get_uc_table_ddl(catalog, schema, table)
+                with open(file_path, "w+") as out:
+                    out.write(sql_ddl)
+                print(f"✅ SQL file saved at: {file_path}")        
+            else:
+                print(f"method ({method}) not recognized")
+
+
+folder_path_dict = {
+    "avro": avro_folder_path,
+    "csv": csv_folder_path,
+    "parquet": parquet_folder_path,
+    "sql": sql_folder_path
+}
+
+methods = ["avro", "parquet", "csv", "sql"]
+for method in methods:
+    create_local_data(catalog, schema, tables, folder_path_dict[method], method = method)
+
+# COMMAND ----------
+
+# DBTITLE 1,Create Data Contracts For Each Table and Combine
+def combine_data_contract_models(uc_tables_dict, folder_path, method="csv"):
+    """
+    Combines multiple data contract models into a single data contract object.
+    This function iterates through a dictionary of table names and descriptions, importing
+    data contract models from files (e.g., CSV, Parquet, SQL, or Avro) located at the 
+    specified folder path. Each model's description is updated based on the input dictionary.
+    Args:
+        uc_tables_dict (dict): Dictionary where keys are table names and values are their descriptions.
+        folder_path (str): Path to the folder containing the serialized data contract files.
+        method (str, optional): The file format to use for importing data contract models.
+                                Supported values are "csv", "parquet", "avro", and "sql".
+                                Defaults to "csv".
+    Returns:
+        tuple:
+            - data_contracts_table_first (DataContract): A single DataContract object combining all imported models.
+            - data_contracts_dict (dict): Dictionary of individual table-level DataContract objects.
+    """
+    data_contracts_dict = {}
+    counter = 0
+
+    for table, table_desc in uc_tables_dict.items():
+        try:
+            # Try to import data contract model from file; skip if the file doesn't exist or is empty (e.g. empty table)
+            data_contracts_table = data_contract_obj.import_from_source(
+                format=method, source=f"{folder_path}/{table}.{method}"
+            )
+        except:
+            continue
+
+        # Update model descriptions
+        for model_name, model in data_contracts_table.models.items():
+            model.description = table_desc
+        data_contracts_dict[table] = data_contracts_table
+
+        if counter == 0:
+            data_contracts_table_first = data_contracts_table
+        else:
+            # Merge models into the first data contract object
+            data_contracts_table_first.models.update(data_contracts_table.models)
+
+        counter += 1
+
+    return data_contracts_table_first, data_contracts_dict
+
+
+method = "parquet" # or csv or parquet or sql
+data_contracts_combined, data_contracts_dict = combine_data_contract_models(tables, folder_path_dict[method], method = method)
+
+# COMMAND ----------
+
+# DBTITLE 1,Generate ODCS Base Contract
+def generate_odcs_base_contract(data_contract):
+    """
+    Converts a unified DataContract object into an ODCS-compatible YAML dictionary.
+    This function takes a DataContract object, serializes it to YAML, reinitializes it, 
+    and then exports it in the "odcs" format. The final result is parsed into a Python 
+    dictionary for further use (e.g., YAML file creation or API submission).
+    Args:
+        data_contract (DataContract): The unified DataContract object containing multiple models.
+    Returns:
+        dict: A dictionary representing the ODCS-compatible data contract in YAML format.
+    """
+    # Serialize the DataContract object to a YAML string
+    data_contract_yaml = data_contract.to_yaml()
+    # Reinitialize a DataContract object using the YAML string and export to "odcs" format
+    data_contract_odcs = DataContract(data_contract_str=data_contract_yaml, spark=spark).export("odcs")
+    # Convert the ODCS YAML string to a Python dictionary
+    data_contract_odcs_yaml = yaml.safe_load(data_contract_odcs)
+    return data_contract_odcs_yaml
+
+
+# Generate the final ODCS-compatible YAML for the combined data contract
+data_contract_odcs_yaml = generate_odcs_base_contract(data_contracts_combined)
+
+# COMMAND ----------
+
+# DBTITLE 1,Define Generic Data Quality Rules For All Tables (Custom)
+def get_general_data_quality_rules(table, columns=None):
+    """
+    Generates a generic set of data quality SQL rules for a given data contract.
+
+    These rules include:
+    1. A row count check to ensure the table contains data.
+    2. A uniqueness check across specified columns to ensure no duplicate rows.
+    Args:
+        table (str): The name of the table for which to create rules.
+        columns (list, optional): List of column names to use for the duplicate check.
+                                  If None or empty, the duplicate rule will be skipped or invalid.
+    Returns:
+        list: A list of data quality rule dictionaries formatted for use in a data contract.
+    """
+    partition_by_clause = ", ".join(columns) if columns else ""
+    
+    general_data_quality_rules = {
+        f"{table}": {
+            "quality": [
+                {
+                    "type": "sql",
+                    "description": f"Ensures {table} has data",
+                    "query": f"SELECT COUNT(*) FROM {table}",
+                    "mustBeGreaterThanOrEqualTo": 0
+                }
+            ]
+        }
+    }
+
+    # Add duplicate check only if valid columns are provided
+    if partition_by_clause:
+        general_data_quality_rules[table]["quality"].append(
+            {
+                "type": "sql",
+                "description": f"Ensure {table} has no duplicate rows across all columns",
+                "query": f"""
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT *, COUNT(*) OVER (PARTITION BY {partition_by_clause}) AS row_count
+                        FROM {table}
+                    ) AS subquery
+                    WHERE row_count > 1
+                """,
+                "mustBe": 0
+            }
+        )
+
+    # Clean up SQL formatting (flatten multi-line SQL to single-line strings)
+    for dq_rule in general_data_quality_rules[table]["quality"]:
+        dq_rule["query"] = ' '.join(dq_rule["query"].split())
+    return general_data_quality_rules[table]["quality"]
+
+# COMMAND ----------
+
+# DBTITLE 1,Define Custom Data Quality Rules (Custom)
+def get_custom_data_quality_rules(table_name):
+    """
+    Generates a custom set of data quality SQL rules for a given data contract table.
+    These rules are specific to the `customer` table and include:
+    1. A row count check to ensure the table does not exceed 100 records.
+    2. A null check to ensure all customers have an email.
+    3. A null check to ensure all customers have both first and last names.
+    Args:
+        table_name (str): The name of the table for which to generate custom rules.
+    Returns:
+        list: A list of data quality rule dictionaries formatted for use in a data contract.
+    Raises:
+        KeyError: If no custom rules are defined for the specified table.
+    """
+    custom_data_quality_rules = {
+        "customer": {
+            "quality": [
+                {
+                    "type": "sql",
+                    "description": "Ensures customer table has 100 or less customers",
+                    "query": "SELECT COUNT(*) FROM customer",
+                    "mustBeLessThanOrEqualTo": 100
+                },
+                {
+                    "type": "sql",
+                    "description": "Ensures every customer has an email",
+                    "query": "SELECT COUNT(*) FROM customer WHERE email IS NULL",
+                    "mustBe": 0
+                },
+                {
+                    "type": "sql",
+                    "description": "Ensures every customer has a first and last name",
+                    "query": "SELECT COUNT(*) FROM customer WHERE first_name IS NULL OR last_name IS NULL",
+                    "mustBe": 0
+                }
+            ]
+        }
+    }
+
+    if table_name not in custom_data_quality_rules:
+        raise KeyError(f"No custom data quality rules defined for table: {table_name}")
+    return custom_data_quality_rules[table_name]["quality"]
+
+# COMMAND ----------
+
+# DBTITLE 1,Add Data Quality Rules to ODCS Contract
+def update_data_quality_rules(data_contract, catalog, schema):
+    """
+    Appends general and custom data quality SQL rules to each table in a data contract schema.
+    For each table in the input data contract:
+    1. Retrieves the table's columns from Unity Catalog.
+    2. Generates general data quality rules based on those columns.
+    3. Attempts to retrieve any custom data quality rules (e.g., for specific business checks).
+    4. Ensures no duplicate rules are added if they already exist in the contract.
+    5. Appends the rules to the table's `quality` section in the data contract.
+    Args:
+        data_contract (dict): The data contract dictionary in ODCS YAML format.
+        catalog (str): The Unity Catalog catalog name where the tables are located.
+        schema (str): The Unity Catalog schema name where the tables are located.
+    Returns:
+        dict: The updated data contract with data quality rules applied to each table.
+    """
+    for table in data_contract["schema"]:
+        if "quality" not in table:
+            table["quality"] = []
+
+        # Get column names for the table to generate general DQ rules
+        cols = spark.read.table(f"{catalog}.{schema}.{table['name']}").columns
+        general_dq_sql_rules = get_general_data_quality_rules(table["name"], cols)
+
+        # Attempt to get custom rules; fall back to general only if not found
+        try:
+            custom_dq_sql_rules = get_custom_data_quality_rules(table["name"])
+            dq_rule_type = "generic and custom"
+        except Exception:
+            custom_dq_sql_rules = []
+            dq_rule_type = "generic"
+
+        # Prevent adding duplicate rules by comparing JSON string representations
+        existing_rules = table["quality"]
+        set_existing_rules = set(json.dumps(d, sort_keys=True) for d in existing_rules)
+        set_general_dq_sql_rules = set(json.dumps(d, sort_keys=True) for d in general_dq_sql_rules)
+        set_custom_dq_sql_rules = set(json.dumps(d, sort_keys=True) for d in custom_dq_sql_rules)
+
+        # Check if rules are already applied
+        if set_general_dq_sql_rules.issubset(set_existing_rules) and set_custom_dq_sql_rules.issubset(set_existing_rules):
+            print(f"already appended '{dq_rule_type}' dq rules to table {table['name']}")
+        else:
+            table["quality"].extend(general_dq_sql_rules)
+            table["quality"].extend(custom_dq_sql_rules)
+            print(f"appended '{dq_rule_type}' dq rules to table {table['name']}")
+
+    return data_contract
+
+
+# Apply data quality rules to the ODCS YAML contract
+data_contract_odcs_yaml = update_data_quality_rules(data_contract_odcs_yaml, catalog, schema)
+
+# COMMAND ----------
+
+# DBTITLE 1,Update ODCS Metadata (Custom)
+def update_odcs_domain_status(data_contract, contract_title, contract_version, product_domain, contract_status, tags):
+    """
+    Updates the top-level metadata fields of an ODCS data contract.
+    This function sets the contract’s title, version, status, domain, and additional metadata 
+    like tags, tenant, and data product name. It also includes a default description structure 
+    for purpose, limitations, and usage.
+    Args:
+        data_contract (dict): The ODCS data contract dictionary to update.
+        contract_title (str): Title of the data contract.
+        contract_version (str): Version string for the contract (e.g., "1.0.0").
+        product_domain (str): The business domain the data contract belongs to.
+        contract_status (str): Status of the contract (e.g., "active", "inactive").
+        tags (list): A list of string tags associated with the contract.
+    Returns:
+        dict: The updated data contract dictionary with domain and metadata fields populated.
+    """
+    data_contract["name"] = contract_title
+    data_contract["version"] = contract_version
+    data_contract["status"] = contract_status
+    data_contract["domain"] = product_domain
+    data_contract["dataProduct"] = "flight data products"
+    data_contract["tenant"] = "boeing airlines"
+    description = {
+        "purpose": "Tables with test data for testing",
+        "limitations": None, # None ensures a null in the data contract
+        "usage": None # None ensures a null in the data contract
+    }
+    data_contract["description"] = description
+    data_contract["tags"] = tags
+    return data_contract
+
+
+# Apply metadata updates to the ODCS YAML contract
+data_contract_odcs_yaml = update_odcs_domain_status(data_contract_odcs_yaml, data_contract_title, data_contract_version, product_domain, contract_status, data_contract_tags)
+
+# COMMAND ----------
+
+# DBTITLE 1,Update ODCS Server Configuration (Custom)
+def update_odcs_server_config(data_contract, environment, dbricks_instance, catalog, schema):
+    """
+    Updates the server configuration block in an ODCS data contract.
+    This sets the Unity Catalog environment details such as server type, host URL, 
+    catalog, and schema used for the data contract.
+    Args:
+        data_contract (dict): The ODCS data contract dictionary to update.
+        environment (str): The target environment name (e.g., "development", "production").
+        dbricks_instance (str): The Databricks workspace URL.
+        catalog (str): Unity Catalog catalog name.
+        schema (str): Unity Catalog schema name.
+    Returns:
+        dict: The updated data contract dictionary with server configuration populated.
+    """
+    updated_server_config = {
+        "server": environment,
+        "type": server_config_type,
+        "host": databricks_instance,
+        "catalog": catalog,
+        "schema": schema
+    }
+    data_contract["servers"] = [updated_server_config]
+    return data_contract
+
+
+# Update the server configuration in the ODCS data contract
+data_contract_odcs_yaml = update_odcs_server_config(data_contract_odcs_yaml, environment, databricks_instance, catalog, schema)
+
+# COMMAND ----------
+
+# DBTITLE 1,Update ODCS Support Channel (Custom)
+def update_odcs_support_channel(data_contract, channel, tool, scope, url, description=None, invitation_url=None):
+    """
+    Appends a support channel configuration to the ODCS data contract.
+    This allows specifying support or communication channels (e.g., Teams, Email) 
+    that users of the data product can use for help, announcements, or collaboration.
+    Args:
+        data_contract (dict): The ODCS data contract dictionary to update.
+        channel (str): The name or label of the support channel (e.g., "DAS Teams Channel").
+        tool (str): The communication tool used (e.g., "teams", "email").
+        scope (str): The type of support channel (e.g., "interactive", "announcements").
+        url (str): The URL or address of the support channel.
+        description (str, optional): Additional description of the support channel.
+        invitation_url (str, optional): Optional invite URL to join the channel.
+    Returns:
+        dict: The updated data contract dictionary with a new support channel entry.
+    """
+    updated_support_channel_config = {
+        "channel": channel,
+        "tool": tool,
+        "scope": scope,
+        "url": url
+    }
+    if description:
+        updated_support_channel_config["description"] = [description]
+    if invitation_url:
+        updated_support_channel_config["invitationUrl"] = invitation_url
+    # Append to the list of support channels (initialize if not present)
+    data_contract.setdefault("support", []).append(updated_support_channel_config)
+    return data_contract
+  
+# Add support channels to the ODCS data contract
+data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "DAS Teams Channel", "teams", "interactive", "https://teams.microsoft.com/channel/das")
+data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "DAS Teams Channel", "teams", "announcements", "https://teams.microsoft.com/channel/das/announcements")
+data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "DAS Email", "email", "announcements", "mailto:dasteam@boeing.com", description= "Team email for all team announcements")
+
+# COMMAND ----------
+
+# DBTITLE 1,Save ODCS Data Contract Locally
+def save_odcs_data_contract_local(data_contract, catalog, schema, yaml_folder_path):
+    """
+    Saves the ODCS data contract to a local YAML file.
+    This function serializes the provided data contract dictionary to a YAML-formatted string
+    and writes it to a file using the pattern `<catalog>__<schema>.yaml`. If a file with the
+    same name already exists, it is overwritten.
+    Args:
+        data_contract (dict): The ODCS data contract dictionary to save.
+        catalog (str): The Unity Catalog catalog name (used in the filename).
+        schema (str): The Unity Catalog schema name (used in the filename).
+        yaml_folder_path (str): The path to the folder where the YAML file will be saved.
+    Returns:
+        str: The full file path of the saved YAML contract.
+    """
+    # Ensure the folder path exists
+    os.makedirs(yaml_folder_path, exist_ok=True)
+    # Serialize the data contract to a YAML string
+    yaml_content = yaml.dump(data_contract, default_flow_style=False, sort_keys=False)
+    # Define the output YAML file path
+    yaml_file_path = f"{yaml_folder_path}/{catalog}__{schema}.yaml"
+    # Remove existing file to ensure clean overwrite
+    if os.path.exists(yaml_file_path):
+        os.remove(yaml_file_path)
+    # Write YAML content to the file
+    with open(yaml_file_path, "w+") as yaml_file:
+        yaml_file.write(yaml_content)
+    print(f"✅ ODCS Data Contract YAML saved at: {yaml_file_path}")
+    return yaml_file_path
+
+
+# Save the ODCS data contract locally
+yaml_file_path = save_odcs_data_contract_local(data_contract_odcs_yaml, catalog, schema, yaml_folder_path)
+
+# COMMAND ----------
+
+# DBTITLE 1,Verify OCDS Contract Syntax With Linting
+def lint_data_contract(yaml_file_path, spark):
+    """
+    Runs a lint syntax check on a saved ODCS data contract YAML file.
+    This function loads the data contract from the specified YAML file path and 
+    performs a linting process to validate its structure, completeness, and rule compliance.
+    Args:
+        yaml_file_path (str): Path to the saved data contract YAML file.
+        spark (SparkSession): The active Spark session used by the DataContract class.
+
+    Returns:
+        dict: The result of the linting process, typically including warnings or validation messages.
+    """
+    # Load the contract from YAML file
+    data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
+    # Run linting to validate the contract structure and rules
+    test_results = data_contract.lint()
+    # Print lint results for visibility
+    print(f"Linting (e.g. syntax) test result: {test_results.result}")
+    return test_results.result
+
+
+# Lint and ODCS data contract
+lint_result = lint_data_contract(yaml_file_path, spark)
