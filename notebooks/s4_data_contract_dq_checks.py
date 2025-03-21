@@ -38,6 +38,16 @@ dq_folder_path = dbutils.widgets.get("dq_folder_path")
 
 # COMMAND ----------
 
+# DBTITLE 1,Check if Running in a Databricks Job
+def is_running_in_databricks_workflow():
+    if "DATABRICKS_JOB_ID" in os.environ:
+        return True
+    else: return False
+
+print(f"is running in Databricks workflow: {is_running_in_databricks_workflow()}")
+
+# COMMAND ----------
+
 # DBTITLE 1,Run ODCS Contract Data Quality Tests and Store in DF
 def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="data_quality.json"):
     """
@@ -80,7 +90,9 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
         json_file.write(json.dumps(list_results))
 
     # Load results into Spark DataFrame
-    data_path = f"file:{os.getcwd()}/{dq_file_path.split('./')[1]}"
+    if is_running_in_databricks_workflow() == True:
+        data_path = f"{dq_file_path.replace('/dbfs', '')}/{dq_file}"
+    else: data_path = f"file:{os.getcwd()}/{dq_file_path.split('./')[1]}"
     df = spark.read.json(data_path)
 
     # Print overall test result summary
@@ -94,3 +106,7 @@ dq_results_df = run_data_quality_tests(yaml_file_path, dq_path = dq_folder_path)
 # Write to a managed Delta table (overwrite mode)
 dq_results_df.write.format("delta").mode("append").saveAsTable(f"{dq_catalog}.{dq_schema}.odcs_data_quality")
 display(dq_results_df)
+
+# COMMAND ----------
+
+
