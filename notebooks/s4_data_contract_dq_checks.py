@@ -33,6 +33,9 @@ dq_catalog = dbutils.widgets.get("dq_catalog")
 dbutils.widgets.text("dq_schema", "default")
 dq_schema = dbutils.widgets.get("dq_schema")
 
+dbutils.widgets.text("dq_folder_path", "./data_quality")
+dq_folder_path = dbutils.widgets.get("dq_folder_path")
+
 # COMMAND ----------
 
 # DBTITLE 1,Run ODCS Contract Data Quality Tests and Store in DF
@@ -87,7 +90,7 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
 
 
 # Example usage
-dq_results_df = run_data_quality_tests(yaml_file_path)
+dq_results_df = run_data_quality_tests(yaml_file_path, dq_path = dq_folder_path)
 # Write to a managed Delta table (overwrite mode)
 dq_results_df.write.format("delta").mode("append").saveAsTable(f"{dq_catalog}.{dq_schema}.odcs_data_quality")
 display(dq_results_df)
