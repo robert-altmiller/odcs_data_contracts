@@ -88,7 +88,6 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
 
 # Example usage
 dq_results_df = run_data_quality_tests(yaml_file_path)
-display(dq_results_df)
 # Write to a managed Delta table (overwrite mode)
 dq_results_df.write.format("delta").mode("append").saveAsTable(f"{dq_catalog}.{dq_schema}."odcs_data_quality")
-
+display(dq_results_df)
