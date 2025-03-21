@@ -65,12 +65,12 @@ data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
 test_result = data_contract.test()
 
 # Show test results
-print(f"'{yaml_file_path}' ODCS syntax validation: {test_result.result}")
+print(f"'{yaml_file_path}' ODCS test validation: {test_result.result}")
 
 # COMMAND ----------
 
 # DBTITLE 1,Get Data Contract Custom DDL
-queries_ddl_list = DataContract(data_contract_file=yaml_file_path, spark=spark).export("sql")[:-1].split(";")
+queries_ddl_list = data_contract.export("sql")[:-1].split(";")
 
 # COMMAND ----------
 
