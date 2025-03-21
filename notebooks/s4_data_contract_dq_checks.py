@@ -24,9 +24,14 @@ time.sleep(5)
 
 # DBTITLE 1,Workflow Widget Parameters
 # Data Contract Parameters
-
 dbutils.widgets.text("yaml_file_path", "default")
 yaml_file_path = dbutils.widgets.get("yaml_file_path")
+
+dbutils.widgets.text("dq_catalog", "hive_metastore")
+dq_catalog = dbutils.widgets.get("dq_catalog")
+
+dbutils.widgets.text("dq_schema", "default")
+dq_schema = dbutils.widgets.get("dq_schema")
 
 # COMMAND ----------
 
@@ -84,3 +89,6 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
 # Example usage
 dq_results_df = run_data_quality_tests(yaml_file_path)
 display(dq_results_df)
+# Write to a managed Delta table (overwrite mode)
+dq_results_df.write.format("delta").mode("append").saveAsTable(f"{dq_catalog}.{dq_schema}."odcs_data_quality")
+

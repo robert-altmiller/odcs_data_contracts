@@ -51,9 +51,11 @@ data_contract_folder_path = dbutils.widgets.get("data_contract_folder_path")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="data_contract_folder_path", value=data_contract_folder_path) 
 
+
+# This variable below is used in the workflow named 'data_contract_deploy' task which runs 's4_data_contract_dq_checks' (IMPORTANT)
 yaml_file_path = f"{data_contract_folder_path}/{data_contract_filename_catalog}__{data_contract_filename_schema}.yaml"
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="yaml_file_path", value=yaml_file_path) 
+dbutils.jobs.taskValues.set(key="yaml_file_path", value=yaml_file_path)
 print(f"yaml_file_path: {yaml_file_path}")
 
 # COMMAND ----------
