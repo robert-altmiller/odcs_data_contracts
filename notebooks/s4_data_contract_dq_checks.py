@@ -57,7 +57,10 @@ def get_job_context():
 def is_running_in_databricks_workflow():
     """Detect if running inside a Databricks Workflow job."""
     job_context = get_job_context()
-    return 'jobName' in job_context
+    if 'jobName' in job_context: return True
+    else: return False
+
+print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
 
 # COMMAND ----------
 
@@ -105,7 +108,8 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
     # Load results into Spark DataFrame
     if is_running_in_databricks_workflow() == True:
         data_path = f"{dq_file_path.replace('/dbfs', '')}/{dq_file}"
-    else: data_path = f"file:{os.getcwd()}/{dq_file_path.split('./')[1]}"
+    else: 
+        data_path = f"file:{os.getcwd()}/{dq_file_path.split('./')[1]}"
     df = spark.read.json(data_path)
 
     # Print overall test result summary
