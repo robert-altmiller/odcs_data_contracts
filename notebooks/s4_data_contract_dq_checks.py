@@ -24,14 +24,17 @@ time.sleep(5)
 
 # DBTITLE 1,Workflow Widget Parameters
 # Data Contract Parameters
-dbutils.widgets.text("yaml_file_path", "default")
-yaml_file_path = dbutils.widgets.get("yaml_file_path")
-
 dbutils.widgets.text("dq_catalog", "hive_metastore")
 dq_catalog = dbutils.widgets.get("dq_catalog")
 
-dbutils.widgets.text("dq_schema", "default")
+dbutils.widgets.text("dq_schema", "default4")
 dq_schema = dbutils.widgets.get("dq_schema")
+
+dbutils.widgets.text("source_schema", "default")
+source_schema = dbutils.widgets.get("source_schema")
+
+dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/{dq_catalog}__{source_schema}.yaml")
+yaml_file_path = dbutils.widgets.get("yaml_file_path")
 
 dbutils.widgets.text("dq_folder_path", "./data_quality")
 dq_folder_path = dbutils.widgets.get("dq_folder_path")
@@ -107,21 +110,25 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
 
     # Load results into Spark DataFrame
     if is_running_in_databricks_workflow() == True:
-        data_path = f"{dq_file_path.replace('/dbfs', '')}/{dq_file}"
+        data_path = f"{dq_folder_path.replace('/dbfs', '')}/{dq_file}"
     else: 
         data_path = f"file:{os.getcwd()}/{dq_file_path.split('./')[1]}"
     df = spark.read.json(data_path)
+    df = df.withColumn("ingestion_timestamp", F.current_timestamp())
 
     # Print overall test result summary
     print(f"'{yaml_file_path}' ODCS syntax validation: {test_results.result}")
 
-    return df.where(F.col("field").isNull())
+    return df
 
 
 # Example usage
 dq_results_df = run_data_quality_tests(yaml_file_path, dq_path = dq_folder_path)
+
 # Write to a managed Delta table (overwrite mode)
-dq_results_df.write.format("delta").mode("append").saveAsTable(f"{dq_catalog}.{dq_schema}.odcs_data_quality")
+dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{dq_catalog}.{dq_schema}.odcs_data_quality")
+
+# Display the results
 display(dq_results_df)
 
 # COMMAND ----------
