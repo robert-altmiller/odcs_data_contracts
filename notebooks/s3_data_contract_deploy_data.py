@@ -17,7 +17,7 @@ source_catalog = dbutils.widgets.get("source_catalog")
 dbutils.widgets.text("source_schema", "default")
 source_schema = dbutils.widgets.get("source_schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="target_schema", value=target_schema) 
+dbutils.jobs.taskValues.set(key="source_schema", value=source_schema) 
 
 dbutils.widgets.text("target_schema", "default4")
 target_schema = dbutils.widgets.get("target_schema")
