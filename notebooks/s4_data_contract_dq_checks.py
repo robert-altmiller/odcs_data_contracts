@@ -39,15 +39,25 @@ dq_folder_path = dbutils.widgets.get("dq_folder_path")
 # COMMAND ----------
 
 # DBTITLE 1,Check if Running in a Databricks Job
+def get_job_context():
+    """Retrieve job-related context from the current Databricks notebook."""
+    # Retrieve the notebook context
+    ctx = dbutils.notebook.entry_point.getDbutils().notebook().getContext()
+    # Convert the context to a JSON string
+    ctx_json = ctx.toJson()
+    # Parse the JSON string into a Python dictionary
+    ctx_dict = json.loads(ctx_json)
+    # Access the 'tags' dictionary
+    tags_dict = ctx_dict.get('tags', {})
+    # Filter for keys containing 'job' or 'run'
+    job_context = {k: v for k, v in tags_dict.items() if 'job' in k.lower() or 'run' in k.lower()}
+    return job_context
+
+
 def is_running_in_databricks_workflow():
     """Detect if running inside a Databricks Workflow job."""
-    try:
-        job_id = spark.conf.get("spark.databricks.job.id")
-        return job_id is not None
-    except Exception:
-        return False
-
-print(f"is running in Databricks workflow: {is_running_in_databricks_workflow()}")
+    job_context = get_job_context()
+    return 'jobName' in job_context
 
 # COMMAND ----------
 
