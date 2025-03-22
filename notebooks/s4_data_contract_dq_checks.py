@@ -40,9 +40,12 @@ dq_folder_path = dbutils.widgets.get("dq_folder_path")
 
 # DBTITLE 1,Check if Running in a Databricks Job
 def is_running_in_databricks_workflow():
-    if "DATABRICKS_JOB_ID" in os.environ:
-        return True
-    else: return False
+    """Detect if running inside a Databricks Workflow job."""
+    try:
+        job_id = spark.conf.get("spark.databricks.job.id")
+        return job_id is not None
+    except Exception:
+        return False
 
 print(f"is running in Databricks workflow: {is_running_in_databricks_workflow()}")
 
