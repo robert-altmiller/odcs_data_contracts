@@ -27,7 +27,6 @@ jobs:
       - name: validate-and-run-bundle
         run: |
           echo "setting up databricks authentication"
-          
           mkdir -p "$HOME"
           CONFIG_FILE=$DATABRICKS_CFG_PATH
           echo "[DEFAULT]" > "$CONFIG_FILE"
@@ -43,8 +42,6 @@ jobs:
         # EOF
         # mv $DATABRICKS_CFG_PATH /root/.databrickscfg
 
-          cat $DATABRICKS_CFG_PATH
-
         # export BRANCH_NAME=$CI_BRANCH_NAME
         # export USER_EMAIL=$GITHUB_USER_EMAIL
         # export USER_NAME=$(echo $USER_EMAIL cut -d '@' -f 1 | tr '.' '_')
@@ -57,23 +54,3 @@ jobs:
         #   echo "Databricks Bundle Deploy Validation OK = False"
         #   exit 1
         # fi
-      
-      
-
-
-
-
-          
-      #   run: |
-      #     databricks auth login --host ${{ secrets.DATABRICKS_HOST }} --token ${{ secrets.DATABRICKS_TOKEN }}
-      #   env:
-      #     DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      #     DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-
-      # - name: Validate bundle
-      #   run: |
-      #     databricks bundle validate
-
-      # - name: Deploy bundle
-      #   run: |
-      #     databricks bundle deploy
