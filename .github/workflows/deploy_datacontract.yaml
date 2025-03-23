@@ -26,12 +26,20 @@ jobs:
 
       - name: Set up .databrickscfg
         run: |
-          echo "Creating .databrickscfg"
+          echo "Creating $DATABRICKS_CFG_PATH"
           CONFIG_FILE=$DATABRICKS_CFG_PATH
           echo "[DEFAULT]" > "$CONFIG_FILE"
           echo "host = ${{ secrets.DATABRICKS_HOST }}" >> "$CONFIG_FILE"
           echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> "$CONFIG_FILE"
           cat $DATABRICKS_CFG_PATH
+
+          export BRANCH_NAME=$CI_BRANCH_NAME
+          echo "BRANCH_NAME: $BRANCH_NAME"
+          export USER_EMAIL=$GITHUB_USER_EMAIL
+          echo "USER_EMAIL: $USER_EMAIL"
+          export USER_NAME=$(echo $USER_EMAIL cut -d '@' -f 1 | tr '.' '_')
+          echo "USER_NAMEL: $USER_NAME"
+
   # - name: validate-and-run-bundle
   #   run: |
   #     echo "setting up databricks authentication"
@@ -50,9 +58,7 @@ jobs:
   #       # EOF
   #       # mv $DATABRICKS_CFG_PATH /root/.databrickscfg
 
-  #       # export BRANCH_NAME=$CI_BRANCH_NAME
-  #       # export USER_EMAIL=$GITHUB_USER_EMAIL
-  #       # export USER_NAME=$(echo $USER_EMAIL cut -d '@' -f 1 | tr '.' '_')
+
   #       # output = $(databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL --var="user_name=$USER_NAME")
   #       # if echo $output | grep -q "Validation OK!"; then
   #       #   echo "Databricks Bundle Deploy Validation OK = True"
