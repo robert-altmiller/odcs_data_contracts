@@ -23,19 +23,15 @@ jobs:
       DATABRICKS_CFG_PATH: "/home/runner/.databrickscfg"
 
     steps:
-      - name: checkout-repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - uses: databricks/setup-cli@main
+      - uses: actions/setup-python@v4
 
-      - name: setup-python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install Databricks CLI
-        uses: databricks/setup-cli@main
 
       - name: Set up .databrickscfg
-        run: |
+
+      run: |
+          working-directory: .  
           echo "Creating $DATABRICKS_CFG_PATH"
           CONFIG_FILE=$DATABRICKS_CFG_PATH
           echo "[DEFAULT]" > "$CONFIG_FILE"
