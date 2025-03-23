@@ -27,7 +27,6 @@ jobs:
       - name: validate-and-run-bundle
         run: |
           echo "setting up databricks authentication"
-          mkdir -p $DATABRICKS_CFG_PATH
           
           cat <<EOF > $DATABRICKS_CFG_PATH
           [DEFAULT]
