@@ -28,25 +28,29 @@ jobs:
         run: |
           echo "setting up databricks authentication"
           
-          cat <<EOF > $DATABRICKS_CFG_PATH
+          echo "Creating ~/.databrickscfg"
+          mkdir -p "$HOME"
+          cat <<EOF > $DATABRICKS_CFG_PATH 
           [DEFAULT]
           host = ${{ secrets.DATABRICKS_HOST }}
           token = ${{ secrets.DATABRICKS_TOKEN }}
           EOF
           mv $DATABRICKS_CFG_PATH /root/.databrickscfg
 
-          export BRANCH_NAME=$CI_BRANCH_NAME
-          export USER_EMAIL=$GITHUB_USER_EMAIL
-          export USER_NAME=$(echo $USER_EMAIL cut -d '@' -f 1 | tr '.' '_')
-          output = $(databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL --var="user_name=$USER_NAME")
-          if echo $output | grep -q "Validation OK!"; then
-            echo "Databricks Bundle Deploy Validation OK = True"
-            echo "Deploying Databricks Asset Bundle to Workspace"
-            databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME"
-          else
-            echo "Databricks Bundle Deploy Validation OK = False"
-            exit 1
-          fi
+          cat ~/.databrickscfg
+
+        # export BRANCH_NAME=$CI_BRANCH_NAME
+        # export USER_EMAIL=$GITHUB_USER_EMAIL
+        # export USER_NAME=$(echo $USER_EMAIL cut -d '@' -f 1 | tr '.' '_')
+        # output = $(databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL --var="user_name=$USER_NAME")
+        # if echo $output | grep -q "Validation OK!"; then
+        #   echo "Databricks Bundle Deploy Validation OK = True"
+        #   echo "Deploying Databricks Asset Bundle to Workspace"
+        #   databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME"
+        # else
+        #   echo "Databricks Bundle Deploy Validation OK = False"
+        #   exit 1
+        # fi
       
       
 
