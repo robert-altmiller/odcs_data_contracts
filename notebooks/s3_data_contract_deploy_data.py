@@ -10,6 +10,11 @@ time.sleep(5)
 
 # COMMAND ----------
 
+# DBTITLE 1,Import Python Helpers
+# MAGIC %run "./helpers"
+
+# COMMAND ----------
+
 # DBTITLE 1,Workflow Widget Parameters
 dbutils.widgets.text("source_catalog", "hive_metastore")
 source_catalog = dbutils.widgets.get("source_catalog")
@@ -17,21 +22,16 @@ source_catalog = dbutils.widgets.get("source_catalog")
 dbutils.widgets.text("source_schema", "default")
 source_schema = dbutils.widgets.get("source_schema")
 
+
 dbutils.widgets.text("target_schema", "default4")
 target_schema = dbutils.widgets.get("target_schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="target_schema", value=target_schema) 
 
-# Tables: Using a JSON widget to store multiple key-value pairs
-dbutils.widgets.text(
-    "source_tables", "{'customer': 'customer table description', \
-    'customer1': 'customer1 table description', \
-    'customer2': 'customer2 table description', \
-    'my_managed_table': 'my_managed_table description', \
-    'my_managed_table1': 'my_managed_table1 description', \
-    'my_managed_table2': 'my_managed_table2 description'}"
-)
-source_tables = ast.literal_eval(dbutils.widgets.get("source_tables"))
+
+# Get a list of the tables in a Catalog.Schema
+# list_tables_in_schema() Python function is in the helpers notebook
+source_tables = list_tables_in_schema(source_catalog, source_schema)
 
 # COMMAND ----------
 
