@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: databricks/setup-cli@main
+      #- uses: databricks/setup-cli@main
       - uses: actions/setup-python@v4
       - run: |
           working-directory: .  
