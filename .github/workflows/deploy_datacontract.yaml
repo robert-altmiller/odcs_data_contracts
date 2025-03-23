@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      DATABRICKS_CFG_PATH: $HOME/.databrickscfg
+      DATABRICKS_CFG_PATH: "/home/runner/.databrickscfg"
 
     steps:
       - name: checkout-repo
@@ -27,11 +27,11 @@ jobs:
       - name: Set up .databrickscfg
         run: |
           echo "Creating .databrickscfg"
-          CONFIG_FILE="/home/runner/.databrickscfg"
+          CONFIG_FILE=$DATABRICKS_CFG_PATH
           echo "[DEFAULT]" > "$CONFIG_FILE"
           echo "host = ${{ secrets.DATABRICKS_HOST }}" >> "$CONFIG_FILE"
           echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> "$CONFIG_FILE"
-
+          cat $DATABRICKS_CFG_PATH
   # - name: validate-and-run-bundle
   #   run: |
   #     echo "setting up databricks authentication"
