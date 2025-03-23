@@ -1,17 +1,27 @@
 import yaml
+from pathlib import Path
 from jinja2 import Template
 
+BASE_DIR = Path(__file__).resolve().parent.parent  # goes to resources/
+
 def update_workflow_template(wf_name):
-    # Load the workflow YAML template
-    with open(f"../workflows/{wf_name}_template.yaml") as wf:
+    template_path = BASE_DIR / "workflows" / f"{wf_name}_template.yaml"
+    param_path = BASE_DIR / "python" / "base_params.yaml"
+    output_path = BASE_DIR / "workflows" / f"{wf_name}.yml"
+
+    # Load the workflow template
+    with open(template_path) as wf:
         template = Template(wf.read())
-    # Load the base parameters YAML
-    with open(f"../../base_params.yaml") as pf:
+
+    # Load the base parameters
+    with open(param_path) as pf:
         params = yaml.safe_load(pf)
-    # Render new workflow YAML template and write to local
+
+    # Render and write
     rendered = template.render(params=params)
-    with open(f"../workflows/{wf_name}.yml", "w") as out:
+    with open(output_path, "w") as out:
         out.write(rendered)
-        
+
+# Run for both workflows
 update_workflow_template("data_contract_create")
 update_workflow_template("data_contract_deploy")
