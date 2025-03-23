@@ -180,13 +180,16 @@ for method in methods:
 # COMMAND ----------
 
 # DBTITLE 1,Create Data Contracts For Each Table and Combine
-def combine_data_contract_models(uc_tables_dict, folder_path, method="csv"):
+def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, method="csv"):
     """
     Combines multiple data contract models into a single data contract object.
     This function iterates through a dictionary of table names and descriptions, importing
     data contract models from files (e.g., CSV, Parquet, SQL, or Avro) located at the 
-    specified folder path. Each model's description is updated based on the input dictionary.
+    specified folder path. Each model's table and column level descriptions are updated based 
+    on the input dictionary.
     Args:
+        catalog (str): Catalog in which the tables are located.
+        schema (str): Schema in which the tables are located.
         uc_tables_dict (dict): Dictionary where keys are table names and values are their descriptions.
         folder_path (str): Path to the folder containing the serialized data contract files.
         method (str, optional): The file format to use for importing data contract models.
@@ -209,9 +212,15 @@ def combine_data_contract_models(uc_tables_dict, folder_path, method="csv"):
         except:
             continue
 
-        # Update model descriptions
+        # Get table column level comments
+        # column_comments() Python function is in the helpers notebook
+        column_comments = get_column_comments(catalog, schema, table)
+
+        # Update table and column level descriptions
         for model_name, model in data_contracts_table.models.items():
             model.description = table_desc
+            for col in model.fields:
+                model.fields[col].description = column_comments[f"{catalog}.{schema}.{table}"][col] # co
         data_contracts_dict[table] = data_contracts_table
 
         if counter == 0:
@@ -226,7 +235,7 @@ def combine_data_contract_models(uc_tables_dict, folder_path, method="csv"):
 
 
 method = "parquet" # or csv or parquet or sql
-data_contracts_combined, data_contracts_dict = combine_data_contract_models(tables_with_desc_dict, folder_path_dict[method], method = method)
+data_contracts_combined, data_contracts_dict = combine_data_contract_models(catalog, schema, tables_with_desc_dict, folder_path_dict[method], method = method)
 
 # COMMAND ----------
 

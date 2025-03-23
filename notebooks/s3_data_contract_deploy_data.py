@@ -31,7 +31,7 @@ dbutils.jobs.taskValues.set(key="target_schema", value=target_schema)
 
 # Get a list of the tables in a Catalog.Schema
 # list_tables_in_schema() Python function is in the helpers notebook
-source_tables = list_tables_in_schema(source_catalog, source_schema)
+source_tables, tables_with_desc_dict = list_tables_in_schema(source_catalog, source_schema)
 
 # COMMAND ----------
 

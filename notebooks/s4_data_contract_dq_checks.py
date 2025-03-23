@@ -130,7 +130,3 @@ dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append")
 
 # Display the results
 display(dq_results_df)
-
-# COMMAND ----------
-
-
