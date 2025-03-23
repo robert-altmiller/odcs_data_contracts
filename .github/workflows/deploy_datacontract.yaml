@@ -89,9 +89,8 @@ jobs:
           echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
 
       - name: Create Create Contracts Databricks Workflow Templates
-        working-directory: ./odcs_data_contracts  
         run: |
-          python3 resources/base_parameters/inject_base_params.py
+          python3 resources/python/inject_base_params.py
 
       - name: Validate and Deploy Databricks Asset Bundles
         working-directory: .  
