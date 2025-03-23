@@ -17,7 +17,7 @@ variables:
   odcs_contract_catalog:
     default: hive_metastore
     description: Default ODCS catalog
-  odcs_contract_Schema:
+  odcs_contract_schema:
     default: default
     description: Default ODCS schema
 
