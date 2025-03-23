@@ -37,7 +37,7 @@ jobs:
           EOF
           mv $DATABRICKS_CFG_PATH /root/.databrickscfg
 
-          cat ~/.databrickscfg
+          cat /root/.databrickscfg
 
         # export BRANCH_NAME=$CI_BRANCH_NAME
         # export USER_EMAIL=$GITHUB_USER_EMAIL
