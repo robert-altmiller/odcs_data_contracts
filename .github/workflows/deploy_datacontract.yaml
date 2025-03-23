@@ -46,7 +46,7 @@ jobs:
           export BRANCH_NAME=$GITHUB_REF_NAME
           echo "BRANCH_NAME: $BRANCH_NAME"
           export USER_EMAIL="${{ github.event.inputs.USER_EMAIL || 'robert.altmiller@databricks.com' }}"
-          echo "USER_EMAIL: $USER_E
+          echo "USER_EMAIL: $USER_EMAIL
           export USER_NAME=$(echo "$USER_EMAIL" | cut -d '@' -f 1 | tr '.' '_')
           echo "USER_NAMEL: $USER_NAME"
 
