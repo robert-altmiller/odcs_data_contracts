@@ -26,8 +26,8 @@ jobs:
       - uses: databricks/setup-cli@main
       - uses: actions/setup-python@v4
       
-      name: Set up .databrickscfg
-      run: |
+      - name: Set up .databrickscfg
+        run: |
           working-directory: .  
           echo "Creating $DATABRICKS_CFG_PATH"
           CONFIG_FILE=$DATABRICKS_CFG_PATH
