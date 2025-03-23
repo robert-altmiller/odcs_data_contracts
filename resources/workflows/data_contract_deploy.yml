@@ -7,8 +7,8 @@ resources:
           notebook_task:
             notebook_path: notebooks/s2_data_contract_deploy_tables
             base_parameters:
-              data_contract_filename_catalog: hive_metastore
-              data_contract_filename_schema: default
+              data_contract_filename_catalog: ${var.odcs_contract_catalog} # PARAMETERIZED
+              data_contract_filename_schema:  ${var.odcs_contract_schema} # PARAMETERIZED
               data_contract_folder_path: /dbfs/mnt/bronze/data_contracts/data_contracts_data
               tables: "{'customer': 'customer table description',     'customer': 'customer
                 table description',     'customer1': 'customer1 table

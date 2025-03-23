@@ -14,6 +14,12 @@ variables:
   user_email:
     default: robert.altmiller@databricks.com
     description: Default user email
+  odcs_contract_catalog:
+    default: hive_metastore
+    description: Default ODCS catalog
+  odcs_contract_Schema:
+    default: default
+    description: Default ODCS schema
 
 targets:
 

@@ -7,14 +7,14 @@ resources:
           notebook_task:
             notebook_path: notebooks/s1_data_contract_generate
             base_parameters:
-              catalog: hive_metastore
+              catalog: ${var.odcs_contract_catalog} # PARAMETERIZED
               yaml_folder_path: /dbfs/mnt/bronze/data_contracts/data_contracts_data
               csv_folder_path: /dbfs/mnt/bronze/data_contracts/csv_data
               product_domain: flight
               parquet_folder_path: /dbfs/mnt/bronze/data_contracts/parquet_data
               data_contract_version: 1.0.0
               sql_folder_path: /dbfs/mnt/bronze/data_contracts/sql_data
-              schema: default
+              schema: ${var.odcs_contract_schema} # PARAMETERIZED
               avro_folder_path: /dbfs/mnt/bronze/data_contracts/avro_data
               server_config_type: databricks
               environment: development

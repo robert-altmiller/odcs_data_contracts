@@ -14,11 +14,11 @@ on:
         required: true
         default: 'robert.altmiller@databricks.com'
       ODCS_CONTRACT_CATALOG: # variable
-        description: 'User Email Address'
+        description: 'ODCS Contract Databricks Catalog'
         required: true
         default: 'hive_metastore'
       ODCS_CONTRACT_SCHEMA: # variable
-        description: 'User Email Address'
+        description: 'ODCS Contract Databricks Schema'
         required: true
         default: 'default'
 
@@ -45,6 +45,11 @@ jobs:
 
       - name: Setup Environment Variables
         run: |
+        
+          # Get target environment for DABs
+          TARGET="${{ github.event.inputs.ENVIRONMENT || 'dev' }}"
+          echo "TARGET: $TARGET"
+          
           # Get branch name
           export BRANCH_NAME="$GITHUB_REF_NAME"
           echo "BRANCH_NAME: $BRANCH_NAME"
@@ -66,6 +71,7 @@ jobs:
           echo "USER_NAME: $USER_NAME"
       
           # Optionally make them available to later steps
+          echo "TARGET=$TARGET" >> $GITHUB_ENV
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           echo "ODCS_CONTRACT_CATALOG=$ODCS_CONTRACT_CATALOG" >> $GITHUB_ENV
           echo "ODCS_CONTRACT_SCHEMA=$ODCS_CONTRACT_SCHEMA" >> $GITHUB_ENV
@@ -77,11 +83,11 @@ jobs:
         working-directory: .  
         run: |
           # Validate and deploy DABS
-          output=$(databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME")
+          output=$(databricks bundle validate --profile DEFAULT --target $TARGET  --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_catalog=$ODCS_CONTRACT_CATALOG" --var="odcs_contract_schema=$ODCS_CONTRACT_SCHEMA")
           if echo $output | grep -q "Validation OK!"; then
             echo "Databricks Bundle Deploy Validation OK = True"
             echo "Deploying Databricks Asset Bundle to Workspace"
-            databricks bundle deploy --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME"
+            databricks bundle deploy --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_catalog=$ODCS_CONTRACT_CATALOG" --var="odcs_contract_schema=$ODCS_CONTRACT_SCHEMA"
           else
             echo "Databricks Bundle Deploy Validation OK = False"
             exit 1
