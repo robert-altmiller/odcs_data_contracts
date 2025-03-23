@@ -1,0 +1,58 @@
+bundle:
+  name: data_contracts
+
+include:
+  - resources/workflows/*.yml
+
+variables:
+  branch_name:
+    default: main
+    description: Default branch name
+  user_name:
+    default: Robert Altmiller
+    description: Default user name
+  user_email:
+    default: robert.altmiller@databricks.com
+    description: Default user email
+
+targets:
+
+  dev:
+    git:
+      branch: ${var.branch_name}
+    default: true
+    presets:
+      name_prefix: ${var.user_name}_
+      pipelines_development: true
+      trigger_pause_status: UNPAUSED
+    workspace:
+      host: https://adb-5809742986594827.7.azuredatabricks.net
+      root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
+    run_as:
+      user_name: ${var.user_email}
+  
+  test:
+    git:
+      branch: test
+    mode: testing
+    workspace:
+      host: https://adb-5809742986594827.7.azuredatabricks.net
+      root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
+    permissions:
+      - user_name: ${var.user_email}
+        level: CAN_MANAGE
+    run_as:
+      user_name: ${var.user_email}
+
+  prod:
+    git:
+      branch: main
+    mode: production
+    workspace:
+      host: https://adb-5809742986594827.7.azuredatabricks.net
+      root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
+    permissions:
+      - user_name: ${var.user_email}
+        level: CAN_MANAGE
+    run_as:
+      user_name: ${var.user_email}

@@ -1,0 +1,119 @@
+kind: DataContract
+apiVersion: v2.2.2
+uuid: my-data-contract-id
+version: 0.0.1
+datasetDomain: default_domain
+datasetName: default_name
+quantumName: default_quantum
+status: unknown
+type: tables
+dataset:
+- table: accounts
+  physicalName: accounts
+  columns:
+  - column: id
+    logicalType: variant
+    physicalType: variant
+    isNullable: false
+    isUnique: true
+  - column: account_number
+    logicalType: varchar
+    physicalType: varchar
+    isNullable: false
+    tags:
+    - maxLength:20
+  - column: account_status
+    logicalType: varchar
+    physicalType: varchar
+    tags:
+    - maxLength:10
+  - column: created_by
+    logicalType: text
+    physicalType: text
+  - column: created_by_fixed_length
+    logicalType: variant
+    physicalType: variant
+    tags:
+    - maxLength:10
+  - column: customer_id_int
+    logicalType: integer
+    physicalType: integer
+  - column: customer_id_smallint
+    logicalType: variant
+    physicalType: variant
+  - column: customer_id_bigint
+    logicalType: variant
+    physicalType: variant
+  - column: customer_id_decimal
+    logicalType: decimal
+    physicalType: decimal
+  - column: customer_id_real
+    logicalType: variant
+    physicalType: variant
+  - column: customer_id_double
+    logicalType: variant
+    physicalType: variant
+  - column: open_date
+    logicalType: date
+    physicalType: date
+  - column: open_timestamp
+    logicalType: timestamp
+    physicalType: timestamp
+  - column: last_opened_time
+    logicalType: variant
+    physicalType: variant
+  - column: payload_bytes
+    logicalType: variant
+    physicalType: variant
+- table: balances
+  physicalName: balances
+  columns:
+  - column: account_number
+    logicalType: varchar
+    physicalType: varchar
+    isNullable: false
+    isUnique: true
+    tags:
+    - maxLength:20
+  - column: create_time
+    logicalType: timestamp
+    physicalType: timestamp
+  - column: account_status
+    logicalType: varchar
+    physicalType: varchar
+    tags:
+    - maxLength:10
+  - column: balance
+    logicalType: variant
+    physicalType: variant
+- table: transactions
+  physicalName: transactions
+  columns:
+  - column: account_number
+    logicalType: varchar
+    physicalType: varchar
+    isNullable: false
+    tags:
+    - maxLength:20
+  - column: create_time
+    logicalType: timestamp
+    physicalType: timestamp
+    isNullable: false
+  - column: transaction_id
+    logicalType: varchar
+    physicalType: varchar
+    isNullable: false
+    tags:
+    - maxLength:20
+  - column: amount
+    logicalType: variant
+    physicalType: variant
+- table: mapping
+  physicalName: mapping
+  columns:
+  - column: key
+    logicalType: text
+    physicalType: text
+  - column: value
+    logicalType: text
+    physicalType: text
