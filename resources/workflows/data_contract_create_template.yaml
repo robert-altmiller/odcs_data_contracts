@@ -1,0 +1,49 @@
+resources:
+  jobs:
+    data_contract_create:
+      name: data_contract_create
+      tasks:
+        - task_key: Create_Data_Contract
+          notebook_task:
+            notebook_path: notebooks/s1_data_contract_generate
+            base_parameters:
+              catalog: ${var.odcs_contract_catalog}
+              schema: ${var.odcs_contract_schema}
+              yaml_folder_path: {{ params.yaml_folder_path }}
+              csv_folder_path: {{ params.csv_folder_path }}
+              product_domain: {{ params.product_domain }}
+              parquet_folder_path: {{ params.parquet_folder_path }}
+              data_contract_version: {{ params.data_contract_version }}
+              sql_folder_path: {{ params.sql_folder_path }}
+              avro_folder_path: {{ params.avro_folder_path }}
+              server_config_type: {{ params.server_config_type }}
+              data_contract_description: {{ params.data_contract_description }}
+              contract_status: {{ params.contract_status }}
+              data_contract_title: {{ params.data_contract_title }}
+            source: GIT
+          job_cluster_key: Job_cluster
+
+      job_clusters:
+        - job_cluster_key: Job_cluster
+          new_cluster:
+            cluster_name: ""
+            spark_version: 15.4.x-scala2.12
+            azure_attributes:
+              first_on_demand: 1
+              availability: SPOT_WITH_FALLBACK_AZURE
+              spot_bid_max_price: -1
+            node_type_id: Standard_D4ds_v5
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+            enable_elastic_disk: true
+            data_security_mode: LEGACY_SINGLE_USER_STANDARD
+            runtime_engine: PHOTON
+            num_workers: 2
+
+      git_source:
+        git_url: https://github.com/robert-altmiller/odcs_data_contracts.git
+        git_provider: gitHub
+        git_branch: main
+
+      queue:
+        enabled: true

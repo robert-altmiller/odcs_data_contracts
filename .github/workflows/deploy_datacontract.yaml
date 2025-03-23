@@ -33,7 +33,15 @@ jobs:
       - uses: actions/checkout@v3
       - uses: databricks/setup-cli@main
       - uses: actions/setup-python@v4
-      
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Pip Install Requirements
+        run: pip install -r requirements.txt
+
       - name: Setup Databricks Asset Bundles Authentication
         working-directory: .  
         run: |
@@ -80,6 +88,10 @@ jobs:
           echo "USER_EMAIL=$USER_EMAIL" >> $GITHUB_ENV
           echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
 
+      - name: Create Create Contracts Databricks Workflow Templates
+        working-directory: .  
+        run: |
+          python3 ../resources/base_parameters/inject_base_params.py
 
       - name: Validate and Deploy Databricks Asset Bundles
         working-directory: .  

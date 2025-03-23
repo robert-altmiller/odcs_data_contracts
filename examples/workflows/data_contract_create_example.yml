@@ -17,7 +17,6 @@ resources:
               schema: ${var.odcs_contract_schema} # PARAMETERIZED
               avro_folder_path: /dbfs/mnt/bronze/data_contracts/avro_data
               server_config_type: databricks
-              environment: development
               data_contract_description: The data model contains miscelaneous test data for
                 testing purposes
               contract_status: active
