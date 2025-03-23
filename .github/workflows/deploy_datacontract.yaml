@@ -13,10 +13,18 @@ on:
         description: 'User Email Address'
         required: true
         default: 'robert.altmiller@databricks.com'
+      ODCS_CONTRACT_CATALOG: # variable
+        description: 'User Email Address'
+        required: true
+        default: 'hive_metastore'
+      ODCS_CONTRACT_SCHEMA: # variable
+        description: 'User Email Address'
+        required: true
+        default: 'default'
 
 jobs:
   deploy:
-    name: Deploy Data Contracts with Databricks Asset Bundles (DABS)
+    name: Deploy Data Contract Workdflows with Databricks Asset Bundles (DABS)
     runs-on: ubuntu-latest
     env:
       DATABRICKS_CFG_PATH: "/home/runner/.databrickscfg"
@@ -26,8 +34,7 @@ jobs:
       - uses: databricks/setup-cli@main
       - uses: actions/setup-python@v4
       
-      - name: Set up .databrickscfg
-        working-directory: .    
+      - name: Setup Databricks Asset Bundles Authentication
         run: |
           echo "Creating $DATABRICKS_CFG_PATH"
           CONFIG_FILE=$DATABRICKS_CFG_PATH
@@ -35,51 +42,47 @@ jobs:
           echo "host=${{ secrets.DATABRICKS_HOST }}" >> "$CONFIG_FILE"
           echo "token=${{ secrets.DATABRICKS_TOKEN }}" >> "$CONFIG_FILE"
           cat "$CONFIG_FILE"
-      
+
+      - name: Setup Environment Variables
+        run: |
           # Get branch name
           export BRANCH_NAME="$GITHUB_REF_NAME"
           echo "BRANCH_NAME: $BRANCH_NAME"
-      
-          # Get user email, fallback if not provided via workflow input
+
+          # Get ODCS contract catalog name
           USER_EMAIL="${{ github.event.inputs.USER_EMAIL || 'robert.altmiller@databricks.com' }}"
           echo "USER_EMAIL: $USER_EMAIL"
+          
+          # Get ODCS contract schema name
+          ODCS_CONTRACT_CATALOG="${{ github.event.inputs.ODCS_CONTRACT_CATALOG || 'hive_metastore' }}"
+          echo "ODCS_CONTRACT_CATALOG: $ODCS_CONTRACT_CATALOG"
+
+          # Get user email, fallback if not provided via workflow input
+          ODCS_CONTRACT_SCHEMA="${{ github.event.inputs.ODCS_CONTRACT_SCHEMA || 'default' }}"
+          echo "ODCS_CONTRACT_SCHEMA: $ODCS_CONTRACT_SCHEMA"
       
           # Convert email to username
           USER_NAME=$(echo "$USER_EMAIL" | cut -d '@' -f 1 | tr '.' '_')
           echo "USER_NAME: $USER_NAME"
       
           # Optionally make them available to later steps
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "ODCS_CONTRACT_CATALOG=$ODCS_CONTRACT_CATALOG" >> $GITHUB_ENV
+          echo "ODCS_CONTRACT_SCHEMA=$ODCS_CONTRACT_SCHEMA" >> $GITHUB_ENV
           echo "USER_EMAIL=$USER_EMAIL" >> $GITHUB_ENV
           echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
+
+      - name: Validate and Deploy Databricks Asset Bundles
+        working-directory: .  
+        run: |
+          # Validate and deploy DABS
           output=$(databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME")
-
-  # - name: validate-and-run-bundle
-  #   run: |
-  #     echo "setting up databricks authentication"
-  #     mkdir -p "$HOME"
-  #     CONFIG_FILE=$DATABRICKS_CFG_PATH
-  #     echo "[DEFAULT]" > "$CONFIG_FILE"
-  #     echo "host = ${{ secrets.DATABRICKS_HOST }}" >> "$CONFIG_FILE"
-  #     echo "token = ${{ secrets.DATABRICKS_TOKEN }}" >> "$CONFIG_FILE"
-
-  #       # echo "Creating ~/.databrickscfg"
-  #       # mkdir -p "$HOME"
-  #       # cat <<EOF > $DATABRICKS_CFG_PATH 
-  #       # [DEFAULT]
-  #       # host = ${{ secrets.DATABRICKS_HOST }}
-  #       # token = ${{ secrets.DATABRICKS_TOKEN }}
-  #       # EOF
-  #       # mv $DATABRICKS_CFG_PATH /root/.databrickscfg
-
-
-        # output = $(databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL --var="user_name=$USER_NAME")
-        # if echo $output | grep -q "Validation OK!"; then
-        #   echo "Databricks Bundle Deploy Validation OK = True"
-        #   echo "Deploying Databricks Asset Bundle to Workspace"
-        #   databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME"
-        # else
-        #   echo "Databricks Bundle Deploy Validation OK = False"
-        #   exit 1
-        # fi
+          if echo $output | grep -q "Validation OK!"; then
+            echo "Databricks Bundle Deploy Validation OK = True"
+            echo "Deploying Databricks Asset Bundle to Workspace"
+            databricks bundle deploy --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME"
+          else
+            echo "Databricks Bundle Deploy Validation OK = False"
+            exit 1
+          fi
