@@ -91,7 +91,7 @@ jobs:
       - name: Create Create Contracts Databricks Workflow Templates
         working-directory: .  
         run: |
-          python3 ../resources/base_parameters/inject_base_params.py
+          python3 resources/base_parameters/inject_base_params.py
 
       - name: Validate and Deploy Databricks Asset Bundles
         working-directory: .  
