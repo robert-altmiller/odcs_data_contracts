@@ -1,7 +1,7 @@
 resources:
   jobs:
     data_contract_create:
-      name: data_contract_create1
+      name: data_contract_create
       tasks:
         - task_key: Create_Data_Contract
           notebook_task:
@@ -21,13 +21,6 @@ resources:
               data_contract_description: The data model contains miscelaneous test data for
                 testing purposes
               contract_status: active
-              tables: "{'customer': 'customer table description',     'customer': 'customer
-                table description',     'customer1': 'customer1 table
-                description',     'customer2': 'customer2 table
-                description',     'my_managed_table': 'my_managed_table
-                description',     'my_managed_table1': 'my_managed_table1
-                description',     'my_managed_table2': 'my_managed_table2
-                description'}"
               data_contract_title: Testing Data Contract
             source: GIT
           job_cluster_key: Job_cluster

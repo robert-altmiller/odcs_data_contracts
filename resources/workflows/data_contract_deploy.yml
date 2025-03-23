@@ -1,7 +1,7 @@
 resources:
   jobs:
     data_contract_deploy:
-      name: data_contract_deploy1
+      name: data_contract_deploy
       tasks:
         - task_key: Data_Contract_Tables
           notebook_task:
@@ -10,13 +10,6 @@ resources:
               data_contract_filename_catalog: ${var.odcs_contract_catalog} # PARAMETERIZED
               data_contract_filename_schema:  ${var.odcs_contract_schema} # PARAMETERIZED
               data_contract_folder_path: /dbfs/mnt/bronze/data_contracts/data_contracts_data
-              tables: "{'customer': 'customer table description',     'customer': 'customer
-                table description',     'customer1': 'customer1 table
-                description',     'customer2': 'customer2 table
-                description',     'my_managed_table': 'my_managed_table
-                description',     'my_managed_table1': 'my_managed_table1
-                description',     'my_managed_table2': 'my_managed_table2
-                description'}"
             source: GIT
           job_cluster_key: Job_cluster
         - task_key: Data_Contract_Data
@@ -29,7 +22,6 @@ resources:
                 ma}}"
               data_contract_folder_path: "{{tasks.Data_Contract_Tables.values.data_contract_folder_path}}"
               target_schema: default4
-              source_tables: "{{tasks.Data_Contract_Tables.values.tables}}"
               source_catalog: "{{tasks.Data_Contract_Tables.values.data_contract_filename_cat\
                 alog}}"
             source: GIT
@@ -71,3 +63,6 @@ resources:
         git_branch: main
       queue:
         enabled: true
+
+
+

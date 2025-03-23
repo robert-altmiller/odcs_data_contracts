@@ -287,7 +287,7 @@ def get_general_data_quality_rules(table, columns=None):
             "quality": [
                 {
                     "type": "sql",
-                    "description": f"Ensures {table} has data",
+                    "description": f"Ensures '{table}' table has data",
                     "query": f"SELECT COUNT(*) FROM {table}",
                     "mustBeGreaterThanOrEqualTo": 0
                 }
@@ -300,7 +300,7 @@ def get_general_data_quality_rules(table, columns=None):
         general_data_quality_rules[table]["quality"].append(
             {
                 "type": "sql",
-                "description": f"Ensure {table} has no duplicate rows across all columns",
+                "description": f"Ensure '{table}' table has no duplicate rows across all columns",
                 "query": f"""
                     SELECT COUNT(*)
                     FROM (
