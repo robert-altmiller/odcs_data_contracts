@@ -1,8 +1,5 @@
 name: Deploy Databricks Contracts Workflows
 
-variables:
-  databricks_cfg_path: 
-
 on:
   push:
     branches: [main]
