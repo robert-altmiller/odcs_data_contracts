@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      DATABRICKS_CFG_PATH: ~/.databrickscfg
+      DATABRICKS_CFG_PATH: $HOME/.databrickscfg
 
     steps:
       - name: checkout-repo
