@@ -41,14 +41,24 @@ jobs:
           echo "[DEFAULT]" > "$CONFIG_FILE"
           echo "host=${{ secrets.DATABRICKS_HOST }}" >> "$CONFIG_FILE"
           echo "token=${{ secrets.DATABRICKS_TOKEN }}" >> "$CONFIG_FILE"
-          cat $DATABRICKS_CFG_PATH
-
-          export BRANCH_NAME=$GITHUB_REF_NAME
+          cat "$CONFIG_FILE"
+      
+          # Get branch name
+          export BRANCH_NAME="$GITHUB_REF_NAME"
           echo "BRANCH_NAME: $BRANCH_NAME"
-          export USER_EMAIL="${{ github.event.inputs.USER_EMAIL || 'robert.altmiller@databricks.com' }}"
-          echo "USER_EMAIL: $USER_EMAIL
-          export USER_NAME=$(echo "$USER_EMAIL" | cut -d '@' -f 1 | tr '.' '_')
-          echo "USER_NAMEL: $USER_NAME"
+      
+          # Get user email, fallback if not provided via workflow input
+          USER_EMAIL="${{ github.event.inputs.USER_EMAIL || 'robert.altmiller@databricks.com' }}"
+          echo "USER_EMAIL: $USER_EMAIL"
+      
+          # Convert email to username
+          USER_NAME=$(echo "$USER_EMAIL" | cut -d '@' -f 1 | tr '.' '_')
+          echo "USER_NAME: $USER_NAME"
+      
+          # Optionally make them available to later steps
+          echo "USER_EMAIL=$USER_EMAIL" >> $GITHUB_ENV
+          echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
 
   # - name: validate-and-run-bundle
   #   run: |
