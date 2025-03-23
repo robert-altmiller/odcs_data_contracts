@@ -218,9 +218,9 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
 
         # Update table and column level descriptions
         for model_name, model in data_contracts_table.models.items():
-            model.description = table_desc
+            model.description = table_desc # Table level description
             for col in model.fields:
-                model.fields[col].description = column_comments[f"{catalog}.{schema}.{table}"][col] # co
+                model.fields[col].description = column_comments[f"{catalog}.{schema}.{table}"][col] # Column level descriptions
         data_contracts_dict[table] = data_contracts_table
 
         if counter == 0:
