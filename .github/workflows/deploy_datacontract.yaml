@@ -59,8 +59,8 @@ jobs:
           echo "USER_EMAIL=$USER_EMAIL" >> $GITHUB_ENV
           echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
-          output = $(databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL --var="user_name=$USER_NAME")
+          
+          output = $(databricks bundle validate --profile DEFAULT --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME")
 
   # - name: validate-and-run-bundle
   #   run: |
