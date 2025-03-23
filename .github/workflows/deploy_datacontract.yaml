@@ -37,6 +37,7 @@ jobs:
       - name: Setup Databricks Asset Bundles Authentication
         working-directory: .  
         run: |
+          set -x
           echo "Creating $DATABRICKS_CFG_PATH"
           CONFIG_FILE=$DATABRICKS_CFG_PATH
           echo "[DEFAULT]" > "$CONFIG_FILE"
@@ -46,7 +47,7 @@ jobs:
 
       - name: Setup Environment Variables
         run: |
-        
+          set -x
           # Get target environment for DABs
           TARGET="${{ github.event.inputs.ENVIRONMENT || 'dev' }}"
           echo "TARGET: $TARGET"
@@ -83,6 +84,7 @@ jobs:
       - name: Validate and Deploy Databricks Asset Bundles
         working-directory: .  
         run: |
+          set -x
           # Validate and deploy DABS
           output=$(databricks bundle validate --profile DEFAULT --target $TARGET  --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_catalog=$ODCS_CONTRACT_CATALOG" --var="odcs_contract_schema=$ODCS_CONTRACT_SCHEMA")
           if echo $output | grep -q "Validation OK!"; then
