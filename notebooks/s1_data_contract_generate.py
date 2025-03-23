@@ -82,7 +82,7 @@ dbutils.jobs.taskValues.set(key="schema", value=schema)
 
 # Get a list of the tables in a Catalog.Schema
 # list_tables_in_schema() Python function is in the helpers notebook
-tables = list_tables_in_schema(catalog, schema)
+tables_list, tables_with_desc_dict = list_tables_in_schema(catalog, schema)
 
 
 # Data Contract Information
@@ -119,7 +119,7 @@ def get_uc_table_ddl(catalog, schema, table):
 
 
 
-def create_local_data(catalog, schema, uc_tables_dict, folder_path, method="csv"):
+def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"):
     """
     Creates local data files for given tables in specified formats (AVRO, CSV, PARQUET, SQL) and saves them to a designated folder path.
     Args:
@@ -133,7 +133,7 @@ def create_local_data(catalog, schema, uc_tables_dict, folder_path, method="csv"
     Prints:
         Messages indicating whether data files have been saved or if an error occurred.
     """
-    for table, table_desc in uc_tables_dict.items():
+    for table in uc_tables_list:
         file_name = f"{table}"
         os.makedirs(folder_path, exist_ok=True)
 
@@ -175,7 +175,7 @@ folder_path_dict = {
 
 methods = ["avro", "parquet", "csv", "sql"]
 for method in methods:
-    create_local_data(catalog, schema, tables, folder_path_dict[method], method = method)
+    create_local_data(catalog, schema, tables_list, folder_path_dict[method], method = method)
 
 # COMMAND ----------
 
@@ -226,7 +226,7 @@ def combine_data_contract_models(uc_tables_dict, folder_path, method="csv"):
 
 
 method = "parquet" # or csv or parquet or sql
-data_contracts_combined, data_contracts_dict = combine_data_contract_models(tables, folder_path_dict[method], method = method)
+data_contracts_combined, data_contracts_dict = combine_data_contract_models(tables_with_desc_dict, folder_path_dict[method], method = method)
 
 # COMMAND ----------
 
