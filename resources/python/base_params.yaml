@@ -7,7 +7,7 @@ yaml_folder_path: /dbfs/mnt/bronze/data_contracts/data_contracts_data
 
 # Data contract metadata parameters
 data_contract_version: 1.0.0
-data_contract_title: Testing Data Contract
+data_contract_title: Testing Data Contract (Robert Altmiller)
 data_contract_description: The data model contains miscelaneous test data for testing purposes
 contract_status: active
 product_domain: flight
