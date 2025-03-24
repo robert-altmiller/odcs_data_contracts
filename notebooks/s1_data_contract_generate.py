@@ -321,7 +321,7 @@ def get_general_data_quality_rules(table, columns=None):
 # COMMAND ----------
 
 # DBTITLE 1,Define Custom Data Quality Rules (Custom)
-def get_custom_data_quality_rules(table_name):
+def get_custom_data_quality_rules(table_name, custom_dq_rules_input):
     """
     Generates a custom set of data quality SQL rules for a given data contract table.
     These rules are specific to the `customer` table and include:
@@ -335,30 +335,10 @@ def get_custom_data_quality_rules(table_name):
     Raises:
         KeyError: If no custom rules are defined for the specified table.
     """
-    custom_data_quality_rules = {
-        "customer": {
-            "quality": [
-                {
-                    "type": "sql",
-                    "description": "Ensures customer table has 100 or less customers",
-                    "query": "SELECT COUNT(*) FROM customer",
-                    "mustBeLessThanOrEqualTo": 100
-                },
-                {
-                    "type": "sql",
-                    "description": "Ensures every customer has an email",
-                    "query": "SELECT COUNT(*) FROM customer WHERE email IS NULL",
-                    "mustBe": 0
-                },
-                {
-                    "type": "sql",
-                    "description": "Ensures every customer has a first and last name",
-                    "query": "SELECT COUNT(*) FROM customer WHERE first_name IS NULL OR last_name IS NULL",
-                    "mustBe": 0
-                }
-            ]
-        }
-    }
+
+    custom_data_quality_rules = {}
+    for rule in custom_dq_rules_input:
+        custom_data_quality_rules.update(rule)
 
     if table_name not in custom_data_quality_rules:
         raise KeyError(f"No custom data quality rules defined for table: {table_name}")
@@ -367,7 +347,7 @@ def get_custom_data_quality_rules(table_name):
 # COMMAND ----------
 
 # DBTITLE 1,Add Data Quality Rules to ODCS Contract
-def update_data_quality_rules(data_contract, catalog, schema):
+def update_data_quality_rules(data_contract, catalog, schema, custom_dq_rules_input):
     """
     Appends general and custom data quality SQL rules to each table in a data contract schema.
     For each table in the input data contract:
@@ -393,7 +373,7 @@ def update_data_quality_rules(data_contract, catalog, schema):
 
         # Attempt to get custom rules; fall back to general only if not found
         try:
-            custom_dq_sql_rules = get_custom_data_quality_rules(table["name"])
+            custom_dq_sql_rules = get_custom_data_quality_rules(table["name"], custom_dq_rules_input)
             dq_rule_type = "generic and custom"
         except Exception:
             custom_dq_sql_rules = []
@@ -417,12 +397,53 @@ def update_data_quality_rules(data_contract, catalog, schema):
 
 
 # Apply data quality rules to the ODCS YAML contract
-data_contract_odcs_yaml = update_data_quality_rules(data_contract_odcs_yaml, catalog, schema)
+data_contract_odcs_yaml = update_data_quality_rules(data_contract_odcs_yaml, catalog, schema, custom_dq_rules_input)
+
+# COMMAND ----------
+
+# def update_odcs_domain_status(data_contract, contract_title, contract_version, product_domain, contract_status, tags):
+#     """
+#     Updates the top-level metadata fields of an ODCS data contract.
+#     This function sets the contract’s title, version, status, domain, and additional metadata 
+#     like tags, tenant, and data product name. It also includes a default description structure 
+#     for purpose, limitations, and usage.
+#     Args:
+#         data_contract (dict): The ODCS data contract dictionary to update.
+#         contract_title (str): Title of the data contract.
+#         contract_version (str): Version string for the contract (e.g., "1.0.0").
+#         product_domain (str): The business domain the data contract belongs to.
+#         contract_status (str): Status of the contract (e.g., "active", "inactive").
+#         tags (list): A list of string tags associated with the contract.
+#     Returns:
+#         dict: The updated data contract dictionary with domain and metadata fields populated.
+#     """
+#     data_contract["name"] = contract_title
+#     data_contract["version"] = contract_version
+#     data_contract["status"] = contract_status
+#     data_contract["domain"] = product_domain
+#     data_contract["dataProduct"] = "flight data products"
+#     data_contract["tenant"] = "boeing airlines"
+#     description = {
+#         "purpose": "Tables with test data for testing",
+#         "limitations": None, # None ensures a null in the data contract
+#         "usage": None # None ensures a null in the data contract
+#     }
+#     data_contract["description"] = description
+#     data_contract["tags"] = tags
+#     return data_contract
+
+
+# # Apply metadata updates to the ODCS YAML contract
+# data_contract_odcs_yaml = update_odcs_domain_status(data_contract_odcs_yaml, data_contract_title, data_contract_version, product_domain, contract_status, data_contract_tags)
+
+# COMMAND ----------
+
+print(contract_metadata_input)
 
 # COMMAND ----------
 
 # DBTITLE 1,Update ODCS Metadata (Custom)
-def update_odcs_domain_status(data_contract, contract_title, contract_version, product_domain, contract_status, tags):
+def update_odcs_domain_status(data_contract, contract_metadata_input):
     """
     Updates the top-level metadata fields of an ODCS data contract.
     This function sets the contract’s title, version, status, domain, and additional metadata 
@@ -438,24 +459,20 @@ def update_odcs_domain_status(data_contract, contract_title, contract_version, p
     Returns:
         dict: The updated data contract dictionary with domain and metadata fields populated.
     """
-    data_contract["name"] = contract_title
-    data_contract["version"] = contract_version
-    data_contract["status"] = contract_status
-    data_contract["domain"] = product_domain
-    data_contract["dataProduct"] = "flight data products"
-    data_contract["tenant"] = "boeing airlines"
-    description = {
-        "purpose": "Tables with test data for testing",
-        "limitations": None, # None ensures a null in the data contract
-        "usage": None # None ensures a null in the data contract
-    }
-    data_contract["description"] = description
-    data_contract["tags"] = tags
+    for metadata in contract_metadata_input:
+        data_contract["name"] = metadata["contract_title"]
+        data_contract["version"] = metadata["contract_version"]
+        data_contract["status"] = metadata["contract_status"]
+        data_contract["domain"] = metadata["contract_domain"]
+        data_contract["dataProduct"] = metadata["contract_data_product"]
+        data_contract["tenant"] = metadata["contract_tenant"]
+        data_contract["description"] = metadata["contract_description"]
+        data_contract["tags"] = metadata["contract_tags"]
     return data_contract
 
 
 # Apply metadata updates to the ODCS YAML contract
-data_contract_odcs_yaml = update_odcs_domain_status(data_contract_odcs_yaml, data_contract_title, data_contract_version, product_domain, contract_status, data_contract_tags)
+data_contract_odcs_yaml = update_odcs_domain_status(data_contract_odcs_yaml, contract_metadata_input)
 
 # COMMAND ----------
 
