@@ -36,18 +36,7 @@ databricks_instance = spark.conf.get("spark.databricks.workspaceUrl")
 databricks_pat = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
 
 
-# Data Contract Parameters
-dbutils.widgets.text("server_config_type", "databricks")
-server_config_type = dbutils.widgets.get("server_config_type")
-
-dbutils.widgets.text("product_domain", "flight")
-product_domain = dbutils.widgets.get("product_domain")
-
-dbutils.widgets.text("contract_status", "active")  # or "inactive"
-contract_status = dbutils.widgets.get("contract_status")
-
-
-# Folder Path Parameters
+# Folder path parameters
 dbutils.widgets.text("avro_folder_path", "./avro_data")  # should be a volume
 avro_folder_path = dbutils.widgets.get("avro_folder_path")
 
@@ -65,11 +54,7 @@ yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="yaml_folder_path", value=yaml_folder_path) 
 
-
-# Databricks Database Parameters
-dbutils.widgets.text("environment", "development")
-environment = dbutils.widgets.get("environment")
-
+# Catalog and schema parameters
 dbutils.widgets.text("catalog", "hive_metastore")
 catalog = dbutils.widgets.get("catalog")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
@@ -83,24 +68,6 @@ dbutils.jobs.taskValues.set(key="schema", value=schema)
 # Get a list of the tables in a Catalog.Schema
 # list_tables_in_schema() Python function is in the helpers notebook
 tables_list, tables_with_desc_dict = list_tables_in_schema(catalog, schema)
-
-
-# Data Contract Information
-dbutils.widgets.text("data_contract_title", "Testing Data Contract")
-data_contract_title = dbutils.widgets.get("data_contract_title")
-
-dbutils.widgets.text("data_contract_version", "1.0.0")
-data_contract_version = dbutils.widgets.get("data_contract_version")
-
-dbutils.widgets.text(
-    "data_contract_description",
-    "The data model contains miscellaneous test data for testing purposes"
-)
-data_contract_description = dbutils.widgets.get("data_contract_description")
-
-dbutils.widgets.text("data_contract_tags", "['flight', 'das']")
-data_contract_tags = dbutils.widgets.get("data_contract_tags")
-data_contract_tags = ast.literal_eval(dbutils.widgets.get("data_contract_tags"))
 
 # COMMAND ----------
 
@@ -401,47 +368,6 @@ data_contract_odcs_yaml = update_data_quality_rules(data_contract_odcs_yaml, cat
 
 # COMMAND ----------
 
-# def update_odcs_domain_status(data_contract, contract_title, contract_version, product_domain, contract_status, tags):
-#     """
-#     Updates the top-level metadata fields of an ODCS data contract.
-#     This function sets the contract’s title, version, status, domain, and additional metadata 
-#     like tags, tenant, and data product name. It also includes a default description structure 
-#     for purpose, limitations, and usage.
-#     Args:
-#         data_contract (dict): The ODCS data contract dictionary to update.
-#         contract_title (str): Title of the data contract.
-#         contract_version (str): Version string for the contract (e.g., "1.0.0").
-#         product_domain (str): The business domain the data contract belongs to.
-#         contract_status (str): Status of the contract (e.g., "active", "inactive").
-#         tags (list): A list of string tags associated with the contract.
-#     Returns:
-#         dict: The updated data contract dictionary with domain and metadata fields populated.
-#     """
-#     data_contract["name"] = contract_title
-#     data_contract["version"] = contract_version
-#     data_contract["status"] = contract_status
-#     data_contract["domain"] = product_domain
-#     data_contract["dataProduct"] = "flight data products"
-#     data_contract["tenant"] = "boeing airlines"
-#     description = {
-#         "purpose": "Tables with test data for testing",
-#         "limitations": None, # None ensures a null in the data contract
-#         "usage": None # None ensures a null in the data contract
-#     }
-#     data_contract["description"] = description
-#     data_contract["tags"] = tags
-#     return data_contract
-
-
-# # Apply metadata updates to the ODCS YAML contract
-# data_contract_odcs_yaml = update_odcs_domain_status(data_contract_odcs_yaml, data_contract_title, data_contract_version, product_domain, contract_status, data_contract_tags)
-
-# COMMAND ----------
-
-print(contract_metadata_input)
-
-# COMMAND ----------
-
 # DBTITLE 1,Update ODCS Metadata (Custom)
 def update_odcs_domain_status(data_contract, contract_metadata_input):
     """
@@ -450,12 +376,15 @@ def update_odcs_domain_status(data_contract, contract_metadata_input):
     like tags, tenant, and data product name. It also includes a default description structure 
     for purpose, limitations, and usage.
     Args:
-        data_contract (dict): The ODCS data contract dictionary to update.
-        contract_title (str): Title of the data contract.
-        contract_version (str): Version string for the contract (e.g., "1.0.0").
-        product_domain (str): The business domain the data contract belongs to.
-        contract_status (str): Status of the contract (e.g., "active", "inactive").
-        tags (list): A list of string tags associated with the contract.
+        The contract_metadata_input list contains the following:
+        - data_contract (dict): The ODCS data contract dictionary to update.
+        - contract_version (str): Version string for the contract (e.g., "1.0.0").
+        - contract_status (str): Status of the contract (e.g., "active", "inactive").
+        - contract_title (str): Title of the data contract.
+        - contract_domain (str): The business domain the data contract belongs to.
+        - contract_tenant (str): The assicated airline company.
+        - contract_description (str): The high level description for the data contract.
+        - contract_tags (list): A list of string tags associated with the contract.
     Returns:
         dict: The updated data contract dictionary with domain and metadata fields populated.
     """
@@ -477,12 +406,13 @@ data_contract_odcs_yaml = update_odcs_domain_status(data_contract_odcs_yaml, con
 # COMMAND ----------
 
 # DBTITLE 1,Update ODCS Server Configuration (Custom)
-def update_odcs_server_config(data_contract, environment, dbricks_instance, catalog, schema):
+def update_odcs_server_config(data_contract, catalog, schema, server_metadata_input):
     """
     Updates the server configuration block in an ODCS data contract.
     This sets the Unity Catalog environment details such as server type, host URL, 
     catalog, and schema used for the data contract.
     Args:
+        The server_metadata_input list contains the following:
         data_contract (dict): The ODCS data contract dictionary to update.
         environment (str): The target environment name (e.g., "development", "production").
         dbricks_instance (str): The Databricks workspace URL.
@@ -491,29 +421,31 @@ def update_odcs_server_config(data_contract, environment, dbricks_instance, cata
     Returns:
         dict: The updated data contract dictionary with server configuration populated.
     """
-    updated_server_config = {
-        "server": environment,
-        "type": server_config_type,
-        "host": databricks_instance,
-        "catalog": catalog,
-        "schema": schema
-    }
+    for metadata in server_metadata_input:
+        updated_server_config = {
+            "server": metadata["environment"],
+            "type": metadata["server_config_type"],
+            "host": metadata["databricks_instance"],
+            "catalog": catalog,
+            "schema": schema
+        }
     data_contract["servers"] = [updated_server_config]
     return data_contract
 
 
 # Update the server configuration in the ODCS data contract
-data_contract_odcs_yaml = update_odcs_server_config(data_contract_odcs_yaml, environment, databricks_instance, catalog, schema)
+data_contract_odcs_yaml = update_odcs_server_config(data_contract_odcs_yaml, catalog, schema, server_metadata_input)
 
 # COMMAND ----------
 
 # DBTITLE 1,Update ODCS Support Channel (Custom)
-def update_odcs_support_channel(data_contract, channel, tool, scope, url, description=None, invitation_url=None):
+def update_odcs_support_channel(data_contract, support_channel_metadata_input):
     """
     Appends a support channel configuration to the ODCS data contract.
     This allows specifying support or communication channels (e.g., Teams, Email) 
     that users of the data product can use for help, announcements, or collaboration.
     Args:
+        The support_channel_metadata_input list contains the following:
         data_contract (dict): The ODCS data contract dictionary to update.
         channel (str): The name or label of the support channel (e.g., "DAS Teams Channel").
         tool (str): The communication tool used (e.g., "teams", "email").
@@ -524,24 +456,28 @@ def update_odcs_support_channel(data_contract, channel, tool, scope, url, descri
     Returns:
         dict: The updated data contract dictionary with a new support channel entry.
     """
-    updated_support_channel_config = {
-        "channel": channel,
-        "tool": tool,
-        "scope": scope,
-        "url": url
-    }
-    if description:
-        updated_support_channel_config["description"] = [description]
-    if invitation_url:
-        updated_support_channel_config["invitationUrl"] = invitation_url
-    # Append to the list of support channels (initialize if not present)
-    data_contract.setdefault("support", []).append(updated_support_channel_config)
+    existing_channels = data_contract.setdefault("support", [])
+    for metadata in support_channel_metadata_input:
+        updated_support_channel_config = {
+            "channel": metadata["channel"],
+            "tool": metadata["tool"],
+            "scope": metadata["scope"],
+            "url": metadata["url"]
+        }
+        if "description" in metadata:
+            updated_support_channel_config["description"] = metadata["description"]
+        if "invitation_url" in metadata:
+            updated_support_channel_config["invitationUrl"] = metadata["invitation_url"]
+        # Append to the list of support channels (initialize if not present)
+        if json.dumps(updated_support_channel_config) not in json.dumps(existing_channels):
+            data_contract.setdefault("support", []).append(updated_support_channel_config)
+            print(f"appended '{updated_support_channel_config}' to data contract")
+        else: print(f"already appended '{updated_support_channel_config}' to data contract")
     return data_contract
   
+
 # Add support channels to the ODCS data contract
-data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "DAS Teams Channel", "teams", "interactive", "https://teams.microsoft.com/channel/das")
-data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "DAS Teams Channel", "teams", "announcements", "https://teams.microsoft.com/channel/das/announcements")
-data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "DAS Email", "email", "announcements", "mailto:dasteam@boeing.com", description= "Team email for all team announcements")
+data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, support_channel_metadata_input)
 
 # COMMAND ----------
 
