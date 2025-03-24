@@ -1,0 +1,31 @@
+- check:
+    arguments:
+      col_name: transaction_id
+    function: is_not_null
+  criticality: error
+  name: transaction_id_is_null
+- check:
+    arguments:
+      col_name: customer_id
+    function: is_not_null
+  criticality: error
+  name: customer_id_is_null
+- check:
+    arguments:
+      col_name: amount
+    function: is_not_null
+  criticality: error
+  name: amount_is_null
+- check:
+    arguments:
+      col_name: transaction_date
+    function: is_not_null
+  criticality: error
+  name: transaction_date_is_null
+- check:
+    arguments:
+      col_name: item
+      trim_strings: true
+    function: is_not_null_and_not_empty
+  criticality: error
+  name: item_is_null_or_empty
