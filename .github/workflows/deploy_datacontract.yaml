@@ -90,8 +90,8 @@ jobs:
           echo "USER_NAME: $USER_NAME"
       
           # Optionally make them available to later steps
-          echo "DATABRICKS_HOST=$DATABRICKS_HOST >> $GITHUB_ENV"
-          echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN >> $GITHUB_ENV"
+          echo "DATABRICKS_HOST=$DATABRICKS_HOST" >> $GITHUB_ENV
+          echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN" >> $GITHUB_ENV
           echo "TARGET=$TARGET" >> $GITHUB_ENV
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           echo "ODCS_CONTRACT_CATALOG=$ODCS_CONTRACT_CATALOG" >> $GITHUB_ENV
@@ -101,14 +101,13 @@ jobs:
 
 
       - name: Setup Databricks Asset Bundles Authentication
-        working-directory: .  
         run: |
           set -x
           echo "Creating $DATABRICKS_CFG_PATH"
           CONFIG_FILE=$DATABRICKS_CFG_PATH
           echo "[DEFAULT]" > "$CONFIG_FILE"
           echo "host=$DATABRICKS_HOST" >> "$CONFIG_FILE"
-          echo "token=$$DATABRICKS_TOKEN" >> "$CONFIG_FILE"
+          echo "token=$DATABRICKS_TOKEN" >> "$CONFIG_FILE"
           cat "$CONFIG_FILE"
 
 
