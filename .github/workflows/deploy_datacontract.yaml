@@ -5,6 +5,14 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
+      DATABRICKS_HOST: # variable
+        description: 'Databricks Host URL:'
+        required: False
+        default: ''
+      DATABRICKS_TOKEN: # variable
+        description: 'Databricks Personal Access Token (PAT):'
+        required: False
+        default: ''
       ENVIRONMENT: # variable
         description: 'Deploy Environment (dev/test/prod)'
         required: true
@@ -34,28 +42,29 @@ jobs:
       - uses: databricks/setup-cli@main
       - uses: actions/setup-python@v4
 
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
 
+
       - name: Pip Install Requirements
         run: pip install -r requirements.txt
 
-      - name: Setup Databricks Asset Bundles Authentication
-        working-directory: .  
-        run: |
-          set -x
-          echo "Creating $DATABRICKS_CFG_PATH"
-          CONFIG_FILE=$DATABRICKS_CFG_PATH
-          echo "[DEFAULT]" > "$CONFIG_FILE"
-          echo "host=${{ secrets.DATABRICKS_HOST }}" >> "$CONFIG_FILE"
-          echo "token=${{ secrets.DATABRICKS_TOKEN }}" >> "$CONFIG_FILE"
-          cat "$CONFIG_FILE"
 
       - name: Setup Environment Variables
         run: |
           set -x
+
+          # Get Databricks host url
+          DATABRICKS_HOST="${{ github.event.inputs.DATABRICKS_HOST || secrets.DATABRICKS_HOST }}"
+          echo "DATABRICKS_HOST: $DATABRICKS_HOST"
+
+          # Get Databricks personal access token (PAT)
+          DATABRICKS_TOKEN="${{ github.event.inputs.DATABRICKS_TOKEN || secrets.DATABRICKS_TOKEN }}"
+          echo "DATABRICKS_TOKEN: $DATABRICKS_TOKEN
+
           # Get target environment for DABs
           TARGET="${{ github.event.inputs.ENVIRONMENT || 'dev' }}"
           echo "TARGET: $TARGET"
@@ -81,12 +90,27 @@ jobs:
           echo "USER_NAME: $USER_NAME"
       
           # Optionally make them available to later steps
+          echo "DATABRICKS_HOST=$DATABRICKS_HOST >> $GITHUB_ENV"
+          echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN >> $GITHUB_ENV"
           echo "TARGET=$TARGET" >> $GITHUB_ENV
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           echo "ODCS_CONTRACT_CATALOG=$ODCS_CONTRACT_CATALOG" >> $GITHUB_ENV
           echo "ODCS_CONTRACT_SCHEMA=$ODCS_CONTRACT_SCHEMA" >> $GITHUB_ENV
           echo "USER_EMAIL=$USER_EMAIL" >> $GITHUB_ENV
           echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
+
+
+      - name: Setup Databricks Asset Bundles Authentication
+        working-directory: .  
+        run: |
+          set -x
+          echo "Creating $DATABRICKS_CFG_PATH"
+          CONFIG_FILE=$DATABRICKS_CFG_PATH
+          echo "[DEFAULT]" > "$CONFIG_FILE"
+          echo "host=${DATABRICKS_HOST}" >> "$CONFIG_FILE"
+          echo "token=${$DATABRICKS_TOKEN}" >> "$CONFIG_FILE"
+          cat "$CONFIG_FILE"
+
 
       - name: Create Create Contracts Databricks Workflow Templates
         run: |
