@@ -1,8 +1,6 @@
 name: Deploy Databricks Contracts Workflows
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       DATABRICKS_HOST: # variable
