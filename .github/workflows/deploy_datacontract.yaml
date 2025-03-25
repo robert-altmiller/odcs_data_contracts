@@ -24,11 +24,11 @@ on:
       ODCS_CONTRACT_CATALOG: # variable
         description: 'ODCS Contract Databricks Catalog'
         required: true
-        default: 'hive_metastore'
+        default: 'uc_demos_charles_chen'
       ODCS_CONTRACT_SCHEMA: # variable
         description: 'ODCS Contract Databricks Schema'
         required: true
-        default: 'default'
+        default: 'dbdemos_sharing_airlinedata'
 
 jobs:
   deploy:
