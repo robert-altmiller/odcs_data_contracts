@@ -11,15 +11,9 @@ resources:
               schema: ${var.odcs_contract_schema}
               yaml_folder_path: {{ params.yaml_folder_path }}
               csv_folder_path: {{ params.csv_folder_path }}
-              product_domain: {{ params.product_domain }}
               parquet_folder_path: {{ params.parquet_folder_path }}
-              data_contract_version: {{ params.data_contract_version }}
               sql_folder_path: {{ params.sql_folder_path }}
               avro_folder_path: {{ params.avro_folder_path }}
-              server_config_type: {{ params.server_config_type }}
-              data_contract_description: {{ params.data_contract_description }}
-              contract_status: {{ params.contract_status }}
-              data_contract_title: {{ params.data_contract_title }}
             source: GIT
           job_cluster_key: Job_cluster
 
