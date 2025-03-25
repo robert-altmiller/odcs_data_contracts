@@ -32,7 +32,7 @@ targets:
       pipelines_development: true
       trigger_pause_status: UNPAUSED
     workspace:
-      host: https://adb-5809742986594827.7.azuredatabricks.net
+      host: https://e2-demo-field-eng.cloud.databricks.com/
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     run_as:
       user_name: ${var.user_email}
