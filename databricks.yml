@@ -8,9 +8,6 @@ variables:
   branch_name:
     default: default
     description: Default branch name
-  databricks_host:
-    default: default
-    description: Default Databricks host
   user_name:
     default: default
     description: Default user name
