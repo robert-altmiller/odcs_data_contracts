@@ -58,11 +58,11 @@ jobs:
           set -x
 
           # Get Databricks host url
-          DATABRICKS_HOST="${{ github.event.inputs.DATABRICKS_HOST || secrets.DATABRICKS_HOST }}"
+          DATABRICKS_HOST="${{ secrets.DATABRICKS_HOST || github.event.inputs.DATABRICKS_HOST  }}"
           echo "DATABRICKS_HOST: $DATABRICKS_HOST"
 
           # Get Databricks personal access token (PAT)
-          DATABRICKS_TOKEN="${{ github.event.inputs.DATABRICKS_TOKEN || secrets.DATABRICKS_TOKEN }}"
+          DATABRICKS_TOKEN="${{ secrets.DATABRICKS_TOKEN || github.event.inputs.DATABRICKS_TOKEN }}"
           echo "DATABRICKS_TOKEN: $DATABRICKS_TOKEN"
 
           # Get target environment for DABs
