@@ -30,7 +30,7 @@ resources:
             spark_env_vars:
               PYSPARK_PYTHON: /databricks/python3/bin/python3
             enable_elastic_disk: true
-            data_security_mode: LEGACY_SINGLE_USER_STANDARD
+            data_security_mode: USER_ISOLATION
             runtime_engine: PHOTON
             num_workers: 2
 
