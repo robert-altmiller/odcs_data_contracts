@@ -107,8 +107,8 @@ jobs:
           echo "Creating $DATABRICKS_CFG_PATH"
           CONFIG_FILE=$DATABRICKS_CFG_PATH
           echo "[DEFAULT]" > "$CONFIG_FILE"
-          echo "host=${DATABRICKS_HOST}" >> "$CONFIG_FILE"
-          echo "token=${$DATABRICKS_TOKEN}" >> "$CONFIG_FILE"
+          echo "host=$DATABRICKS_HOST" >> "$CONFIG_FILE"
+          echo "token=$$DATABRICKS_TOKEN" >> "$CONFIG_FILE"
           cat "$CONFIG_FILE"
 
 
