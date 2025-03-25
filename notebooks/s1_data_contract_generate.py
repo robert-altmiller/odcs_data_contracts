@@ -122,8 +122,10 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
                 df.toPandas().to_csv(file_path, index=False)
                 print(f"✅ CSV file saved at: {file_path}")
             elif method == "parquet":
-                df.write.parquet(file_path)
-                #df.toPandas().to_parquet(file_path)
+                df_parquet = df.toPandas()
+                df_parquet.attrs.clear() # 🔥 Clears non-serializable metadata
+                df_parquet.to_parquet(file_path)
+                print(f"✅ PARQUET file saved at: {file_path}")
                 print(f"✅ PARQUET file saved at: {file_path}")
             elif method == "sql":
                 sql_ddl = get_uc_table_ddl(catalog, schema, table)
@@ -174,8 +176,10 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
     for table, table_desc in uc_tables_dict.items():
         try:
             # Try to import data contract model from file; skip if the file doesn't exist or is empty (e.g. empty table)
+            source = f"{folder_path}/{table}.{method}"
+            print(f"reading local table: {source}")
             data_contracts_table = data_contract_obj.import_from_source(
-                format=method, source=f"{folder_path}/{table}.{method}"
+                format=method, source=f"{source}"
             )
         except:
             continue
