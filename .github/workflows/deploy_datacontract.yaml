@@ -112,6 +112,9 @@ jobs:
       - name: Create Create Contracts Databricks Workflow Templates
         run: |
           python3 resources/python/inject_base_params.py
+          cat resources/workflows/data_contract_create.yml
+          cat resources/workflows/data_contract_deploy.yml
+
 
       - name: Validate and Deploy Databricks Asset Bundles
         working-directory: .  
