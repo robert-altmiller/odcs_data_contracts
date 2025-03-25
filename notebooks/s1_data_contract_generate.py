@@ -122,7 +122,8 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
                 df.toPandas().to_csv(file_path, index=False)
                 print(f"✅ CSV file saved at: {file_path}")
             elif method == "parquet":
-                df.toPandas().to_parquet(file_path)
+                df.write.parquet(file_path)
+                #df.toPandas().to_parquet(file_path)
                 print(f"✅ PARQUET file saved at: {file_path}")
             elif method == "sql":
                 sql_ddl = get_uc_table_ddl(catalog, schema, table)
