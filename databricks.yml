@@ -6,16 +6,19 @@ include:
 
 variables:
   branch_name:
-    default: main
+    default: default
     description: Default branch name
+  databricks_host:
+    default: default
+    description: Default Databricks host
   user_name:
-    default: Robert Altmiller
+    default: default
     description: Default user name
   user_email:
-    default: robert.altmiller@databricks.com
+    default: default
     description: Default user email
   odcs_contract_catalog:
-    default: hive_metastore
+    default: default
     description: Default ODCS catalog
   odcs_contract_schema:
     default: default
@@ -32,7 +35,7 @@ targets:
       pipelines_development: true
       trigger_pause_status: UNPAUSED
     workspace:
-      host: https://adb-1209901303365609.9.azuredatabricks.net #https://adb-5809742986594827.7.azuredatabricks.net
+      host: ${databricks_host} #https://adb-1209901303365609.9.azuredatabricks.net #https://adb-5809742986594827.7.azuredatabricks.net
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     run_as:
       user_name: ${var.user_email}
