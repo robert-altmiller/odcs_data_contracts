@@ -102,7 +102,9 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
     """
     for table in uc_tables_list:
         file_name = f"{table}"
-        os.makedirs(folder_path, exist_ok=True)
+        try:
+            os.makedirs(folder_path, exist_ok=True)
+        except: os.makedirs(folder_path.replace("/dbfs", ""), exist_ok=True)
 
         df = spark.read.table(f"{catalog}.{schema}.{table}").limit(5)
         file_path = f"{folder_path}/{file_name}.{method}"
