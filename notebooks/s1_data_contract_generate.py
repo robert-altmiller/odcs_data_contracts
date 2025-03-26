@@ -148,6 +148,101 @@ for method in methods:
 
 # COMMAND ----------
 
+# DBTITLE 1,Generate ODCS Base Contract
+def generate_odcs_base_contract(data_contract):
+    """
+    Converts a unified DataContract object into an ODCS-compatible YAML dictionary.
+    This function takes a DataContract object, serializes it to YAML, reinitializes it, 
+    and then exports it in the "odcs" format. The final result is parsed into a Python 
+    dictionary for further use (e.g., YAML file creation or API submission).
+    Args:
+        data_contract (DataContract): The unified DataContract object containing multiple models.
+    Returns:
+        dict: A dictionary representing the ODCS-compatible data contract in YAML format.
+    """
+    # Serialize the DataContract object to a YAML string
+    data_contract_yaml = data_contract.to_yaml()
+    # Reinitialize a DataContract object using the YAML string and export to "odcs" format
+    data_contract_odcs = DataContract(data_contract_str=data_contract_yaml, spark=spark).export("odcs")
+    # Convert the ODCS YAML string to a Python dictionary
+    data_contract_odcs_yaml = yaml.safe_load(data_contract_odcs)
+    return data_contract_odcs_yaml
+
+
+# Generate the final ODCS-compatible YAML for the combined data contract
+data_contract_odcs_yaml = generate_odcs_base_contract(data_contracts_combined)
+
+# COMMAND ----------
+
+# DBTITLE 1,Create Data Contracts For Each Table and Combine (Old)
+# def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, method="csv"):
+#     """
+#     Combines multiple data contract models into a single data contract object.
+#     This function iterates through a dictionary of table names and descriptions, importing
+#     data contract models from files (e.g., CSV, Parquet, SQL, or Avro) located at the 
+#     specified folder path. Each model's table and column level descriptions are updated based 
+#     on the input dictionary.
+#     Args:
+#         catalog (str): Catalog in which the tables are located.
+#         schema (str): Schema in which the tables are located.
+#         uc_tables_dict (dict): Dictionary where keys are table names and values are their descriptions.
+#         folder_path (str): Path to the folder containing the serialized data contract files.
+#         method (str, optional): The file format to use for importing data contract models.
+#                                 Supported values are "csv", "parquet", "avro", and "sql".
+#                                 Defaults to "csv".
+#     Returns:
+#         tuple:
+#             - data_contracts_table_first (DataContract): A single DataContract object combining all imported models.
+#             - data_contracts_dict (dict): Dictionary of individual table-level DataContract objects.
+#     """
+#     data_contracts_dict = {}
+#     counter = 0
+
+#     for table, table_desc in uc_tables_dict.items():
+#         try:
+#             # Try to import data contract model from file; skip if the file doesn't exist or is empty (e.g. empty table)
+#             source = f"{folder_path}/{table}.{method}"
+#             print(f"reading local table: {source}")
+#             data_contracts_table = data_contract_obj.import_from_source(
+#                 format=method, source=f"{source}"
+#             )
+#         except:
+#             continue
+
+#         # Get table column level comments
+#         # column_comments() Python function is in the helpers notebook
+#         column_comments = get_column_comments(catalog, schema, table)
+
+#         # Get table and column level tags
+#         # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
+#         tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
+#         col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
+
+#         # Update table and column level descriptions
+#         for model_name, model in data_contracts_table.models.items():
+#             model.description = table_desc # Table level description
+#             model.tags = tbl_tags["tags"][table]
+#             for col in model.fields:
+#                 model.fields[col].description = column_comments[f"{catalog}.{schema}.{table}"][col] # Column level descriptions
+#                 model.fields[col].tags = col_tags["tags"][col]
+#         data_contracts_dict[table] = data_contracts_table
+
+#         if counter == 0:
+#             data_contracts_table_first = data_contracts_table
+#         else:
+#             # Merge models into the first data contract object
+#             data_contracts_table_first.models.update(data_contracts_table.models)
+
+#         counter += 1
+
+#     return data_contracts_table_first, data_contracts_dict
+
+
+# method = "parquet" # or csv or parquet or sql
+# data_contracts_combined, data_contracts_dict = combine_data_contract_models(catalog, schema, tables_with_desc_dict, folder_path_dict[method], method = method)
+
+# COMMAND ----------
+
 # DBTITLE 1,Create Data Contracts For Each Table and Combine
 def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, method="csv"):
     """
@@ -177,9 +272,7 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
             # Try to import data contract model from file; skip if the file doesn't exist or is empty (e.g. empty table)
             source = f"{folder_path}/{table}.{method}"
             print(f"reading local table: {source}")
-            data_contracts_table = data_contract_obj.import_from_source(
-                format=method, source=f"{source}"
-            )
+            data_contracts_table = generate_odcs_base_contract(data_contract_obj.import_from_source(format=method, source=f"{source}"))
         except:
             continue
 
@@ -191,21 +284,23 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
         # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
         tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
         col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
-
-        # Update table and column level descriptions
-        for model_name, model in data_contracts_table.models.items():
-            model.description = table_desc # Table level description
-            model.tags = tbl_tags["tags"][table]
-            for col in model.fields:
-                model.fields[col].description = column_comments[f"{catalog}.{schema}.{table}"][col] # Column level descriptions
-                model.fields[col].tags = col_tags["tags"][col]
+        
+        # Update schema properties
+        schema_obj = data_contracts_table["schema"][0] # Hold constant per table
+        schema_obj["description"] = table_desc # Table level description
+        schema_obj["tags"] = tbl_tags["tags"][table]
+        for col in schema_obj["properties"]:
+            col["description"] = column_comments[f"{catalog}.{schema}.{table}"][col["name"]] # Column level descriptions
+            col["tags"] = col_tags["tags"][col["name"]]
+        
+        data_contracts_table = replace_none_with_empty_string_in_json(data_contracts_table)
         data_contracts_dict[table] = data_contracts_table
 
         if counter == 0:
             data_contracts_table_first = data_contracts_table
         else:
             # Merge models into the first data contract object
-            data_contracts_table_first.models.update(data_contracts_table.models)
+            data_contracts_table_first["schema"].extend(data_contracts_table["schema"])
 
         counter += 1
 
@@ -214,32 +309,6 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
 
 method = "parquet" # or csv or parquet or sql
 data_contracts_combined, data_contracts_dict = combine_data_contract_models(catalog, schema, tables_with_desc_dict, folder_path_dict[method], method = method)
-
-# COMMAND ----------
-
-# DBTITLE 1,Generate ODCS Base Contract
-def generate_odcs_base_contract(data_contract):
-    """
-    Converts a unified DataContract object into an ODCS-compatible YAML dictionary.
-    This function takes a DataContract object, serializes it to YAML, reinitializes it, 
-    and then exports it in the "odcs" format. The final result is parsed into a Python 
-    dictionary for further use (e.g., YAML file creation or API submission).
-    Args:
-        data_contract (DataContract): The unified DataContract object containing multiple models.
-    Returns:
-        dict: A dictionary representing the ODCS-compatible data contract in YAML format.
-    """
-    # Serialize the DataContract object to a YAML string
-    data_contract_yaml = data_contract.to_yaml()
-    # Reinitialize a DataContract object using the YAML string and export to "odcs" format
-    data_contract_odcs = DataContract(data_contract_str=data_contract_yaml, spark=spark).export("odcs")
-    # Convert the ODCS YAML string to a Python dictionary
-    data_contract_odcs_yaml = yaml.safe_load(data_contract_odcs)
-    return data_contract_odcs_yaml
-
-
-# Generate the final ODCS-compatible YAML for the combined data contract
-data_contract_odcs_yaml = generate_odcs_base_contract(data_contracts_combined)
 
 # COMMAND ----------
 
@@ -375,7 +444,7 @@ def update_data_quality_rules(data_contract, catalog, schema, custom_dq_rules_in
 
 
 # Apply data quality rules to the ODCS YAML contract
-data_contract_odcs_yaml = update_data_quality_rules(data_contract_odcs_yaml, catalog, schema, custom_dq_rules_input)
+data_contract_odcs_yaml = update_data_quality_rules(data_contracts_combined, catalog, schema, custom_dq_rules_input)
 
 # COMMAND ----------
 
