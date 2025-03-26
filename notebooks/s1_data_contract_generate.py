@@ -189,7 +189,7 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
 
         # Get table and column level tags
         # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
-        tbl_tags = tag_dict_to_list(get_data_contract_table_tags(catalog, schema, table))
+        tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
         col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
 
         # Update table and column level descriptions
@@ -407,7 +407,7 @@ def update_odcs_domain_status(data_contract, contract_metadata_input):
         data_contract["dataProduct"] = metadata["contract_data_product"]
         data_contract["tenant"] = metadata["contract_tenant"]
         data_contract["description"] = metadata["contract_description"]
-        data_contract["tags"] = metadata["contract_tags"]
+        data_contract["tags"] = tag_dict_to_list(get_data_contract_tags(catalog, schema))["tags"][schema] # OR metadata["contract_tags"]
     return data_contract
 
 
