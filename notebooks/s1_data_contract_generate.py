@@ -187,11 +187,18 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
         # column_comments() Python function is in the helpers notebook
         column_comments = get_column_comments(catalog, schema, table)
 
+        # Get table and column level tags
+        # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
+        tbl_tags = tag_dict_to_list(get_data_contract_table_tags(catalog, schema, table))
+        col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
+
         # Update table and column level descriptions
         for model_name, model in data_contracts_table.models.items():
             model.description = table_desc # Table level description
+            model.tags = tbl_tags["tags"][table]
             for col in model.fields:
                 model.fields[col].description = column_comments[f"{catalog}.{schema}.{table}"][col] # Column level descriptions
+                model.fields[col].tags = col_tags["tags"][col]
         data_contracts_dict[table] = data_contracts_table
 
         if counter == 0:
