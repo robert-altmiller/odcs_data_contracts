@@ -1,0 +1,8 @@
+[
+  {
+    "sales_db": {"data_owner": "alice@databricks.com", "domain": "sales", "pii_data": "true"},
+    "sales_db.public": {"retention_policy": "3_years", "domain": "customer_data"},
+    "sales_db.public.customers": {"classification": "confidential"},
+    "sales_db.public.customers.email": {"sensitivity": "high", "pii": "true"}
+  }
+]
