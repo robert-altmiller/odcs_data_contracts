@@ -126,7 +126,6 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
                 df_parquet.attrs.clear() # 🔥 Clears non-serializable metadata
                 df_parquet.to_parquet(file_path)
                 print(f"✅ PARQUET file saved at: {file_path}")
-                print(f"✅ PARQUET file saved at: {file_path}")
             elif method == "sql":
                 sql_ddl = get_uc_table_ddl(catalog, schema, table)
                 with open(file_path, "w+") as out:
