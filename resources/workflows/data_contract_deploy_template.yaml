@@ -58,8 +58,8 @@ resources:
             num_workers: 2
 
       git_source:
-        git_url: {{ params.git_source }}
-        git_provider: {{ params.git_repo_url }}
+        git_url: {{ params.git_repo_url }} 
+        git_provider: {{ params.git_source }}
         git_branch: {{ params.git_branch }}
       
       queue:
