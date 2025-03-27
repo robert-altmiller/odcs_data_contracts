@@ -1,0 +1,27 @@
+[
+    {
+        "property": "data_freshness",
+        "value": 7,
+        "unit": "d",
+        "element": "tax_table"
+    },
+    {
+        "property": "retention",
+        "value": 3,
+        "unit": "y",
+        "element": "tax_table.tax_id_ref_date"
+    },
+    {
+        "property": "frequency",
+        "value": 1,
+        "valueExt": 1,
+        "unit": "d",
+        "element": "tax_table.taxid_ref_date"
+    },
+    {
+        "property": "timeOfAvailability",
+        "value": "08:00-08:00",
+        "element": "tax_table.taxid_ref_date",
+        "driver": "analytics"
+    }
+]
