@@ -13,11 +13,23 @@ resources:
             source: GIT
           job_cluster_key: Job_cluster
 
-        - task_key: Data_Contract_Data
+        - task_key: Data_Contract_Tags
           depends_on:
             - task_key: Data_Contract_Tables
           notebook_task:
-            notebook_path: notebooks/s3_data_contract_deploy_data
+            notebook_path: notebooks/s3_data_contract_deploy_tags
+            base_parameters:
+              {% raw %}source_catalog: "{{tasks.Data_Contract_Tables.values.data_contract_filename_catalog}}"
+              source_schema: "{{tasks.Data_Contract_Tables.values.data_contract_filename_schema}}"
+              yaml_file_path: "{{tasks.Data_Contract_Tables.values.yaml_file_path}}"{% endraw %}
+            source: GIT
+          job_cluster_key: Job_cluster
+
+        - task_key: Data_Contract_Data
+          depends_on:
+            - task_key: Data_Contract_Tags
+          notebook_task:
+            notebook_path: notebooks/s4_data_contract_deploy_data
             base_parameters:
               target_schema: {{ params.target_schema }}
               {% raw %}source_schema: "{{tasks.Data_Contract_Tables.values.data_contract_filename_schema}}"
@@ -30,7 +42,7 @@ resources:
           depends_on:
             - task_key: Data_Contract_Data
           notebook_task:
-            notebook_path: notebooks/s4_data_contract_dq_checks
+            notebook_path: notebooks/s5_data_contract_dq_checks
             base_parameters:
               dq_folder_path: "{{ params.base_volumes_path }}/{{ params.dq_folder_path }}"
               {% raw %}dq_catalog: "{{tasks.Data_Contract_Tables.values.data_contract_filename_catalog}}"
@@ -61,6 +73,6 @@ resources:
         git_url: {{ params.git_repo_url }} 
         git_provider: {{ params.git_source }}
         git_branch: {{ params.git_branch }}
-      
+
       queue:
         enabled: true
