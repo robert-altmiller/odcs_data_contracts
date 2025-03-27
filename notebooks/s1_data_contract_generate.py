@@ -71,10 +71,6 @@ tables_list, tables_with_desc_dict = list_tables_in_schema(catalog, schema)
 
 # COMMAND ----------
 
-dbutils.fs.ls("/mnt/bronze/data_contracts/avro_data")
-
-# COMMAND ----------
-
 # DBTITLE 1,Read the Tables and Save as CSV File
 def get_uc_table_ddl(catalog, schema, table):
     """
