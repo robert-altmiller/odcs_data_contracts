@@ -24,6 +24,8 @@ source_schema = dbutils.widgets.get("source_schema")
 
 dbutils.widgets.text("target_schema", "default4")
 target_schema = dbutils.widgets.get("target_schema")
+# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
+dbutils.jobs.taskValues.set(key="target_schema", value=target_schema) 
 
 
 # Get a list of the tables in a Catalog.Schema

@@ -52,18 +52,18 @@ sql_folder_path = dbutils.widgets.get("sql_folder_path")
 dbutils.widgets.text("yaml_folder_path", "./data_contracts_data")  # should be a volume
 yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="yaml_folder_path", value=yaml_folder_path) 
+#dbutils.jobs.taskValues.set(key="yaml_folder_path", value=yaml_folder_path) 
 
 # Catalog and schema parameters
 dbutils.widgets.text("catalog", "hive_metastore")
 catalog = dbutils.widgets.get("catalog")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="catalog", value=catalog) 
+#dbutils.jobs.taskValues.set(key="catalog", value=catalog) 
 
 dbutils.widgets.text("schema", "default")
 schema = dbutils.widgets.get("schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="schema", value=schema) 
+#dbutils.jobs.taskValues.set(key="schema", value=schema) 
 
 # Get a list of the tables in a Catalog.Schema
 # list_tables_in_schema() Python function is in the helpers notebook
