@@ -71,6 +71,10 @@ tables_list, tables_with_desc_dict = list_tables_in_schema(catalog, schema)
 
 # COMMAND ----------
 
+dbutils.fs.ls("/mnt/bronze/data_contracts/avro_data")
+
+# COMMAND ----------
+
 # DBTITLE 1,Read the Tables and Save as CSV File
 def get_uc_table_ddl(catalog, schema, table):
     """
@@ -102,9 +106,11 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
     """
     for table in uc_tables_list:
         file_name = f"{table}"
-        dbutils.fs.mkdirs(folder_path)
-        # folder_path = folder_path.replace("/dbfs", "")
-        # os.makedirs(folder_path, exist_ok=True)
+        if is_running_in_databricks_workflow():
+            print("running in databricks workflow")
+            dbutils.fs.mkdirs(folder_path)
+            folder_path = folder_path.replace("/dbfs", "")
+        else: os.makedirs(folder_path, exist_ok=True)
 
         df = spark.read.table(f"{catalog}.{schema}.{table}").limit(5)
         file_path = f"{folder_path}/{file_name}.{method}"
