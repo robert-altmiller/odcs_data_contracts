@@ -106,11 +106,7 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
     """
     for table in uc_tables_list:
         file_name = f"{table}"
-        if is_running_in_databricks_workflow():
-            print("running in databricks workflow")
-            dbutils.fs.mkdirs(folder_path)
-            folder_path = folder_path.replace("/dbfs", "")
-        else: os.makedirs(folder_path, exist_ok=True)
+        os.makedirs(folder_path, exist_ok=True)
 
         df = spark.read.table(f"{catalog}.{schema}.{table}").limit(5)
         file_path = f"{folder_path}/{file_name}.{method}"
