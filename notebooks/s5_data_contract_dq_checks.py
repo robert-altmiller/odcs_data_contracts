@@ -67,7 +67,7 @@ print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}
 
 # COMMAND ----------
 
-# DBTITLE 1,Run ODCS Contract Data Quality Tests and Store in DF
+# DBTITLE 1,Run Data Quality Tests Function
 def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="data_quality.json"):
     """
     Executes data quality tests defined in an ODCS data contract and writes the results to a JSON file.
@@ -121,7 +121,9 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
 
     return df
 
+# COMMAND ----------
 
+# DBTITLE 1,Run ODCS Contract Data Quality Tests and Store in DF
 # Example usage
 dq_results_df = run_data_quality_tests(yaml_file_path, dq_path = dq_folder_path)
 

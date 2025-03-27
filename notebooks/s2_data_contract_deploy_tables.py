@@ -81,6 +81,7 @@ for query in queries_ddl_list:
             catalog = match.split(".")[0] if match else None
             schema = match.split(".")[1] if match else None
             spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.{schema}")
+            print(f"created schema {catalog}.{schema} successfully\n")
             spark.sql(query)
             continue
     print(f"COMPLETED RUNNING DDL QUERY:\n{query}\n")

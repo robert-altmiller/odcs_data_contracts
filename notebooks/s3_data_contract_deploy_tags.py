@@ -17,9 +17,6 @@ source_catalog = dbutils.widgets.get("source_catalog")
 dbutils.widgets.text("source_schema", "default")
 source_schema = dbutils.widgets.get("source_schema")
 
-dbutils.widgets.text("target_schema", "default4")
-target_schema = dbutils.widgets.get("target_schema")
-
 dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/{source_catalog}__{source_schema}.yaml")
 yaml_file_path = dbutils.widgets.get("yaml_file_path")
 
@@ -31,7 +28,7 @@ with open(yaml_file_path, 'r') as f:
 
 # COMMAND ----------
 
-# DBTITLE 1,Get Tags From Data Contract
+# DBTITLE 1,Format Tags for Databricks SQL
 def format_tags(tags_list):
     """
     Converts a list of tag strings in the format "key:value" into a dictionary.
@@ -50,6 +47,9 @@ def format_tags(tags_list):
         return tags_formatted
     except: return {} # Unable to format tags
 
+# COMMAND ----------
+
+# DBTITLE 1,Deploy Tags Using Databricks SQL
 
 def deploy_tags(level, deploy_tags_list):
     """
@@ -68,39 +68,39 @@ def deploy_tags(level, deploy_tags_list):
     except Exception as e:
         return f"Unable to deploy tags: ({e})"
 
+# COMMAND ----------
 
+# DBTITLE 1,Get Tags From Data Contract
 # Get the data contract catalog and schema
 contract_source_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
 contract_source_schema = data_contract_odcs_yaml["servers"][0]["schema"]
 
-
-if contract_source_catalog == source_catalog and contract_source_schema == source_schema: # then deploy all tags
     
-    # Deploy schema level tags
-    schema_tags_formatted = format_tags(data_contract_odcs_yaml["tags"])
-    schema_tags_deploy = {f"{source_catalog}.{source_schema}": schema_tags_formatted}
-    if schema_tags_deploy: # Created SQL alter tags stmt
-        results = deploy_tags("schema", schema_tags_deploy)
-        print(f"{results} for {source_catalog}.{source_schema}\n")
+# Deploy schema level tags
+schema_tags_formatted = format_tags(data_contract_odcs_yaml["tags"])
+schema_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}": schema_tags_formatted}
+if schema_tags_deploy: # Created SQL alter tags stmt
+    results = deploy_tags("schema", schema_tags_deploy)
+    print(f"{results} for {contract_source_catalog}.{contract_source_schema}\n")
 
 
-    # Deploy table level tags
-    schema_obj = data_contract_odcs_yaml["schema"]
-    for table_properties in schema_obj:
-        source_table = table_properties["name"]
-        table_tags_formatted = format_tags(table_properties["tags"])
-        if table_tags_formatted: # Created SQL alter tags stmt
-            table_tags_deploy = {f"{source_catalog}.{source_schema}.{source_table}": table_tags_formatted}
-            results = deploy_tags("table", table_tags_deploy)
-            print(f"{results} for {source_catalog}.{source_schema}.{source_table}\n")
+# Deploy table level tags
+schema_obj = data_contract_odcs_yaml["schema"]
+for table_properties in schema_obj:
+    source_table = table_properties["name"]
+    table_tags_formatted = format_tags(table_properties["tags"])
+    if table_tags_formatted: # Created SQL alter tags stmt
+        table_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}.{source_table}": table_tags_formatted}
+        results = deploy_tags("table", table_tags_deploy)
+        print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}\n")
 
 
-        # Deploy column level tags
-        source_table_cols = get_columns_in_table(source_catalog, source_schema, source_table)
-        for col_properties in table_properties["properties"]:
-            source_col = col_properties["name"]
-            col_tags_formatted = format_tags(col_properties["tags"])
-            if col_tags_formatted: # Created SQL alter tags stmt
-                col_tags_deploy = {f"{source_catalog}.{source_schema}.{source_table}.{source_col}": col_tags_formatted}
-                results = deploy_tags("column", col_tags_deploy)
-                print(f"{results} for {source_catalog}.{source_schema}.{source_table}.{source_col}\n")
+    # Deploy column level tags
+    source_table_cols = get_columns_in_table(contract_source_catalog, contract_source_schema, source_table)
+    for col_properties in table_properties["properties"]:
+        source_col = col_properties["name"]
+        col_tags_formatted = format_tags(col_properties["tags"])
+        if col_tags_formatted: # Created SQL alter tags stmt
+            col_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}.{source_table}.{source_col}": col_tags_formatted}
+            results = deploy_tags("column", col_tags_deploy)
+            print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}.{source_col}\n")

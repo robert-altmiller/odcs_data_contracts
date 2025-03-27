@@ -22,11 +22,8 @@ source_catalog = dbutils.widgets.get("source_catalog")
 dbutils.widgets.text("source_schema", "default")
 source_schema = dbutils.widgets.get("source_schema")
 
-
 dbutils.widgets.text("target_schema", "default4")
 target_schema = dbutils.widgets.get("target_schema")
-# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="target_schema", value=target_schema) 
 
 
 # Get a list of the tables in a Catalog.Schema
@@ -35,14 +32,23 @@ source_tables, tables_with_desc_dict = list_tables_in_schema(source_catalog, sou
 
 # COMMAND ----------
 
+print(source_tables)
+
+# COMMAND ----------
+
 # DBTITLE 1,Write Data to Catalog.Target_Schema.Tables
 for table in source_tables:
+    if table == "temp_view":
+        continue  # Skip the temp view name if it's accidentally in the list
+
     source_table_name = f"{source_catalog}.{source_schema}.{table}"
     target_table_name = f"{source_catalog}.{target_schema}.{table}"
     print(f"attempting to read table: {source_table_name}....")
+    
     df = spark.read.table(source_table_name)
-    if df.count() > 0: # then write data to target schema
+    if df.count() > 0:
         df.createOrReplaceTempView("temp_view")
         spark.sql(f"""INSERT INTO {target_table_name} SELECT * FROM temp_view""")
         print(f"inserted data into table: {target_table_name}....\n")
-    else: print(f"no data to insert into table: {target_table_name}....\n")
+    else:
+        print(f"no data to insert into table: {target_table_name}....\n")

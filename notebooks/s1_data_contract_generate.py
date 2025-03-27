@@ -168,10 +168,6 @@ def generate_odcs_base_contract(data_contract):
     data_contract_odcs_yaml = yaml.safe_load(data_contract_odcs)
     return data_contract_odcs_yaml
 
-
-# Generate the final ODCS-compatible YAML for the combined data contract
-data_contract_odcs_yaml = generate_odcs_base_contract(data_contracts_combined)
-
 # COMMAND ----------
 
 # DBTITLE 1,Create Data Contracts For Each Table and Combine (Old)
@@ -271,9 +267,10 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
         try:
             # Try to import data contract model from file; skip if the file doesn't exist or is empty (e.g. empty table)
             source = f"{folder_path}/{table}.{method}"
-            print(f"reading local table: {source}")
+            print(f"\nSTART --> reading local table: {source} <-- START")
             data_contracts_table = generate_odcs_base_contract(data_contract_obj.import_from_source(format=method, source=f"{source}"))
-        except:
+        except Exception as e:
+            print(f"No rows of data exists: {e}")
             continue
 
         # Get table column level comments
@@ -282,16 +279,26 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
 
         # Get table and column level tags
         # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
-        tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
-        col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
-        
+        try:
+            tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
+            col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
+        except Exception as e: 
+            tbl_tags = col_tags = None
+            print("unable to get table and column level tags")
+            print(e)
+
         # Update schema properties
         schema_obj = data_contracts_table["schema"][0] # Hold constant per table
         schema_obj["description"] = table_desc # Table level description
-        schema_obj["tags"] = tbl_tags["tags"][table]
+        
+        if tbl_tags != None: schema_obj["tags"] = tbl_tags["tags"][table]
+        else: schema_obj["tags"] = []
+        
         for col in schema_obj["properties"]:
             col["description"] = column_comments[f"{catalog}.{schema}.{table}"][col["name"]] # Column level descriptions
-            col["tags"] = col_tags["tags"][col["name"]]
+            
+            if col_tags != None: col["tags"] = col_tags["tags"][col["name"]]
+            else: col["tags"] = []
         
         data_contracts_table = replace_none_with_empty_string_in_json(data_contracts_table)
         data_contracts_dict[table] = data_contracts_table
@@ -476,7 +483,15 @@ def update_odcs_domain_status(data_contract, contract_metadata_input):
         data_contract["dataProduct"] = metadata["contract_data_product"]
         data_contract["tenant"] = metadata["contract_tenant"]
         data_contract["description"] = metadata["contract_description"]
-        data_contract["tags"] = tag_dict_to_list(get_data_contract_tags(catalog, schema))["tags"][schema] # OR metadata["contract_tags"]
+        
+        try:
+            data_contract["tags"] = tag_dict_to_list(get_data_contract_tags(catalog, schema))["tags"][schema] # OR 
+        except Exception as e: 
+            print("unable to get schema level tags so use manual set value in input_data -->  contract_metadata_input --> contract_metadata.json")
+            data_contract["tags"] = metadata["contract_tags"] # set manually by user
+            print(e)
+            continue
+            
     return data_contract
 
 
@@ -584,6 +599,7 @@ def save_odcs_data_contract_local(data_contract, catalog, schema, yaml_folder_pa
     yaml_file_path = f"{yaml_folder_path}/{catalog}__{schema}.yaml"
     # Remove existing file to ensure clean overwrite
     if os.path.exists(yaml_file_path):
+        print(f"removing {yaml_file_path}")
         os.remove(yaml_file_path)
     # Write YAML content to the file
     with open(yaml_file_path, "w+") as yaml_file:

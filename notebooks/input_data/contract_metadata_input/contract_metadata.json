@@ -11,6 +11,6 @@
       "limitations": "",
       "usage": ""
     },
-    "contract_tags": ["flight", "das"]
+    "contract_tags": ["team:flight", "scope:das"]
   }
 ]
