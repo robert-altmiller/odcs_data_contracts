@@ -592,7 +592,6 @@ def update_odcs_sla_metadata(data_contract, sla_metadata_input):
             - unit (str, optional): Unit of measurement.
             - element (str, optional): Associated element.
             - driver (str, optional): The driver for the SLA.
-
     Returns:
         dict: The updated data contract dictionary with new SLA metadata.
     """
