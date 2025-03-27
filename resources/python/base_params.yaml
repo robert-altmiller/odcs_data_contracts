@@ -20,6 +20,8 @@ dq_folder_path: "data_contracts/data_quality"
 
 #-----------------------------------------------
 
+# DBFS file paths mounted an external ADLS GEN 2 storage account
+
 # avro_folder_path: /dbfs/mnt/bronze/data_contracts/avro_data
 # csv_folder_path: /dbfs/mnt/bronze/data_contracts/csv_data
 # parquet_folder_path: /dbfs/mnt/bronze/data_contracts/parquet_data
