@@ -5,7 +5,7 @@ base_volumes_path: "/Volumes/csc_uc/csc_schema/csc_uc_csc_schema_volume"
 target_schema: default4
 
 # Workflow Git Source
-git_source: git
+git_source: gitHub
 git_repo_url: https://github.com/robert-altmiller/odcs_data_contracts.git
 git_branch: main
 
