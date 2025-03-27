@@ -87,9 +87,6 @@ def get_uc_table_ddl(catalog, schema, table):
         str: The DDL SQL statement for the specified table.
     """
     return spark.sql(f"""SHOW CREATE TABLE {catalog}.{schema}.{table};""").first()[0]
-
-
-
 def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"):
     """
     Creates local data files for given tables in specified formats (AVRO, CSV, PARQUET, SQL) and saves them to a designated folder path.
@@ -107,46 +104,43 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
     for table in uc_tables_list:
         file_name = f"{table}"
         os.makedirs(folder_path, exist_ok=True)
-
-        df = spark.read.table(f"{catalog}.{schema}.{table}").limit(5)
         file_path = f"{folder_path}/{file_name}.{method}"
-        
+        df_start = spark.read.table(f"{catalog}.{schema}.{table}").limit(5000)
+        # Use agg() with first() to get the first non-null value for each column
+        df = df_start.select([first(col(c), ignorenulls=True).alias(c) for c in df_start.columns])
         if df.count() > 0:
             if method == "avro":
                 df_avro = df.toPandas()
-                for col in df_avro.select_dtypes(include=["datetime64", "datetime", "timedelta", "object"]).columns:
-                    df_avro[col] = df_avro[col].astype(str)
+                for col_avro in df_avro.select_dtypes(include=["datetime64", "datetime", "timedelta", "object"]).columns:
+                    df_avro[col_avro] = df_avro[col_avro].astype(str)
                 avro_records = df_avro.to_dict(orient="records")
                 # infer_avro_schema() Python function is in the helpers notebook
                 avro_schema = infer_avro_schema(df_avro)
                 with open(file_path, "wb") as out:
                     fastavro.writer(out, avro_schema, avro_records)
-                print(f"✅ AVRO file saved at: {file_path}")
+                print(f":white_check_mark: AVRO file saved at: {file_path}")
             elif method == "csv":
                 df.toPandas().to_csv(file_path, index=False)
-                print(f"✅ CSV file saved at: {file_path}")
+                print(f":white_check_mark: CSV file saved at: {file_path}")
             elif method == "parquet":
                 df_parquet = df.toPandas()
-                df_parquet.attrs.clear() # 🔥 Clears non-serializable metadata (Important)
+                df_parquet.attrs.clear() # :fire: Clears non-serializable metadata (IMPORTANT)
                 df_parquet.to_parquet(file_path)
-                print(f"✅ PARQUET file saved at: {file_path}")
+                print(f":white_check_mark: PARQUET file saved at: {file_path}")
             elif method == "sql":
                 sql_ddl = get_uc_table_ddl(catalog, schema, table)
                 with open(file_path, "w+") as out:
                     out.write(sql_ddl)
-                print(f"✅ SQL file saved at: {file_path}")        
+                print(f":white_check_mark: SQL file saved at: {file_path}")
             else:
                 print(f"method ({method}) not recognized")
-
-
 folder_path_dict = {
     "avro": avro_folder_path,
     "csv": csv_folder_path,
     "parquet": parquet_folder_path,
     "sql": sql_folder_path
 }
-
-methods = ["avro", "parquet", "csv", "sql"]
+methods = ["parquet", "sql"] # OR ["avro", "parquet", "csv", "sql"]
 for method in methods:
     create_local_data(catalog, schema, tables_list, folder_path_dict[method], method = method)
 
