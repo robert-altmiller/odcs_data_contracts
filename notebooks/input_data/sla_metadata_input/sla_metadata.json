@@ -14,7 +14,7 @@
     {
         "property": "frequency",
         "value": 1,
-        "valueExt": 1,
+        "valueext": 1,
         "unit": "d",
         "element": "tax_table.taxid_ref_date"
     },

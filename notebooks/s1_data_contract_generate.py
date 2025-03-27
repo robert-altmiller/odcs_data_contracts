@@ -18,6 +18,7 @@ dbutils.library.restartPython()
 import ast, json, fastavro, os, time, yaml
 from datetime import datetime, date
 from datacontract.data_contract import DataContract
+from pyspark.sql.functions import *
 
 # Data contract object initialization
 data_contract_obj = DataContract(spark=spark)
@@ -106,8 +107,10 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
         os.makedirs(folder_path, exist_ok=True)
         file_path = f"{folder_path}/{file_name}.{method}"
         df_start = spark.read.table(f"{catalog}.{schema}.{table}").limit(5000)
+        
         # Use agg() with first() to get the first non-null value for each column
         df = df_start.select([first(col(c), ignorenulls=True).alias(c) for c in df_start.columns])
+        
         if df.count() > 0:
             if method == "avro":
                 df_avro = df.toPandas()
@@ -118,20 +121,20 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
                 avro_schema = infer_avro_schema(df_avro)
                 with open(file_path, "wb") as out:
                     fastavro.writer(out, avro_schema, avro_records)
-                print(f":white_check_mark: AVRO file saved at: {file_path}")
+                print(f"✅ AVRO file saved at: {file_path}")
             elif method == "csv":
                 df.toPandas().to_csv(file_path, index=False)
-                print(f":white_check_mark: CSV file saved at: {file_path}")
+                print(f"✅ CSV file saved at: {file_path}")
             elif method == "parquet":
                 df_parquet = df.toPandas()
                 df_parquet.attrs.clear() # :fire: Clears non-serializable metadata (IMPORTANT)
                 df_parquet.to_parquet(file_path)
-                print(f":white_check_mark: PARQUET file saved at: {file_path}")
+                print(f"✅ PARQUET file saved at: {file_path}")
             elif method == "sql":
                 sql_ddl = get_uc_table_ddl(catalog, schema, table)
                 with open(file_path, "w+") as out:
                     out.write(sql_ddl)
-                print(f":white_check_mark: SQL file saved at: {file_path}")
+                print(f"✅ SQL file saved at: {file_path}")
             else:
                 print(f"method ({method}) not recognized")
 folder_path_dict = {
@@ -265,7 +268,7 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
         try:
             # Try to import data contract model from file; skip if the file doesn't exist or is empty (e.g. empty table)
             source = f"{folder_path}/{table}.{method}"
-            print(f"\nSTART --> reading local table: {source} <-- START")
+            print(f"\n✅START✅ --> reading local table: {source} <-- ✅START✅")
             data_contracts_table = generate_odcs_base_contract(data_contract_obj.import_from_source(format=method, source=f"{source}"))
         except Exception as e:
             print(f"No rows of data exists: {e}")
@@ -454,7 +457,7 @@ data_contract_odcs_yaml = update_data_quality_rules(data_contracts_combined, cat
 # COMMAND ----------
 
 # DBTITLE 1,Update ODCS Metadata (Custom)
-def update_odcs_domain_status(data_contract, contract_metadata_input):
+def update_odcs_contract_metadata(data_contract, contract_metadata_input):
     """
     Updates the top-level metadata fields of an ODCS data contract.
     This function sets the contract’s title, version, status, domain, and additional metadata 
@@ -494,7 +497,7 @@ def update_odcs_domain_status(data_contract, contract_metadata_input):
 
 
 # Apply metadata updates to the ODCS YAML contract
-data_contract_odcs_yaml = update_odcs_domain_status(data_contract_odcs_yaml, contract_metadata_input)
+data_contract_odcs_yaml = update_odcs_contract_metadata(data_contract_odcs_yaml, contract_metadata_input)
 
 # COMMAND ----------
 
@@ -557,20 +560,69 @@ def update_odcs_support_channel(data_contract, support_channel_metadata_input):
             "scope": metadata["scope"],
             "url": metadata["url"]
         }
-        if "description" in metadata:
-            updated_support_channel_config["description"] = metadata["description"]
-        if "invitation_url" in metadata:
-            updated_support_channel_config["invitationUrl"] = metadata["invitation_url"]
+        if "description" in metadata: updated_support_channel_config["description"] = metadata["description"]
+        if "invitation_url" in metadata: updated_support_channel_config["invitationUrl"] = metadata["invitation_url"]
+        
         # Append to the list of support channels (initialize if not present)
         if json.dumps(updated_support_channel_config) not in json.dumps(existing_channels):
             data_contract.setdefault("support", []).append(updated_support_channel_config)
-            print(f"appended '{updated_support_channel_config}' to data contract")
-        else: print(f"already appended '{updated_support_channel_config}' to data contract")
+            print(f"appended support channel: '{updated_support_channel_config}' to data contract")
+        else: print(f"already appended support channel: '{updated_support_channel_config}' to data contract")
     return data_contract
   
 
 # Add support channels to the ODCS data contract
 data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, support_channel_metadata_input)
+
+# COMMAND ----------
+
+# DBTITLE 1,Update ODCS SLA (Custom)
+def update_odcs_sla_metadata(data_contract, sla_metadata_input):
+    """
+    Appends SLA metadata to the ODCS data contract.
+    This updates SLA properties (e.g., thresholds, time limits) associated 
+    with the data product.
+    Args:
+        data_contract (dict): The ODCS data contract dictionary to update.
+        sla_metadata_input (list of dict): A list containing SLA metadata entries.
+            Each entry can contain the following keys:
+            - property (str): Name of the SLA property.
+            - value (str): The value of the SLA property.
+            - valueext (str, optional): Extended value information.
+            - unit (str, optional): Unit of measurement.
+            - element (str, optional): Associated element.
+            - driver (str, optional): The driver for the SLA.
+
+    Returns:
+        dict: The updated data contract dictionary with new SLA metadata.
+    """
+    # Default value for slaDefaultElement
+    data_contract.setdefault("slaDefaultElement", "partitionColumn")
+    
+    # Ensure slaProperties is a list
+    existing_sla = data_contract.setdefault("slaProperties", [])
+
+    for metadata in sla_metadata_input:
+        updated_sla_metadata = {
+            "property": metadata["property"],
+            "value": metadata["value"]
+        }
+        if "valueext" in metadata: updated_sla_metadata["valueExt"] = metadata["valueext"]
+        if "unit" in metadata: updated_sla_metadata["unity"] = metadata["unit"]
+        if "element" in metadata: updated_sla_metadata["element"] = metadata["element"]
+        if "driver" in metadata: updated_sla_metadata["driver"] = metadata["driver"]
+
+        # Check if SLA metadata already exists
+        if json.dumps(updated_sla_metadata, sort_keys=True) not in [json.dumps(s, sort_keys=True) for s in existing_sla]:
+            existing_sla.append(updated_sla_metadata)
+            print(f"appended sla: '{updated_sla_metadata}' to data contract")
+        else:
+            print(f"already appended sla: '{updated_sla_metadata}' to data contract")
+    return data_contract
+
+
+# Add server level agreements (SLAs) to the ODCS data contract
+data_contract_odcs_yaml = update_odcs_sla_metadata(data_contract_odcs_yaml, sla_metadata_input)
 
 # COMMAND ----------
 
@@ -611,11 +663,7 @@ yaml_file_path = save_odcs_data_contract_local(data_contract_odcs_yaml, catalog,
 
 # COMMAND ----------
 
-
-
-# COMMAND ----------
-
-# DBTITLE 0,Verify OCDS Contract Syntax With Linting
+# DBTITLE 1,Lint ODCS Data Contracts
 def lint_data_contract(yaml_file_path, spark):
     """
     Runs a lint syntax check on a saved ODCS data contract YAML file.
