@@ -23,7 +23,7 @@ yaml_folder_path: data_contracts/data_contracts_data
 data_contract_folder_path: data_contracts/data_contracts_data
 
 # Data contract data quality folder path
-dq_folder_path: "data_contracts/data_quality
+dq_folder_path: "data_contracts/data_quality"
 
 
 #-----------------------------------------------
