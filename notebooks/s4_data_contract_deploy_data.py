@@ -32,10 +32,6 @@ source_tables, tables_with_desc_dict = list_tables_in_schema(source_catalog, sou
 
 # COMMAND ----------
 
-print(source_tables)
-
-# COMMAND ----------
-
 # DBTITLE 1,Write Data to Catalog.Target_Schema.Tables
 for table in source_tables:
     if table == "temp_view":

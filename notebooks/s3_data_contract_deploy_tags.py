@@ -17,10 +17,7 @@ source_catalog = dbutils.widgets.get("source_catalog")
 dbutils.widgets.text("source_schema", "default")
 source_schema = dbutils.widgets.get("source_schema")
 
-dbutils.widgets.text("data_contract_folder_path", "./data_contracts_data")
-data_contract_folder_path = dbutils.widgets.get("data_contract_folder_path")
-
-dbutils.widgets.text("yaml_file_path", f"{data_contract_folder_path}/{source_catalog}__{source_schema}.yaml")
+dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/{source_catalog}__{source_schema}.yaml")
 yaml_file_path = dbutils.widgets.get("yaml_file_path")
 
 # COMMAND ----------
