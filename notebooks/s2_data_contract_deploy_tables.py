@@ -56,7 +56,12 @@ print(f"yaml_file_path: {yaml_file_path}")
 
 # COMMAND ----------
 
-# DBTITLE 1,Verify ODCS Contract
+# DBTITLE 1,Read in the Data Contract Yaml File
+data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
+
+# COMMAND ----------
+
+# DBTITLE 1,Verify and Test ODCS Contract
 data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
 test_result = data_contract.test()
 

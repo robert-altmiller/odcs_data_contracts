@@ -65,9 +65,13 @@ schema = dbutils.widgets.get("schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 #dbutils.jobs.taskValues.set(key="schema", value=schema) 
 
+# COMMAND ----------
+
+# DBTITLE 1,Get a List of Tables and Table Comments in a Catalog.Schema
 # Get a list of the tables in a Catalog.Schema
 # list_tables_in_schema() Python function is in the helpers notebook
 tables_list, tables_with_desc_dict = list_tables_in_schema(catalog, schema)
+print(f"tables_list: {tables_list}")
 
 # COMMAND ----------
 
@@ -123,7 +127,7 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
                 print(f"✅ CSV file saved at: {file_path}")
             elif method == "parquet":
                 df_parquet = df.toPandas()
-                df_parquet.attrs.clear() # 🔥 Clears non-serializable metadata
+                df_parquet.attrs.clear() # 🔥 Clears non-serializable metadata (Important)
                 df_parquet.to_parquet(file_path)
                 print(f"✅ PARQUET file saved at: {file_path}")
             elif method == "sql":
@@ -613,7 +617,11 @@ yaml_file_path = save_odcs_data_contract_local(data_contract_odcs_yaml, catalog,
 
 # COMMAND ----------
 
-# DBTITLE 1,Verify OCDS Contract Syntax With Linting
+
+
+# COMMAND ----------
+
+# DBTITLE 0,Verify OCDS Contract Syntax With Linting
 def lint_data_contract(yaml_file_path, spark):
     """
     Runs a lint syntax check on a saved ODCS data contract YAML file.
