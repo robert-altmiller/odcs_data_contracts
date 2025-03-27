@@ -58,8 +58,9 @@ resources:
             num_workers: 2
 
       git_source:
-        git_url: https://github.com/robert-altmiller/odcs_data_contracts.git
-        git_provider: gitHub
-        git_branch: main
+        git_url: {{ params.git_source }}
+        git_provider: {{ params.git_repo_url }}
+        git_branch: {{ params.git_branch }}
+      
       queue:
         enabled: true
