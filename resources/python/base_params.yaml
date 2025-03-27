@@ -1,46 +1,29 @@
 # Base data contract creation parameters
-base_volumes_path: "/Volumes/csc_uc/csc_schema/csc_uc_csc_schema_volume"
+base_path:  /dbfs/mnt/bronze
+#base_path: /Volumes/csc_uc/csc_schema/csc_uc_csc_schema_volume
 
-# Target deploy schema to deploy data contract
+# Target schema to deploy data contract
 target_schema: default4
 
 # Workflow Git Source
-git_source: gitHub
+git_source:  gitHub
 git_repo_url: https://github.com/robert-altmiller/odcs_data_contracts.git
 git_branch: main
 
 #---DO NOT MODIFY ANY OF THE VARIABLES BELOW---
 
 
-avro_folder_path: "data_contracts/avro_data" 
-csv_folder_path: "data_contracts/csv_data"
-parquet_folder_path: "data_contracts/parquet_data"
-sql_folder_path: "data_contracts/sql_data"
-yaml_folder_path: "data_contracts/data_contracts_data"
+avro_folder_path: data_contracts/avro_data
+csv_folder_path: data_contracts/csv_data
+parquet_folder_path: data_contracts/parquet_data
+sql_folder_path: data_contracts/sql_data
+yaml_folder_path: data_contracts/data_contracts_data
 
 # Data contract folder path
-data_contract_folder_path: "data_contracts/data_contracts_data"
+data_contract_folder_path: data_contracts/data_contracts_data
 
 # Data contract data quality folder path
-dq_folder_path: "data_contracts/data_quality"
+dq_folder_path: "data_contracts/data_quality
 
 
 #-----------------------------------------------
-
-
-# DBFS file paths mounted an external ADLS GEN 2 storage account
-
-# avro_folder_path: /dbfs/mnt/bronze/data_contracts/avro_data
-# csv_folder_path: /dbfs/mnt/bronze/data_contracts/csv_data
-# parquet_folder_path: /dbfs/mnt/bronze/data_contracts/parquet_data
-# sql_folder_path: /dbfs/mnt/bronze/data_contracts/sql_data
-# yaml_folder_path: /dbfs/mnt/bronze/data_contracts/data_contracts_data
-
-# # Data contract folder path
-# data_contract_folder_path: ${base_volumes_path}/data_contracts/data_contracts_data
-
-# # Data contract data quality folder path
-# dq_folder_path: /dbfs/mnt/bronze/data_contracts/data_quality
-
-# # Target deploy schema
-# target_schema: default4

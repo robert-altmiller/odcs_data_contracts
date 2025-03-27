@@ -9,11 +9,11 @@ resources:
             base_parameters:
               catalog: ${var.odcs_contract_catalog}
               schema: ${var.odcs_contract_schema}
-              yaml_folder_path: "{{ params.base_volumes_path }}/{{ params.yaml_folder_path }}"
-              csv_folder_path: "{{ params.base_volumes_path }}/{{ params.csv_folder_path }}"
-              parquet_folder_path: "{{ params.base_volumes_path }}/{{ params.parquet_folder_path }}"
-              sql_folder_path: "{{ params.base_volumes_path }}/{{ params.sql_folder_path }}"
-              avro_folder_path: "{{ params.base_volumes_path }}/{{ params.avro_folder_path }}"
+              yaml_folder_path: "{{ params.base_path }}/{{ params.yaml_folder_path }}"
+              csv_folder_path: "{{ params.base_path }}/{{ params.csv_folder_path }}"
+              parquet_folder_path: "{{ params.base_path }}/{{ params.parquet_folder_path }}"
+              sql_folder_path: "{{ params.base_path }}/{{ params.sql_folder_path }}"
+              avro_folder_path: "{{ params.base_path }}/{{ params.avro_folder_path }}"
             source: GIT
           job_cluster_key: Job_cluster
 
