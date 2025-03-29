@@ -1,0 +1,124 @@
+[
+  {
+    "tickets": {
+      "quality": [
+        {
+          "type": "sql",
+          "description": "Ensures that the ticket_price in tickets table is less than $300",
+          "query": "SELECT ticket_price FROM tickets",
+          "mustBeLessThan": 300
+        },
+        {
+          "type": "sql",
+          "description": "Ensures status in tickets table is Confirmed or Checked-in",
+          "query": "
+              SELECT 
+              CASE 
+                  WHEN COUNT(*) = SUM(
+                  CASE 
+                      WHEN status IN ('Checked-in', 'Confirmed') 
+                      THEN 1 
+                      ELSE 0 
+                  END
+                  )
+                  THEN 0  -- Valid
+                  ELSE 1  -- Invalid
+              END AS status_evaluation
+              FROM tickets;",
+          "mustBe": 0
+        }
+      ]
+    },
+    "passengers": {
+      "quality": [
+        {
+          "type": "sql",
+          "description": "Ensure passenger first name and last name are filled in in the passengers table",
+          "query": "SELECT first_name, last_name from passengers where first_name IS NULL or last_name IS NULL",
+          "mustBe": 0
+        },
+        {
+          "type": "sql",
+          "description": "Ensures phone numbers in the passengers table are formatted correctly (XXX-XXX-XXXX)",
+          "query": "
+            SELECT DISTINCT phone_format_evaluation
+            FROM 
+            (
+            SELECT 
+                passenger_id,
+                phone,
+                CASE 
+                    WHEN phone RLIKE '^[0-9]{3}-[0-9]{3}-[0-9]{4}$' 
+                    THEN 0
+                    ELSE 1
+                END AS phone_format_evaluation
+            FROM passengers
+            );",
+          "mustBe": 0
+        }
+      ]
+    },
+    "flights": {
+      "quality": [
+        {
+          "type": "sql",
+          "description": "Ensure passenger arrival time in flights table is always greater than departure time",
+          "query": "
+              SELECT DISTINCT a.time_consistency_check
+              FROM (
+              SELECT 
+              flight_id,
+              CASE 
+                  WHEN arrival_time <= departure_time 
+                  THEN 1
+                  ELSE 0
+              END AS time_consistency_check
+              FROM flights
+              ) a;",
+          "mustBe": 0
+        },
+        {
+          "type": "sql",
+          "description": "Ensures flight statuses in the flights table are scheduled, delayed or cancelled",
+          "query":"
+              SELECT 
+                  CASE 
+                  WHEN COUNT(*) = SUM(CASE WHEN status IN ('Scheduled', 'Delayed', 'Cancelled') THEN 1 ELSE 0 END)
+                  THEN 0
+                  ELSE 1
+                  END AS status_evaluation
+              FROM flights;",
+          "mustBe": 0
+        }
+      ]
+    },
+    "baggage": {
+      "quality": [
+        {
+          "type": "sql",
+          "description": "Ensure that baggage_type in baggage table contains only valid values (Checked, Carry-on)",
+          "query": "
+              SELECT DISTINCT a.baggage_type_check
+              FROM (
+              SELECT 
+                  baggage_id,
+                  baggage_type,
+                  CASE 
+                  WHEN baggage_type NOT IN ('Checked', 'Carry-on') 
+                  THEN 1
+                  ELSE 0
+                  END AS baggage_type_check
+              FROM baggage) a;
+          ",
+          "mustBe": 0
+        },
+        {
+          "type": "sql",
+          "description": "Ensure that the baggage weight in baggage table is <= 50 pounds",
+          "query": "SELECT weight from baggage",
+          "mustBeLessThanOrEqualTo": 50
+        }
+      ]
+    }
+  }
+]

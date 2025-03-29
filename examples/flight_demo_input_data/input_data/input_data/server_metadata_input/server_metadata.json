@@ -1,0 +1,7 @@
+[
+  {
+    "environment": "development",
+    "server_config_type": "databricks",
+    "databricks_instance": "https://adb-4191419936804633.13.azuredatabricks.net/"
+  }
+]

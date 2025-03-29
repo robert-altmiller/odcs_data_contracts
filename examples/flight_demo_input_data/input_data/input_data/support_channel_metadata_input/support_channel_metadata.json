@@ -1,0 +1,21 @@
+[ 
+  {
+    "channel": "DAS Teams Channel (Interactive)",
+    "tool": "teams",
+    "scope": "interactive",
+    "url": "https://teams.microsoft.com/channel/das"
+  },
+  {
+    "channel": "DAS Teams Channel (Announcements)",
+    "tool": "teams",
+    "scope": "annoucements",
+    "url": "https://teams.microsoft.com/channel/das/announcements"
+  },
+  {
+    "channel": "DAS Email",
+    "tool": "email",
+    "scope": "announcements",
+    "url": "mailto:dasteam@boeing.com",
+    "description": "Team email for all team announcements"
+  }
+]

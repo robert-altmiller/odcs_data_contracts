@@ -1,0 +1,9 @@
+[
+  {
+    "bronze": {"data_owner": "alice@databricks.com", "domain": "flights", "pii_data": "false"},
+    "bronze.flight_data": {"retention_policy": "3_years", "domain": "customer_data"},
+    "bronze.flight_data.flights": {"classification": "internal"},
+    "bronze.flight_data.flights.origin": {"sensitivity": "medium", "pii": "false"},
+    "bronze.flight_data.flights.destination": {"sensitivity": "medium", "pii": "false"}
+  }
+]
