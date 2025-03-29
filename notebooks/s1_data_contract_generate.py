@@ -88,6 +88,8 @@ def get_uc_table_ddl(catalog, schema, table):
         str: The DDL SQL statement for the specified table.
     """
     return spark.sql(f"""SHOW CREATE TABLE {catalog}.{schema}.{table};""").first()[0]
+
+
 def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"):
     """
     Creates local data files for given tables in specified formats (AVRO, CSV, PARQUET, SQL) and saves them to a designated folder path.
