@@ -29,20 +29,28 @@ time.sleep(5)
 
 # DBTITLE 1,Workflow Widget Parameters
 # Data Contract Parameters
+# Create text widgets with default values
 dbutils.widgets.text("dq_catalog", "hive_metastore")
 dq_catalog = dbutils.widgets.get("dq_catalog")
+print(f"dq_catalog: {dq_catalog}")
 
 dbutils.widgets.text("dq_schema", "default4")
 dq_schema = dbutils.widgets.get("dq_schema")
+print(f"dq_schema: {dq_schema}")
 
 dbutils.widgets.text("source_schema", "default")
 source_schema = dbutils.widgets.get("source_schema")
+print(f"source_schema: {source_schema}")
 
-dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/{dq_catalog}__{source_schema}.yaml")
+# Create yaml_file_path dynamically using f-string
+yaml_file_path_default = f"./data_contracts_data/{dq_catalog}__{source_schema}.yaml"
+dbutils.widgets.text("yaml_file_path", yaml_file_path_default)
 yaml_file_path = dbutils.widgets.get("yaml_file_path")
+print(f"yaml_file_path: {yaml_file_path}")
 
 dbutils.widgets.text("dq_folder_path", "./data_quality")
 dq_folder_path = dbutils.widgets.get("dq_folder_path")
+print(f"dq_folder_path: {dq_folder_path}")
 
 # COMMAND ----------
 
