@@ -15,7 +15,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 # DBTITLE 1,Python Imports
-import ast, json, fastavro, os, time, yaml
+import ast, json, fastavro, os, shutil time, yaml
 from datetime import datetime, date
 from datacontract.data_contract import DataContract
 from pyspark.sql.functions import *
@@ -104,6 +104,7 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
     Prints:
         Messages indicating whether data files have been saved or if an error occurred.
     """
+    if os.path.exists(folder_path): shutil.rmtree(folder_path)
     for table in uc_tables_list:
         file_name = f"{table}"
         os.makedirs(folder_path, exist_ok=True)
