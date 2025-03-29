@@ -56,12 +56,12 @@ yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
 #dbutils.jobs.taskValues.set(key="yaml_folder_path", value=yaml_folder_path) 
 
 # Catalog and schema parameters
-dbutils.widgets.text("catalog", "hive_metastore")
+dbutils.widgets.text("catalog", "flightstats_historical_dev_azr_westus")
 catalog = dbutils.widgets.get("catalog")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 #dbutils.jobs.taskValues.set(key="catalog", value=catalog) 
 
-dbutils.widgets.text("schema", "default")
+dbutils.widgets.text("schema", "data_contract_dev")
 schema = dbutils.widgets.get("schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 #dbutils.jobs.taskValues.set(key="schema", value=schema) 
@@ -280,26 +280,26 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
 
         # Get table and column level tags
         # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
-        try:
-            tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
-            col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
-        except Exception as e: 
-            tbl_tags = col_tags = None
-            print("unable to get table and column level tags")
-            print(e)
+        # try:
+        #     tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
+        #     col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
+        # except Exception as e: 
+        #     tbl_tags = col_tags = None
+        #     print("unable to get table and column level tags")
+        #     print(e)
 
         # Update schema properties
         schema_obj = data_contracts_table["schema"][0] # Hold constant per table
         schema_obj["description"] = table_desc # Table level description
         
-        if tbl_tags != None: schema_obj["tags"] = tbl_tags["tags"][table]
-        else: schema_obj["tags"] = []
+        #if tbl_tags != None: schema_obj["tags"] = tbl_tags["tags"][table]
+        #else: schema_obj["tags"] = []
         
         for col in schema_obj["properties"]:
             col["description"] = column_comments[f"{catalog}.{schema}.{table}"][col["name"]] # Column level descriptions
             
-            if col_tags != None: col["tags"] = col_tags["tags"][col["name"]]
-            else: col["tags"] = []
+            #if col_tags != None: col["tags"] = col_tags["tags"][col["name"]]
+            #else: col["tags"] = []
         
         data_contracts_table = replace_none_with_empty_string_in_json(data_contracts_table)
         data_contracts_dict[table] = data_contracts_table
@@ -391,13 +391,14 @@ def get_custom_data_quality_rules(table_name, custom_dq_rules_input):
         KeyError: If no custom rules are defined for the specified table.
     """
 
-    custom_data_quality_rules = {}
-    for rule in custom_dq_rules_input:
-        custom_data_quality_rules.update(rule)
-
-    if table_name not in custom_data_quality_rules:
+    if table_name not in str(custom_dq_rules_input):
         raise KeyError(f"No custom data quality rules defined for table: {table_name}")
-    return custom_data_quality_rules[table_name]["quality"]
+
+    custom_data_quality_rules = {}
+    for quality in custom_dq_rules_input:
+        for rule_table, rules in quality.items():
+            if rule_table == table_name: # Then updates rules
+                return rules["quality"]
 
 # COMMAND ----------
 
@@ -430,7 +431,7 @@ def update_data_quality_rules(data_contract, catalog, schema, custom_dq_rules_in
         try:
             custom_dq_sql_rules = get_custom_data_quality_rules(table["name"], custom_dq_rules_input)
             dq_rule_type = "generic and custom"
-        except Exception:
+        except Exception as e:
             custom_dq_sql_rules = []
             dq_rule_type = "generic"
 
