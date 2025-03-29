@@ -50,3 +50,4 @@ for table in source_tables:
         print(f"inserted data into table: {target_table_name}....\n")
     else:
         print(f"no data to insert into table: {target_table_name}....\n")
+    spark.catalog.dropTempView("tempview")
