@@ -281,27 +281,27 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
         column_comments = get_column_comments(catalog, schema, table)
 
         # Get table and column level tags
-        # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
-        # try:
-        #     tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
-        #     col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
-        # except Exception as e: 
-        #     tbl_tags = col_tags = None
-        #     print("unable to get table and column level tags")
-        #     print(e)
+        get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
+        try:
+            tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
+            col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
+        except Exception as e: 
+            tbl_tags = col_tags = None
+            print("unable to get table and column level tags")
+            print(e)
 
         # Update schema properties
         schema_obj = data_contracts_table["schema"][0] # Hold constant per table
         schema_obj["description"] = table_desc # Table level description
         
-        #if tbl_tags != None: schema_obj["tags"] = tbl_tags["tags"][table]
-        #else: schema_obj["tags"] = []
+        if tbl_tags != None: schema_obj["tags"] = tbl_tags["tags"][table]
+        else: schema_obj["tags"] = []
         
         for col in schema_obj["properties"]:
             col["description"] = column_comments[f"{catalog}.{schema}.{table}"][col["name"]] # Column level descriptions
             
-            #if col_tags != None: col["tags"] = col_tags["tags"][col["name"]]
-            #else: col["tags"] = []
+            if col_tags != None: col["tags"] = col_tags["tags"][col["name"]]
+            else: col["tags"] = []
         
         data_contracts_table = replace_none_with_empty_string_in_json(data_contracts_table)
         data_contracts_dict[table] = data_contracts_table
