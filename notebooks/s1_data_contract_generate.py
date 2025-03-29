@@ -111,7 +111,7 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
         df_start = spark.read.table(f"{catalog}.{schema}.{table}").limit(5000)
         
         # Use agg() with first() to get the first non-null value for each column
-        df = df_start.select([first(col(c), ignorenulls=True).alias(c) for c in df_start.columns])
+        df = df_start.select([first(col(c), ignorenulls=True).alias(c) for c in df_start.columns]).dropna(how="all")
         
         if df.count() > 0:
             if method == "avro":
@@ -281,7 +281,7 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
         column_comments = get_column_comments(catalog, schema, table)
 
         # Get table and column level tags
-        # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
+        # get_data_contract_table_tags() and get_data_contract_column_tags() Python functiona are in the helpers notebook
         try:
             tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
             col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
