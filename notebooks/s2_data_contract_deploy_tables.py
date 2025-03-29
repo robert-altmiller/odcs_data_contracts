@@ -32,18 +32,21 @@ dbutils.widgets.text("data_contract_filename_catalog", "hive_metastore")
 data_contract_filename_catalog = dbutils.widgets.get("data_contract_filename_catalog")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="data_contract_filename_catalog", value=data_contract_filename_catalog) 
+print(f"data_contract_filename_catalog: {data_contract_filename_catalog}")
 
 
 dbutils.widgets.text("data_contract_filename_schema", "default")
 data_contract_filename_schema = dbutils.widgets.get("data_contract_filename_schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="data_contract_filename_schema", value=data_contract_filename_schema)
+print(f"data_contract_filename_schema: {data_contract_filename_schema}")
 
 
 dbutils.widgets.text("data_contract_folder_path", "./data_contracts_data") # should be a volume
 data_contract_folder_path = dbutils.widgets.get("data_contract_folder_path")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="data_contract_folder_path", value=data_contract_folder_path) 
+print(f"data_contract_folder_path: {data_contract_folder_path}")
 
 
 # This variable below is used in the workflow named 'data_contract_deploy' task which 
@@ -51,7 +54,6 @@ dbutils.jobs.taskValues.set(key="data_contract_folder_path", value=data_contract
 yaml_file_path = f"{data_contract_folder_path}/{data_contract_filename_catalog}__{data_contract_filename_schema}.yaml"
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="yaml_file_path", value=yaml_file_path)
-
 print(f"yaml_file_path: {yaml_file_path}")
 
 # COMMAND ----------
@@ -62,7 +64,6 @@ data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
 # COMMAND ----------
 
 # DBTITLE 1,Verify and Test ODCS Contract
-data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
 test_result = data_contract.test()
 
 # Show test results
@@ -72,12 +73,16 @@ print(f"'{yaml_file_path}' ODCS test validation: {test_result.result}")
 
 # DBTITLE 1,Get Data Contract Custom DDL
 queries_ddl_list = data_contract.export("sql")[:-1].split(";")
+print(queries_ddl_list)
 
 # COMMAND ----------
 
 # DBTITLE 1,Execute Data Contract DDL
 for query in queries_ddl_list:
     query = f'''{query}'''
+    query = query.replace("CREATE OR REPLACE TABLE", "CREATE TABLE IF NOT EXISTS") # We do not want to overwrite an existing source table with a DDL
+                                                                                   # because we will lose all the data in the source table!!
+    query = query.replace("decimal", "double") # We use 'double' due to floating point precision errors with decimal (e.g. decimal(10,0))
     try:
         spark.sql(query)
     except Exception as e:

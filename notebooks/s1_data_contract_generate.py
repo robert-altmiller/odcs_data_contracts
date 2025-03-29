@@ -15,7 +15,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 # DBTITLE 1,Python Imports
-import ast, json, fastavro, os, shutil time, yaml
+import ast, json, fastavro, os, shutil, time, yaml
 from datetime import datetime, date
 from datacontract.data_contract import DataContract
 from pyspark.sql.functions import *
@@ -109,10 +109,10 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
         file_name = f"{table}"
         os.makedirs(folder_path, exist_ok=True)
         file_path = f"{folder_path}/{file_name}.{method}"
-        df_start = spark.read.table(f"{catalog}.{schema}.{table}").limit(5000)
+        df_initial = spark.read.table(f"{catalog}.{schema}.{table}").limit(5000)
         
         # Use agg() with first() to get the first non-null value for each column
-        df = df_start.select([first(col(c), ignorenulls=True).alias(c) for c in df_start.columns]).dropna(how="all")
+        df = df_initial.select([first(col(c), ignorenulls=True).alias(c) for c in df_initial.columns]).dropna(how="all")
         
         if df.count() > 0:
             if method == "avro":
@@ -129,9 +129,9 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
                 df.toPandas().to_csv(file_path, index=False)
                 print(f"✅ CSV file saved at: {file_path}")
             elif method == "parquet":
-                df_parquet = df.toPandas()
-                df_parquet.attrs.clear() # :fire: Clears non-serializable metadata (IMPORTANT)
-                df_parquet.to_parquet(file_path)
+                df_pandas = df.toPandas()
+                df_pandas.attrs.clear() # Clears non-serializable metadata (IMPORTANT)
+                df_pandas.to_parquet(file_path)
                 print(f"✅ PARQUET file saved at: {file_path}")
             elif method == "sql":
                 sql_ddl = get_uc_table_ddl(catalog, schema, table)
@@ -282,7 +282,7 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
         column_comments = get_column_comments(catalog, schema, table)
 
         # Get table and column level tags
-        # get_data_contract_table_tags() and get_data_contract_column_tags() Python functiona are in the helpers notebook
+        # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
         try:
             tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
             col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))

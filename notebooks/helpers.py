@@ -477,8 +477,3 @@ sla_metadata_input = read_json_file(file_path = sla_metadata_input_path)
 sla_metadata_input_path = f"{input_base_path}/sla_metadata_input/sla_metadata.json"
 sla_metadata_input = read_json_file(file_path = sla_metadata_input_path)
 # print(f"sla_metadata_input:\n{sla_metadata_input}\n")
-
-
-# COMMAND ----------
-
-""

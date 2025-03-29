@@ -13,12 +13,17 @@ import yaml
 # Folder and File Path Widget Parameters
 dbutils.widgets.text("source_catalog", "hive_metastore")
 source_catalog = dbutils.widgets.get("source_catalog")
+print(f"source_catalog: {source_catalog}")
+
 
 dbutils.widgets.text("source_schema", "default")
 source_schema = dbutils.widgets.get("source_schema")
+print(f"source_schema: {source_schema}")
+
 
 dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/{source_catalog}__{source_schema}.yaml")
 yaml_file_path = dbutils.widgets.get("yaml_file_path")
+print(f"yaml_file_path: {yaml_file_path}")
 
 # COMMAND ----------
 

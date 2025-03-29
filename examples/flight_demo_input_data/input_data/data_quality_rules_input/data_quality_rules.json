@@ -10,21 +10,19 @@
         },
         {
           "type": "sql",
-          "description": "Ensures status in tickets table is Confirmed or Checked-in",
+          "description": "Ensures status in 'tickets' table is Confirmed or Checked-in",
           "query": "
-              SELECT 
-              CASE 
-                  WHEN COUNT(*) = SUM(
-                  CASE 
-                      WHEN status IN ('Checked-in', 'Confirmed') 
-                      THEN 1 
-                      ELSE 0 
-                  END
-                  )
-                  THEN 0  -- Valid
-                  ELSE 1  -- Invalid
+            SELECT
+              CASE
+                WHEN total = valid THEN 0
+                ELSE 1
               END AS status_evaluation
-              FROM tickets;",
+            FROM (
+              SELECT
+                COUNT(*) AS total,
+                SUM(CASE WHEN status IN ('Checked-in', 'Confirmed') THEN 1 ELSE 0 END) AS valid
+              FROM tickets
+            )",
           "mustBe": 0
         }
       ]
@@ -33,13 +31,16 @@
       "quality": [
         {
           "type": "sql",
-          "description": "Ensure passenger first name and last name are filled in in the passengers table",
-          "query": "SELECT first_name, last_name from passengers where first_name IS NULL or last_name IS NULL",
+          "description": "Ensures passenger first name and last name are populated in the 'passengers' table",
+          "query": "
+            SELECT COUNT(*) AS null_record_count
+            FROM passengers
+            WHERE first_name IS NULL OR last_name IS NULL;",
           "mustBe": 0
         },
         {
           "type": "sql",
-          "description": "Ensures phone numbers in the passengers table are formatted correctly (XXX-XXX-XXXX)",
+          "description": "Ensures phone numbers in the 'passengers' table are formatted correctly (XXX-XXX-XXXX)",
           "query": "
             SELECT DISTINCT phone_format_evaluation
             FROM 
@@ -62,7 +63,7 @@
       "quality": [
         {
           "type": "sql",
-          "description": "Ensure passenger arrival time in flights table is always greater than departure time",
+          "description": "Ensures passenger arrival time in the 'flights' table is always greater than the departure time",
           "query": "
               SELECT DISTINCT a.time_consistency_check
               FROM (
@@ -79,7 +80,7 @@
         },
         {
           "type": "sql",
-          "description": "Ensures flight statuses in the flights table are scheduled, delayed or cancelled",
+          "description": "Ensures flight statuses in the 'flights' table are scheduled, delayed or cancelled",
           "query":"
               SELECT 
                   CASE 
@@ -96,25 +97,25 @@
       "quality": [
         {
           "type": "sql",
-          "description": "Ensure that baggage_type in baggage table contains only valid values (Checked, Carry-on)",
+          "description": "Ensures that baggage_type in 'baggage' table contains only valid values: Checked, Carry-on",
           "query": "
-              SELECT DISTINCT a.baggage_type_check
-              FROM (
-              SELECT 
-                  baggage_id,
-                  baggage_type,
-                  CASE 
-                  WHEN baggage_type NOT IN ('Checked', 'Carry-on') 
-                  THEN 1
-                  ELSE 0
-                  END AS baggage_type_check
-              FROM baggage) a;
-          ",
+            SELECT DISTINCT a.baggage_type_check
+            FROM (
+                SELECT 
+                    baggage_id,
+                    baggage_type,
+                    CASE 
+                        WHEN baggage_type NOT IN ('Checked', 'Carry-on') 
+                        THEN 1
+                        ELSE 0
+                    END AS baggage_type_check
+                FROM baggage
+            ) a;",
           "mustBe": 0
         },
         {
           "type": "sql",
-          "description": "Ensure that the baggage weight in baggage table is <= 50 pounds",
+          "description": "Ensures that the baggage weight in 'baggage' table is <= 50 pounds",
           "query": "SELECT weight from baggage",
           "mustBeLessThanOrEqualTo": 50
         }
