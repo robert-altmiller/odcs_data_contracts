@@ -56,12 +56,12 @@ yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
 #dbutils.jobs.taskValues.set(key="yaml_folder_path", value=yaml_folder_path) 
 
 # Catalog and schema parameters
-dbutils.widgets.text("catalog", "flightstats_historical_dev_azr_westus")
+dbutils.widgets.text("catalog", "hive_metastore")
 catalog = dbutils.widgets.get("catalog")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 #dbutils.jobs.taskValues.set(key="catalog", value=catalog) 
 
-dbutils.widgets.text("schema", "data_contract_dev")
+dbutils.widgets.text("schema", "default")
 schema = dbutils.widgets.get("schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 #dbutils.jobs.taskValues.set(key="schema", value=schema) 
