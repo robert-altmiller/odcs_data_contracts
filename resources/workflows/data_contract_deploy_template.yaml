@@ -45,7 +45,7 @@ resources:
             notebook_path: notebooks/s5_data_contract_dq_checks
             base_parameters:
               dq_folder_path: "{{ params.base_path }}/{{ params.dq_folder_path }}"
-              running_in_workflow: true
+              running_in_workflow: True
               {% raw %}dq_catalog: "{{tasks.Data_Contract_Tables.values.data_contract_filename_catalog}}"
               source_schema: "{{tasks.Data_Contract_Tables.values.data_contract_filename_schema}}"
               yaml_file_path: "{{tasks.Data_Contract_Tables.values.yaml_file_path}}"
