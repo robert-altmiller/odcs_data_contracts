@@ -22,6 +22,42 @@ time.sleep(5)
 
 # COMMAND ----------
 
+# DBTITLE 1,Check if Running in Databricks Job
+# Create widgets to capture metadata
+dbutils.widgets.text("running_in_workflow", "")
+
+# Retrieve widget values safely
+job_context = {
+    "running_in_workflow": dbutils.widgets.get("running_in_workflow"),
+}
+
+def is_running_in_databricks_workflow():
+    """Detect if running inside a Databricks Workflow job."""
+    return bool(job_context.get("running_in_workflow"))
+
+# Unit test
+# print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
+
+# COMMAND ----------
+
+# DBTITLE 1,Add Temp Widget
+# Create widgets to capture metadata
+dbutils.widgets.text("workflow_run", "False")
+
+# Retrieve widget values safely
+job_context = {
+    "workflow_run": dbutils.widgets.get("workflow_run"),
+}
+
+def is_running_in_databricks_workflow():
+    """Detect if running inside a Databricks Workflow job."""
+    return job_context.get("workflow_run")
+
+# Unit test
+# print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
+
+# COMMAND ----------
+
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers"
 
