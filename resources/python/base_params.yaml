@@ -3,7 +3,7 @@ base_path:  /dbfs/mnt/bronze
 #base_path: /Volumes/csc_uc/csc_schema/csc_uc_csc_schema_volume
 
 # Target schema to deploy data contract
-target_schema: default4
+target_schema: default_prod
 
 # Workflow Git Source
 git_source:  gitHub
