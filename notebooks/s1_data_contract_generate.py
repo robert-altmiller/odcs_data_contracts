@@ -40,31 +40,44 @@ databricks_pat = dbutils.notebook.entry_point.getDbutils().notebook().getContext
 # Folder path parameters
 dbutils.widgets.text("avro_folder_path", "./avro_data")  # should be a volume
 avro_folder_path = dbutils.widgets.get("avro_folder_path")
+print(f"avro_folder_path: {avro_folder_path}")
+
 
 dbutils.widgets.text("csv_folder_path", "./csv_data")  # should be a volume
 csv_folder_path = dbutils.widgets.get("csv_folder_path")
+print(f"csv_folder_path: {csv_folder_path}")
+
 
 dbutils.widgets.text("parquet_folder_path", "./parquet_data")  # should be a volume
 parquet_folder_path = dbutils.widgets.get("parquet_folder_path")
+print(f"parquet_folder_path: {parquet_folder_path}")
+
 
 dbutils.widgets.text("sql_folder_path", "./sql_data")  # should be a volume
 sql_folder_path = dbutils.widgets.get("sql_folder_path")
+print(f"sql_folder_path: {sql_folder_path}")
+
 
 dbutils.widgets.text("yaml_folder_path", "./data_contracts_data")  # should be a volume
 yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 #dbutils.jobs.taskValues.set(key="yaml_folder_path", value=yaml_folder_path) 
+print(f"yaml_folder_path: {yaml_folder_path}")
+
 
 # Catalog and schema parameters
 dbutils.widgets.text("catalog", "hive_metastore")
 catalog = dbutils.widgets.get("catalog")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 #dbutils.jobs.taskValues.set(key="catalog", value=catalog) 
+print(f"catalog: {catalog}")
+
 
 dbutils.widgets.text("schema", "default")
 schema = dbutils.widgets.get("schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-#dbutils.jobs.taskValues.set(key="schema", value=schema) 
+#dbutils.jobs.taskValues.set(key="schema", value=schema)
+print(f"schema: {schema}")
 
 # COMMAND ----------
 
