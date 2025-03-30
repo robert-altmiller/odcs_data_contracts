@@ -36,25 +36,7 @@ def is_running_in_databricks_workflow():
     return bool(job_context.get("running_in_workflow"))
 
 # Unit test
-# print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
-
-# COMMAND ----------
-
-# DBTITLE 1,Add Temp Widget
-# Create widgets to capture metadata
-dbutils.widgets.text("workflow_run", "False")
-
-# Retrieve widget values safely
-job_context = {
-    "workflow_run": dbutils.widgets.get("workflow_run"),
-}
-
-def is_running_in_databricks_workflow():
-    """Detect if running inside a Databricks Workflow job."""
-    return job_context.get("workflow_run")
-
-# Unit test
-# print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
+print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
 
 # COMMAND ----------
 
@@ -136,7 +118,7 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
         json_file.write(json.dumps(list_results))
 
     # Load results into Spark DataFrame
-    if is_running_in_databricks_workflow() == True:
+    if is_running_in_databricks_workflow() == "True":
         data_path = f"{dq_folder_path.replace('/dbfs', '')}/{dq_file}"
     else: 
         data_path = f"file:{os.getcwd()}/{dq_file_path.split('./')[1]}"
