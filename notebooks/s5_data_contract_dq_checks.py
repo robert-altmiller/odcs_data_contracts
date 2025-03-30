@@ -36,7 +36,7 @@ def is_running_in_databricks_workflow():
     return bool(job_context.get("running_in_workflow"))
 
 # Unit test
-# print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
+print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
 
 # COMMAND ----------
 
