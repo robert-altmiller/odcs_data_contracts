@@ -49,8 +49,15 @@ for table in source_tables:
     source_table = f"{source_catalog}.{source_schema}.{table}"
     target_table = f"{source_catalog}.{target_schema}.{table}"
 
-    if not spark.catalog.tableExists(target_table):
-        print(f"⚠️ Skipping table '{table}': target table {target_table} does not exist.")
+    table_exists = (
+        spark.sql(f"SHOW TABLES IN {source_catalog}.{target_schema}")
+        .filter(f"tableName = '{table}'")
+        .count()
+        > 0
+    )
+
+    if not table_exists: #spark.catalog.tableExists(target_table):
+        print(f"⚠️ Skipping table '{table}': target table {target_table} does not exist\n")
         continue
 
     print(f"🔹 Reading source table: {source_table}")
