@@ -80,11 +80,11 @@ print(queries_ddl_list)
 # DBTITLE 1,Execute Data Contract DDL
 for query in queries_ddl_list:
     query = f'''{query}'''
-    query = query.replace("CREATE OR REPLACE TABLE", "CREATE TABLE IF NOT EXISTS") # We do not want to overwrite an existing source table with a DDL
+    query_clean = query.replace("CREATE OR REPLACE TABLE", "CREATE TABLE IF NOT EXISTS") # We do not want to overwrite an existing source table with a DDL
                                                                                    # because we will lose all the data in the source table!!
-    query = query.replace("decimal", "double") # We use 'double' due to floating point precision errors with decimal (e.g. decimal(10,0))
+    query_clean = query_clean.replace("decimal", "double") # We use 'double' due to floating point precision errors with decimal (e.g. decimal(10,0))
     try:
-        spark.sql(query)
+        spark.sql(query_clean)
     except Exception as e:
         print(f"{e}\n")
         if "[SCHEMA_NOT_FOUND]" in str(e):
@@ -93,6 +93,6 @@ for query in queries_ddl_list:
             schema = match.split(".")[1] if match else None
             spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.{schema}")
             print(f"created schema {catalog}.{schema} successfully\n")
-            spark.sql(query)
+            spark.sql(query_clean)
             continue
     print(f"COMPLETED RUNNING DDL QUERY:\n{query}\n")
