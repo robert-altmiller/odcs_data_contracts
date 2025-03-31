@@ -16,6 +16,11 @@ from datacontract.data_contract import DataContract
 
 # COMMAND ----------
 
+# DBTITLE 1,Import Python Helpers
+# MAGIC %run "./helpers"
+
+# COMMAND ----------
+
 # DBTITLE 1,Remove DB Widgets
 dbutils.widgets.removeAll()
 time.sleep(5)
@@ -37,11 +42,6 @@ def is_running_in_databricks_workflow():
 
 # Unit test
 print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
-
-# COMMAND ----------
-
-# DBTITLE 1,Import Python Helpers
-# MAGIC %run "./helpers"
 
 # COMMAND ----------
 

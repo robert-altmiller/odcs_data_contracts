@@ -42,65 +42,67 @@ source_tables, tables_with_desc_dict = list_tables_in_schema(source_catalog, sou
 
 # DBTITLE 1,Write Data to Catalog.Target_Schema.Tables
 for table in source_tables:
+    
     if table == "temp_view" or source_schema == target_schema:
         print(f"Skipping table '{table}': unable to process 'temp_view' or source_schema '{source_schema}' and target_schema '{target_schema}' are the same")
         continue
-
+    
     source_table = f"{source_catalog}.{source_schema}.{table}"
     target_table = f"{source_catalog}.{target_schema}.{table}"
-
-    table_exists = (
-        spark.sql(f"SHOW TABLES IN {source_catalog}.{target_schema}")
-        .filter(f"tableName = '{table}'")
-        .count()
-        > 0
-    )
-
-    if not table_exists: #spark.catalog.tableExists(target_table):
-        print(f"⚠️ Skipping table '{table}': target table {target_table} does not exist\n")
+    
+    if not spark.catalog.tableExists(target_table):
+        print(f":warning: Skipping table '{table}': target table {target_table} does not exist\n")
         continue
-
-    print(f"🔹 Reading source table: {source_table}")
-    source_df = spark.read.table(source_table)
-
-    print(f"🔹 Reading target table: {target_table}")
+    print(f":small_blue_diamond: Reading source table: {source_table}")
+    
+    source_df = spark.read.table(source_table).limit(100)
+    print(f":small_blue_diamond: Reading target table: {target_table}")
+    
     target_df = spark.read.table(target_table)
-
     if source_df.count() == 0:
-        print(f"⚠️ No data in source table: {source_table}")
+        print(f":warning: No data in source table: {source_table}")
         continue
-
+    
+    # Get target schema as a dictionary {column_name: column_type}
+    target_schema_dict = {field.name: field.dataType for field in target_df.schema.fields}
+    
     # Ensure both tables have the same columns
-    common_columns = [col for col in source_df.columns if col in target_df.columns]
-
+    common_columns = [c for c in source_df.columns if c in target_schema_dict]
     if not common_columns:
-        print(f"⚠️ No common columns between source and target for table: {table}")
+        print(f":warning: No common columns between source and target for table: {table}")
         continue
-
-    # Alias DataFrames for clarity
-    source_df = source_df.alias("src")
+    
+    # Cast and select only common columns
+    source_df_casted = source_df.select([F.col(c).cast(target_schema_dict[c]) for c in common_columns])
+    
+    # Perform the left outer join to detect new records
+    source_df_casted = source_df_casted.alias("src")
     target_df = target_df.alias("tgt")
-
-    # Build the join condition across all common columns
-    join_condition = [F.col(f"src.{c}") == F.col(f"tgt.{c}") for c in common_columns]
+    
+    # Null-safe join condition using <=> (eqNullSafe)
+    join_condition = [F.col(f"src.{c}").eqNullSafe(F.col(f"tgt.{c}")) for c in common_columns]
     print(f"Join condition: {join_condition}")
-
-    # Perform the left outer join
-    joined_df = source_df.join(target_df, on=join_condition, how="left_outer")
-
-    # Filter for records that do not exist in the target (i.e., new)
+    
+    # Perform left outer join to find new records
+    joined_df = source_df_casted.join(target_df, on=join_condition, how="left_outer")
+    
+    # Filter for new records not in the target
     new_records_df = joined_df.filter(F.col(f"tgt.{common_columns[0]}").isNull())
-
     if new_records_df.count() > 0:
-        print(f"✅ Found {new_records_df.count()} new records to insert into: {target_table}")
-
+        print(f":white_check_mark: Found {new_records_df.count()} new records to insert into: {target_table}")
+        
         # Select only source columns to insert
-        new_data = new_records_df.select([F.col(f"src.{c}") for c in source_df.columns])
+        new_data = new_records_df.select([F.col(f"src.{c}") for c in common_columns])
+        
+        # Create temp view and insert into target
         new_data.createOrReplaceTempView("temp_view")
-
         spark.sql(f"INSERT INTO {target_table} SELECT * FROM temp_view")
+        
         spark.catalog.dropTempView("temp_view")
-
-        print(f"✅ Successfully inserted new records into {target_table}\n")
+        print(f":white_check_mark: Successfully inserted new records into {target_table}\n")
+        
+        # Clean up to avoid memory issues
+        del source_df
+        del target_df
     else:
-        print(f"ℹ️ No new records to insert into {target_table}\n")
+        print(f":information_source: No new records to insert into {target_table}\n")
