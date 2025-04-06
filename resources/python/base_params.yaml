@@ -1,14 +1,11 @@
 # Base data contract creation parameters
-base_path:  /dbfs/mnt/bronze
-#base_path: /Volumes/csc_uc/csc_schema/csc_uc_csc_schema_volume
-
-# Target schema to deploy data contract
-target_schema: default_prod
+base_path:  /dbfs/mnt/bronze # modify
+#base_path: /Volumes/csc_uc/csc_schema/csc_uc_csc_schema_volume # modify
 
 # Workflow Git Source
-git_source:  gitHub
-git_repo_url: https://github.com/robert-altmiller/odcs_data_contracts.git
-git_branch: main
+git_source:  gitHub # modify
+git_repo_url: https://github.com/robert-altmiller/odcs_data_contracts.git # modify
+git_branch: main # modify
 
 #---DO NOT MODIFY ANY OF THE VARIABLES BELOW---
 
