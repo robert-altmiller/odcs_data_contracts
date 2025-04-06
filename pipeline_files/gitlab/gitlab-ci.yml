@@ -9,8 +9,9 @@ variables:
   PYTHON_VERSION: "3.12"
   ENVIRONMENT: "dev"
   USER_EMAIL: "robert.altmiller@databricks.com"
-  ODCS_CONTRACT_CATALOG: "hive_metastore"
-  ODCS_CONTRACT_SCHEMA: "default"
+  ODCS_CONTRACT_SOURCE_CATALOG: "hive_metastore"
+  ODCS_CONTRACT_SOURCE_SCHEMA: "default"
+  ODCS_CONTRACT_TARGET_SCHEMA: "default_target"
   BRANCH_NAME: "$CI_COMMIT_REF_NAME"
 
 .install_databricks_cli:
@@ -33,8 +34,9 @@ set-env-vars:
     - echo "TARGET=${ENVIRONMENT}" >> env_vars.env
     - echo "USER_EMAIL=${USER_EMAIL}" >> env_vars.env
     - echo "USER_NAME=$(echo $USER_EMAIL | cut -d '@' -f 1 | tr '.' '_')" >> env_vars.env
-    - echo "ODCS_CONTRACT_CATALOG=${ODCS_CONTRACT_CATALOG}" >> env_vars.env
-    - echo "ODCS_CONTRACT_SCHEMA=${ODCS_CONTRACT_SCHEMA}" >> env_vars.env
+    - echo "ODCS_CONTRACT_SOURCE_CATALOG=${ODCS_CONTRACT_SOURCE_CATALOG}" >> env_vars.env
+    - echo "ODCS_CONTRACT_SOURCE_SCHEMA=${ODCS_CONTRACT_SOURCE_SCHEMA}" >> env_vars.env
+    - echo "ODCS_CONTRACT_TARGET_SCHEMA=${ODCS_CONTRACT_TARGET_SCHEMA}" >> env_vars.env
     - cat env_vars.env
   artifacts:
     paths:
@@ -91,14 +93,14 @@ validate-and-deploy-dabs:
     - source env_vars.env
     - mv $DATABRICKS_CFG_PATH /root/.databrickscfg
     - echo "Using TARGET=$TARGET"
-    - output=$(databricks bundle validate --profile DEFAULT --target "$TARGET" --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_catalog=$ODCS_CONTRACT_CATALOG" --var="odcs_contract_schema=$ODCS_CONTRACT_SCHEMA")
+    - output=$(databricks bundle validate --profile DEFAULT --target "$TARGET" --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA"  --var="odcs_contract_target_schema=$ODCS_CONTRACT_TARGET_SCHEMA")
     - |
       if echo "$output" | grep -q "Found 1 error"; then
         echo "❌ Databricks Bundle Deploy Validation OK = False"
         exit 1
       else
         echo "✅ Databricks Bundle Deploy Validation OK = True"
-        databricks bundle deploy --profile DEFAULT --target "$TARGET" --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_catalog=$ODCS_CONTRACT_CATALOG" --var="odcs_contract_schema=$ODCS_CONTRACT_SCHEMA"
+        databricks bundle deploy --profile DEFAULT --target "$TARGET" --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="odcs_contract_target_schema=$ODCS_CONTRACT_TARGET_SCHEMA"
       fi
   artifacts:
     paths:
