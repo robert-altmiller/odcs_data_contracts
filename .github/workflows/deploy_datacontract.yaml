@@ -130,7 +130,7 @@ jobs:
         run: |
           set -x
           # Validate and deploy DABS
-          output=$(databricks bundle validate --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="odcs_contract_targetschema=$ODCS_CONTRACT_TARGET_SCHEMA")
+          output=$(databricks bundle validate --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="odcs_contract_target_schema=$ODCS_CONTRACT_TARGET_SCHEMA")
           if echo $output | grep -q "Validation OK!"; then
             echo "Databricks Bundle Deploy Validation OK = True"
             echo "Deploying Databricks Asset Bundle to Workspace"
