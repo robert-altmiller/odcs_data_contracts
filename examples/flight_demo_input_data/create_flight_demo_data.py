@@ -1,4 +1,13 @@
 # Databricks notebook source
+# DBTITLE 1,Set Catalog and Schema to Deploy Tables + Data
+catalog = "hive_metastore"
+schema = "default"
+
+spark.sql(f"USE CATALOG {catalog}")
+spark.sql(f"USE SCHEMA {schema}")
+
+# COMMAND ----------
+
 # DBTITLE 1,Create Baggage Table + Data
 spark.sql(""" 
 CREATE TABLE baggage (
