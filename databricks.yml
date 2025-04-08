@@ -4,8 +4,6 @@ bundle:
 include:
   - resources/workflows/*.yml
 
-databricks_host_final: ${var.databricks_host}
-
 variables:
   branch_name:
     default: default
@@ -37,7 +35,7 @@ targets:
       pipelines_development: true
       trigger_pause_status: UNPAUSED
     workspace:
-      host: ${env.databricks_host}
+      host: ${env.DATABRICKS_HOST}
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     run_as:
       user_name: ${var.user_email}
