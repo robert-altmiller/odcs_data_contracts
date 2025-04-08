@@ -69,6 +69,9 @@ resources:
             data_security_mode: SHARED # USER_ISOLATION # SINGLE_USER
             runtime_engine: PHOTON
             num_workers: 2
+            libraries:
+              - pypi:
+                  package: 'datacontract-cli[databricks,avro,csv,parquet,sql]'
 
       git_source:
         git_url: {{ params.git_repo_url }} 
