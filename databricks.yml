@@ -35,7 +35,7 @@ targets:
       pipelines_development: true
       trigger_pause_status: UNPAUSED
     workspace:
-      host: ${env.DATABRICKS_HOST}
+      host: ${DATABRICKS_HOST}
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     run_as:
       user_name: ${var.user_email}
@@ -45,7 +45,7 @@ targets:
       branch: ${var.branch_name}
     mode: testing
     workspace:
-      host: https://adb-5809742986594827.7.azuredatabricks.net
+      host: ${DATABRICKS_HOST}
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     permissions:
       - user_name: ${var.user_email}
@@ -58,7 +58,7 @@ targets:
       branch: ${var.branch_name}
     mode: production
     workspace:
-      host: https://adb-5809742986594827.7.azuredatabricks.net
+      host: ${DATABRICKS_HOST}
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     permissions:
       - user_name: ${var.user_email}
