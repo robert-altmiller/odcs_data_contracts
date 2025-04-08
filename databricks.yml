@@ -4,6 +4,8 @@ bundle:
 include:
   - resources/workflows/*.yml
 
+databricks_host_final: ${var.databricks_host}
+
 variables:
   databricks_host:
     default: default
@@ -38,7 +40,7 @@ targets:
       pipelines_development: true
       trigger_pause_status: UNPAUSED
     workspace:
-      host: ${var.databricks_host}
+      host: ${databricks_host_final}
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     run_as:
       user_name: ${var.user_email}
@@ -48,7 +50,7 @@ targets:
       branch: ${var.branch_name}
     mode: testing
     workspace:
-      host: ${var.databricks_host}
+      host: https://adb-5809742986594827.7.azuredatabricks.net
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     permissions:
       - user_name: ${var.user_email}
@@ -61,7 +63,7 @@ targets:
       branch: ${var.branch_name}
     mode: production
     workspace:
-      host: ${var.databricks_host}
+      host: https://adb-5809742986594827.7.azuredatabricks.net
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     permissions:
       - user_name: ${var.user_email}
