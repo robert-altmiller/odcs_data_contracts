@@ -16,6 +16,11 @@ resources:
               avro_folder_path: "{{ params.base_path }}/{{ params.avro_folder_path }}"
             source: GIT
           job_cluster_key: Job_cluster
+          libraries:
+            - pypi:
+                package: avro
+            - pypi:
+                package: datacontract-cli[databricks,avro,csv,parquet,sql]
 
       job_clusters:
         - job_cluster_key: Job_cluster
@@ -33,11 +38,6 @@ resources:
             data_security_mode: SHARED # USER_ISOLATION # SINGLE_USER
             runtime_engine: PHOTON
             num_workers: 2
-            libraries:
-              - pypi:
-                  package: avro
-              - pypi:
-                  package: 'datacontract-cli[databricks,avro,csv,parquet,sql]'
 
       git_source:
         git_url: {{ params.git_repo_url }} 
