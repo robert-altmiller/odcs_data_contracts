@@ -48,19 +48,19 @@ print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}
 # DBTITLE 1,Workflow Widget Parameters
 # Data Contract Parameters
 # Create text widgets with default values
-dbutils.widgets.text("dq_catalog", "hive_metastore")
-dq_catalog = dbutils.widgets.get("dq_catalog")
-print(f"dq_catalog: {dq_catalog}")
+# dbutils.widgets.text("dq_catalog", "hive_metastore")
+# dq_catalog = dbutils.widgets.get("dq_catalog")
+# print(f"dq_catalog: {dq_catalog}")
 
 
-dbutils.widgets.text("dq_schema", "default_prod")
-dq_schema = dbutils.widgets.get("dq_schema")
-print(f"dq_schema: {dq_schema}")
+# dbutils.widgets.text("dq_schema", "default_prod")
+# dq_schema = dbutils.widgets.get("dq_schema")
+# print(f"dq_schema: {dq_schema}")
 
 
-dbutils.widgets.text("source_schema", "default")
-source_schema = dbutils.widgets.get("source_schema")
-print(f"source_schema: {source_schema}")
+# dbutils.widgets.text("source_schema", "default")
+# source_schema = dbutils.widgets.get("source_schema")
+# print(f"source_schema: {source_schema}")
 
 
 # Create yaml_file_path dynamically using f-string
@@ -73,6 +73,14 @@ print(f"yaml_file_path: {yaml_file_path}")
 dbutils.widgets.text("dq_folder_path", "./data_quality")
 dq_folder_path = dbutils.widgets.get("dq_folder_path")
 print(f"dq_folder_path: {dq_folder_path}")
+
+# COMMAND ----------
+
+# DBTITLE 1,Get Contract Catalog and Schema
+# Get the data contract catalog and schema
+contract_source_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
+contract_source_schema = data_contract_odcs_yaml["servers"][0]["schema"]
+
 
 # COMMAND ----------
 
@@ -137,7 +145,7 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
 dq_results_df = run_data_quality_tests(yaml_file_path, dq_path = dq_folder_path)
 
 # Write to a managed Delta table (overwrite mode)
-dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{dq_catalog}.{dq_schema}.odcs_data_quality")
+dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{contract_source_catalog}.{contract_source_schema}.odcs_data_quality")
 
 # Display the results
 display(dq_results_df)

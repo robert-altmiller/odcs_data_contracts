@@ -7,8 +7,8 @@ resources:
           notebook_task:
             notebook_path: notebooks/s1_data_contract_generate
             base_parameters:
-              catalog: ${var.odcs_contract_source_catalog}
-              schema: ${var.odcs_contract_source_schema}
+              source_catalog: ${var.odcs_contract_source_catalog}
+              source_schema: ${var.odcs_contract_source_schema}
               yaml_folder_path: "{{ params.base_path }}/{{ params.yaml_folder_path }}"
               csv_folder_path: "{{ params.base_path }}/{{ params.csv_folder_path }}"
               parquet_folder_path: "{{ params.base_path }}/{{ params.parquet_folder_path }}"

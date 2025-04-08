@@ -65,26 +65,22 @@ yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
 print(f"yaml_folder_path: {yaml_folder_path}")
 
 
-# Catalog and schema parameters
-dbutils.widgets.text("catalog", "hive_metastore")
-catalog = dbutils.widgets.get("catalog")
-# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-#dbutils.jobs.taskValues.set(key="catalog", value=catalog) 
-print(f"catalog: {catalog}")
+# Source catalog and source schema parameters
+dbutils.widgets.text("source_catalog", "hive_metastore")
+source_catalog = dbutils.widgets.get("source_catalog")
+print(f"source_catalog: {source_catalog}")
 
 
-dbutils.widgets.text("schema", "default")
-schema = dbutils.widgets.get("schema")
-# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-#dbutils.jobs.taskValues.set(key="schema", value=schema)
-print(f"schema: {schema}")
+dbutils.widgets.text("source_schema", "default")
+source_schema = dbutils.widgets.get("source_schema")
+print(f"source_schema: {source_schema}")
 
 # COMMAND ----------
 
 # DBTITLE 1,Get a List of Tables and Table Comments in a Catalog.Schema
 # Get a list of the tables in a Catalog.Schema
 # list_tables_in_schema() Python function is in the helpers notebook
-tables_list, tables_with_desc_dict = list_tables_in_schema(catalog, schema)
+tables_list, tables_with_desc_dict = list_tables_in_schema(source_catalog, source_schema)
 print(f"tables_list: {tables_list}")
 
 # COMMAND ----------
@@ -161,7 +157,7 @@ folder_path_dict = {
 }
 methods = ["parquet", "sql"] # OR ["avro", "parquet", "csv", "sql"]
 for method in methods:
-    create_local_data(catalog, schema, tables_list, folder_path_dict[method], method = method)
+    create_local_data(source_catalog, source_schema, tables_list, folder_path_dict[method], method = method)
 
 # COMMAND ----------
 
@@ -263,7 +259,7 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path, m
 
 
 method = "parquet" # or csv or parquet or sql
-data_contracts_combined, data_contracts_dict = combine_data_contract_models(catalog, schema, tables_with_desc_dict, folder_path_dict[method], method = method)
+data_contracts_combined, data_contracts_dict = combine_data_contract_models(source_catalog, source_schema, tables_with_desc_dict, folder_path_dict[method], method = method)
 
 # COMMAND ----------
 
@@ -400,12 +396,12 @@ def update_data_quality_rules(data_contract, catalog, schema, custom_dq_rules_in
 
 
 # Apply data quality rules to the ODCS YAML contract
-data_contract_odcs_yaml = update_data_quality_rules(data_contracts_combined, catalog, schema, custom_dq_rules_input)
+data_contract_odcs_yaml = update_data_quality_rules(data_contracts_combined, source_catalog, source_schema, custom_dq_rules_input)
 
 # COMMAND ----------
 
 # DBTITLE 1,Update ODCS Metadata (Custom)
-def update_odcs_contract_metadata(data_contract, contract_metadata_input):
+def update_odcs_contract_metadata(data_contract, contract_metadata_input, catalog, schema):
     """
     Updates the top-level metadata fields of an ODCS data contract.
     This function sets the contract’s title, version, status, domain, and additional metadata 
@@ -434,7 +430,7 @@ def update_odcs_contract_metadata(data_contract, contract_metadata_input):
         data_contract["description"] = metadata["contract_description"]
         
         try:
-            data_contract["tags"] = tag_dict_to_list(get_data_contract_tags(catalog, schema))["tags"][schema] # OR 
+            data_contract["tags"] = tag_dict_to_list(get_data_contract_tags(catalog, schema))["tags"][schema]
         except Exception as e: 
             print("unable to get schema level tags so use manual set value in input_data -->  contract_metadata_input --> contract_metadata.json")
             data_contract["tags"] = metadata["contract_tags"] # set manually by user
@@ -445,12 +441,12 @@ def update_odcs_contract_metadata(data_contract, contract_metadata_input):
 
 
 # Apply metadata updates to the ODCS YAML contract
-data_contract_odcs_yaml = update_odcs_contract_metadata(data_contract_odcs_yaml, contract_metadata_input)
+data_contract_odcs_yaml = update_odcs_contract_metadata(data_contract_odcs_yaml, contract_metadata_input, source_catalog, source_schema)
 
 # COMMAND ----------
 
 # DBTITLE 1,Update ODCS Server Configuration (Custom)
-def update_odcs_server_config(data_contract, catalog, schema, server_metadata_input):
+def update_odcs_server_config(data_contract, server_metadata_input, catalog, schema,):
     """
     Updates the server configuration block in an ODCS data contract.
     This sets the Unity Catalog environment details such as server type, host URL, 
@@ -478,7 +474,7 @@ def update_odcs_server_config(data_contract, catalog, schema, server_metadata_in
 
 
 # Update the server configuration in the ODCS data contract
-data_contract_odcs_yaml = update_odcs_server_config(data_contract_odcs_yaml, catalog, schema, server_metadata_input)
+data_contract_odcs_yaml = update_odcs_server_config(data_contract_odcs_yaml, server_metadata_input, source_catalog, source_schema)
 
 # COMMAND ----------
 
@@ -606,7 +602,7 @@ def save_odcs_data_contract_local(data_contract, catalog, schema, yaml_folder_pa
 
 
 # Save the ODCS data contract locally
-yaml_file_path = save_odcs_data_contract_local(data_contract_odcs_yaml, catalog, schema, yaml_folder_path)
+yaml_file_path = save_odcs_data_contract_local(data_contract_odcs_yaml, source_catalog, source_schema, yaml_folder_path)
 
 # COMMAND ----------
 

@@ -28,18 +28,18 @@ time.sleep(5)
 
 # DBTITLE 1,Workflow Widget Parameters
 # Folder and File Path Widget Parameters
-dbutils.widgets.text("data_contract_filename_catalog", "hive_metastore")
-data_contract_filename_catalog = dbutils.widgets.get("data_contract_filename_catalog")
+dbutils.widgets.text("source_catalog", "hive_metastore")
+source_catalog = dbutils.widgets.get("source_catalog")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="data_contract_filename_catalog", value=data_contract_filename_catalog) 
-print(f"data_contract_filename_catalog: {data_contract_filename_catalog}")
+dbutils.jobs.taskValues.set(key="source_catalog", value=source_catalog) 
+print(f"source_catalog: {source_catalog}")
 
 
-dbutils.widgets.text("data_contract_filename_schema", "default")
-data_contract_filename_schema = dbutils.widgets.get("data_contract_filename_schema")
+dbutils.widgets.text("source_schema", "default")
+source_schema = dbutils.widgets.get("data_consource_schematract_filename_schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="data_contract_filename_schema", value=data_contract_filename_schema)
-print(f"data_contract_filename_schema: {data_contract_filename_schema}")
+dbutils.jobs.taskValues.set(key="source_schema", value=source_schema)
+print(f"source_schema: {source_schema}")
 
 
 dbutils.widgets.text("data_contract_folder_path", "./data_contracts_data") # should be a volume
