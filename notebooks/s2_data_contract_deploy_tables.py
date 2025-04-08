@@ -51,7 +51,7 @@ print(f"data_contract_folder_path: {data_contract_folder_path}")
 
 # This variable below is used in the workflow named 'data_contract_deploy' task which 
 # runs 's4_data_contract_deploy_data' and 's5_data_contract_dq_checks' (IMPORTANT)
-yaml_file_path = f"{data_contract_folder_path}/{data_contract_filename_catalog}__{data_contract_filename_schema}.yaml"
+yaml_file_path = f"{data_contract_folder_path}/{source_catalog}__{source_schema}.yaml"
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="yaml_file_path", value=yaml_file_path)
 print(f"yaml_file_path: {yaml_file_path}")
