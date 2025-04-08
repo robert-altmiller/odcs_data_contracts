@@ -27,7 +27,7 @@ source_schema = dbutils.widgets.get("source_schema")
 print(f"source_schema: {source_schema}")
 
 
-dbutils.widgets.text("target_schema", "default_prod")
+dbutils.widgets.text("target_schema", "default_target")
 target_schema = dbutils.widgets.get("target_schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="target_schema", value=target_schema) 

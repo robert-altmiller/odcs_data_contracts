@@ -53,7 +53,7 @@ dq_catalog = dbutils.widgets.get("dq_catalog")
 print(f"dq_catalog: {dq_catalog}")
 
 
-dbutils.widgets.text("dq_schema", "default_prod")
+dbutils.widgets.text("dq_schema", "default_target")
 dq_schema = dbutils.widgets.get("dq_schema")
 print(f"dq_schema: {dq_schema}")
 

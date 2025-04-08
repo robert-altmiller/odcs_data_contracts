@@ -80,7 +80,7 @@ print(queries_ddl_list)
 # DBTITLE 1,Execute Data Contract DDL
 for query in queries_ddl_list:
     query_clean = query.replace("CREATE OR REPLACE TABLE", "CREATE TABLE IF NOT EXISTS") # We do not want to overwrite an existing source table with a generated DL
-    query_clean = query_clean.replace("decimal", "double") # We use 'double' due to floating point precision errors with decimal (e.g. decimal(10,0))
+    query_clean = query_clean.replace("decimal", "double") # We use 'double' due to floating point precision errors with decimal (e.g. decimal(10,2) --> decimal(10,0))
     try:
         x = spark.sql(query_clean)
     except Exception as e:
