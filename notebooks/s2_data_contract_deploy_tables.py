@@ -36,7 +36,7 @@ print(f"source_catalog: {source_catalog}")
 
 
 dbutils.widgets.text("source_schema", "default")
-source_schema = dbutils.widgets.get("data_consource_schematract_filename_schema")
+source_schema = dbutils.widgets.get("source_schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="source_schema", value=source_schema)
 print(f"source_schema: {source_schema}")
