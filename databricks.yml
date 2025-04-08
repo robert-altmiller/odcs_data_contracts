@@ -7,9 +7,6 @@ include:
 databricks_host_final: ${var.databricks_host}
 
 variables:
-  databricks_host:
-    default: default
-    description: Default Databricks host url
   branch_name:
     default: default
     description: Default branch name
@@ -40,7 +37,7 @@ targets:
       pipelines_development: true
       trigger_pause_status: UNPAUSED
     workspace:
-      host: ${databricks_host_final}
+      host: ${env.databricks_host}
       root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     run_as:
       user_name: ${var.user_email}
