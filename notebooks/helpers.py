@@ -226,8 +226,11 @@ def get_columns_in_table(catalog: str, schema: str, table: str) -> list:
     Returns:
         list: A list of column names as strings.
     """
-    return spark.read.table(f"{catalog}.{schema}.{table}").columns
-
+    try:
+        return spark.read.table(f"{catalog}.{schema}.{table}").columns
+    except Exception as e:
+        print(f"Error getting table columns for {catalog}.{schema}.{table}: {e}")
+        return []
 
 # COMMAND ----------
 
