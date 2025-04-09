@@ -1,6 +1,6 @@
 # Databricks notebook source
 # DBTITLE 1,Pip Install Libraries
-# MAGIC %pip install 'datacontract-cli[databricks,avro,csv,parquet,sql]'
+# MAGIC %pip install 'datacontract-cli[databricks]'
 
 # COMMAND ----------
 

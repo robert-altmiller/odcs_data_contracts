@@ -1,6 +1,6 @@
 # Databricks notebook source
 # DBTITLE 1,Pip Install Libraries
-# MAGIC %pip install 'datacontract-cli[databricks,avro,csv,parquet,sql]'
+# MAGIC %pip install 'datacontract-cli[databricks]'
 
 # COMMAND ----------
 
@@ -10,7 +10,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 # DBTITLE 1,Python Imports
-import json, os, time
+import json, os, time, yaml
 import pyspark.sql.functions as F
 from datacontract.data_contract import DataContract
 
@@ -47,24 +47,19 @@ print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}
 
 # DBTITLE 1,Workflow Widget Parameters
 # Data Contract Parameters
-# Create text widgets with default values
-# dbutils.widgets.text("dq_catalog", "hive_metastore")
-# dq_catalog = dbutils.widgets.get("dq_catalog")
-# print(f"dq_catalog: {dq_catalog}")
+
+dbutils.widgets.text("source_catalog", "hive_metastore")
+source_catalog = dbutils.widgets.get("source_catalog")
+print(f"source_catalog: {source_catalog}")
 
 
-# dbutils.widgets.text("dq_schema", "default_prod")
-# dq_schema = dbutils.widgets.get("dq_schema")
-# print(f"dq_schema: {dq_schema}")
-
-
-# dbutils.widgets.text("source_schema", "default")
-# source_schema = dbutils.widgets.get("source_schema")
-# print(f"source_schema: {source_schema}")
+dbutils.widgets.text("source_schema", "default")
+source_schema = dbutils.widgets.get("source_schema")
+print(f"source_schema: {source_schema}")
 
 
 # Create yaml_file_path dynamically using f-string
-yaml_file_path_default = f"./data_contracts_data/{dq_catalog}__{source_schema}.yaml"
+yaml_file_path_default = f"./data_contracts_data/{source_catalog}__{source_schema}.yaml"
 dbutils.widgets.text("yaml_file_path", yaml_file_path_default)
 yaml_file_path = dbutils.widgets.get("yaml_file_path")
 print(f"yaml_file_path: {yaml_file_path}")
@@ -90,14 +85,14 @@ with open(yaml_file_path, 'r') as f:
 
 # DBTITLE 1,Get Contract Catalog and Schema
 # Get the data contract catalog and schema
-contract_source_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
-contract_source_schema = data_contract_odcs_yaml["servers"][0]["schema"]
+contract_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
+contract_schema = data_contract_odcs_yaml["servers"][0]["schema"]
 
 
 # COMMAND ----------
 
 # DBTITLE 1,Run Data Quality Tests Function
-def run_data_quality_tests(yaml_file_path, data_contract, dq_path="./data_quality", dq_file="data_quality.json"):
+def run_data_quality_tests(data_contract, yaml_file_path, dq_path="./data_quality", dq_file="data_quality.json"):
     """
     Executes data quality tests defined in an ODCS data contract and writes the results to a JSON file.
 
@@ -156,7 +151,7 @@ def run_data_quality_tests(yaml_file_path, data_contract, dq_path="./data_qualit
 dq_results_df = run_data_quality_tests(data_contract, yaml_file_path, dq_path = dq_folder_path)
 
 # Write to a managed Delta table (overwrite mode)
-dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{contract_source_catalog}.{contract_source_schema}.odcs_data_quality")
+dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{contract_catalog}.{contract_schema}.odcs_data_quality")
 
 # Display the results
 display(dq_results_df)
