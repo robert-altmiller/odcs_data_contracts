@@ -76,6 +76,18 @@ print(f"dq_folder_path: {dq_folder_path}")
 
 # COMMAND ----------
 
+# DBTITLE 1,Initialize the data contract object
+# Initialize the data contract object
+data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
+
+# COMMAND ----------
+
+# DBTITLE 1,Read in the Data Contract Yaml
+with open(yaml_file_path, 'r') as f:
+    data_contract_odcs_yaml = yaml.safe_load(f)
+
+# COMMAND ----------
+
 # DBTITLE 1,Get Contract Catalog and Schema
 # Get the data contract catalog and schema
 contract_source_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
@@ -85,7 +97,7 @@ contract_source_schema = data_contract_odcs_yaml["servers"][0]["schema"]
 # COMMAND ----------
 
 # DBTITLE 1,Run Data Quality Tests Function
-def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="data_quality.json"):
+def run_data_quality_tests(yaml_file_path, data_contract, dq_path="./data_quality", dq_file="data_quality.json"):
     """
     Executes data quality tests defined in an ODCS data contract and writes the results to a JSON file.
 
@@ -105,8 +117,7 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
     Returns:
         DataFrame: A Spark DataFrame containing the test results.
     """
-    # Load the contract and run tests
-    data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
+    # Run data contract data quality tests
     test_results = data_contract.test()
 
     # Extract test results into list of dictionaries
@@ -142,7 +153,7 @@ def run_data_quality_tests(yaml_file_path, dq_path="./data_quality", dq_file="da
 
 # DBTITLE 1,Run ODCS Contract Data Quality Tests and Store in DF
 # Example usage
-dq_results_df = run_data_quality_tests(yaml_file_path, dq_path = dq_folder_path)
+dq_results_df = run_data_quality_tests(data_contract, yaml_file_path, dq_path = dq_folder_path)
 
 # Write to a managed Delta table (overwrite mode)
 dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{contract_source_catalog}.{contract_source_schema}.odcs_data_quality")
