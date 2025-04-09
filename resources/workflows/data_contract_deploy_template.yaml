@@ -14,7 +14,7 @@ resources:
           job_cluster_key: Job_cluster
           libraries:
             - pypi:
-                package: datacontract-cli[databricks,avro,csv,parquet,sql]
+                package: datacontract-cli[databricks]
 
         - task_key: Data_Contract_Tags
           depends_on:
@@ -49,15 +49,14 @@ resources:
             base_parameters:
               dq_folder_path: "{{ params.base_path }}/{{ params.dq_folder_path }}"
               running_in_workflow: True
-              {% raw %}dq_catalog: "{{tasks.Data_Contract_Tables.values.source_catalog}}"
+              {% raw %}source_catalog: "{{tasks.Data_Contract_Tables.values.source_catalog}}"
               source_schema: "{{tasks.Data_Contract_Tables.values.source_schema}}"
-              yaml_file_path: "{{tasks.Data_Contract_Tables.values.yaml_file_path}}"
-              dq_schema: "{{tasks.Data_Contract_Data.values.target_schema}}"{% endraw %}
+              yaml_file_path: "{{tasks.Data_Contract_Tables.values.yaml_file_path}}"{% endraw %}
             source: GIT
           job_cluster_key: Job_cluster
           libraries:
             - pypi:
-                package: datacontract-cli[databricks,avro,csv,parquet,sql]
+                package: datacontract-cli[databricks]
 
       job_clusters:
         - job_cluster_key: Job_cluster
