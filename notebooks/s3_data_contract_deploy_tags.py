@@ -76,36 +76,102 @@ def deploy_tags(level, deploy_tags_list):
 # COMMAND ----------
 
 # DBTITLE 1,Get Tags From Data Contract
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 # Get the data contract catalog and schema
 contract_source_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
 contract_source_schema = data_contract_odcs_yaml["servers"][0]["schema"]
 
-    
-# Deploy schema level tags
+# Deploy schema-level tags
 schema_tags_formatted = format_tags(data_contract_odcs_yaml["tags"])
-schema_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}": schema_tags_formatted}
-if schema_tags_deploy: # Created SQL alter tags stmt
+schema_tags_deploy = {
+    f"{contract_source_catalog}.{contract_source_schema}": schema_tags_formatted
+}
+if schema_tags_formatted:
     results = deploy_tags("schema", schema_tags_deploy)
     print(f"{results} for {contract_source_catalog}.{contract_source_schema}\n")
 
 
-# Deploy table level tags
+# Define threaded column deployment
+def deploy_column_tag(catalog: str, schema: str, table: str, col_props: dict):
+    source_col = col_props["name"]
+    col_tags_formatted = format_tags(col_props.get("tags", {}))
+    if col_tags_formatted:
+        fq_col = f"{catalog}.{schema}.{table}.{source_col}"
+        col_tags_deploy = {fq_col: col_tags_formatted}
+        results = deploy_tags("column", col_tags_deploy)
+        return f"{results} for {fq_col}"
+    return None
+
+
+# Deploy table-level and column-level tags
 schema_obj = data_contract_odcs_yaml["schema"]
-for table_properties in schema_obj:
-    source_table = table_properties["name"]
-    table_tags_formatted = format_tags(table_properties["tags"])
-    if table_tags_formatted: # Created SQL alter tags stmt
-        table_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}.{source_table}": table_tags_formatted}
-        results = deploy_tags("table", table_tags_deploy)
-        print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}\n")
+with ThreadPoolExecutor(max_workers=10) as executor:
+    futures = []
+
+    for table_properties in schema_obj:
+        source_table = table_properties["name"]
+
+        # Table-level tags
+        table_tags_formatted = format_tags(table_properties.get("tags", {}))
+        if table_tags_formatted:
+            table_tags_deploy = {
+                f"{contract_source_catalog}.{contract_source_schema}.{source_table}": table_tags_formatted
+            }
+            results = deploy_tags("table", table_tags_deploy)
+            print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}\n")
+
+        # Column-level tags (submitted to thread pool)
+        for col_properties in table_properties.get("properties", []):
+            futures.append(
+                executor.submit(
+                    deploy_column_tag,
+                    contract_source_catalog,
+                    contract_source_schema,
+                    source_table,
+                    col_properties
+                )
+            )
+
+    # Wait for all futures to complete
+    for future in as_completed(futures):
+        result = future.result()
+        if result:
+            print(result)
 
 
-    # Deploy column level tags
-    source_table_cols = get_columns_in_table(contract_source_catalog, contract_source_schema, source_table)
-    for col_properties in table_properties["properties"]:
-        source_col = col_properties["name"]
-        col_tags_formatted = format_tags(col_properties["tags"])
-        if col_tags_formatted: # Created SQL alter tags stmt
-            col_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}.{source_table}.{source_col}": col_tags_formatted}
-            results = deploy_tags("column", col_tags_deploy)
-            print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}.{source_col}\n")
+# COMMAND ----------
+
+# DBTITLE 1,Get Tags From Data Contract (Old)
+# # Get the data contract catalog and schema
+# contract_source_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
+# contract_source_schema = data_contract_odcs_yaml["servers"][0]["schema"]
+
+    
+# # Deploy schema level tags
+# schema_tags_formatted = format_tags(data_contract_odcs_yaml["tags"])
+# schema_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}": schema_tags_formatted}
+# if schema_tags_deploy: # Created SQL alter tags stmt
+#     results = deploy_tags("schema", schema_tags_deploy)
+#     print(f"{results} for {contract_source_catalog}.{contract_source_schema}\n")
+
+
+# # Deploy table level tags
+# schema_obj = data_contract_odcs_yaml["schema"]
+# for table_properties in schema_obj:
+#     source_table = table_properties["name"]
+#     table_tags_formatted = format_tags(table_properties["tags"])
+#     if table_tags_formatted: # Created SQL alter tags stmt
+#         table_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}.{source_table}": table_tags_formatted}
+#         results = deploy_tags("table", table_tags_deploy)
+#         print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}\n")
+
+
+#     # Deploy column level tags
+#     for col_properties in table_properties["properties"]:
+#         source_col = col_properties["name"]
+#         col_tags_formatted = format_tags(col_properties["tags"])
+#         if col_tags_formatted: # Created SQL alter tags stmt
+#             col_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}.{source_table}.{source_col}": col_tags_formatted}
+#             results = deploy_tags("column", col_tags_deploy)
+#             print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}.{source_col}\n")
