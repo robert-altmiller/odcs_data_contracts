@@ -421,13 +421,13 @@ def update_odcs_contract_metadata(data_contract, contract_metadata_input, catalo
         dict: The updated data contract dictionary with domain and metadata fields populated.
     """
     for metadata in contract_metadata_input:
-        data_contract["name"] = metadata["contract_title"]
-        data_contract["version"] = metadata["contract_version"]
-        data_contract["status"] = metadata["contract_status"]
-        data_contract["domain"] = metadata["contract_domain"]
-        data_contract["dataProduct"] = metadata["contract_data_product"]
-        data_contract["tenant"] = metadata["contract_tenant"]
-        data_contract["description"] = metadata["contract_description"]
+        data_contract["name"] = metadata["name"]
+        data_contract["version"] = metadata["version"]
+        data_contract["domain"] = metadata["domain"]
+        data_contract["status"] = metadata["status"]
+        data_contract["dataProduct"] = metadata["dataproduct"]
+        data_contract["tenant"] = metadata["tenant"]
+        data_contract["description"] = metadata["description"]
         
         try:
             data_contract["tags"] = tag_dict_to_list(get_data_contract_tags(catalog, schema))["tags"][schema]
@@ -446,7 +446,7 @@ data_contract_odcs_yaml = update_odcs_contract_metadata(data_contract_odcs_yaml,
 # COMMAND ----------
 
 # DBTITLE 1,Update ODCS Server Configuration (Custom)
-def update_odcs_server_config(data_contract, server_metadata_input, catalog, schema,):
+def update_odcs_server_config(data_contract, server_metadata_input, catalog = None, schema = None):
     """
     Updates the server configuration block in an ODCS data contract.
     This sets the Unity Catalog environment details such as server type, host URL, 
@@ -461,11 +461,15 @@ def update_odcs_server_config(data_contract, server_metadata_input, catalog, sch
     Returns:
         dict: The updated data contract dictionary with server configuration populated.
     """
+    # if catalog and schema parameters are None
+    if catalog == None: catalog = metadata["catalog"]
+    if schema == None: schema = metadata["schema"]
+    
     for metadata in server_metadata_input:
         updated_server_config = {
-            "server": metadata["environment"],
-            "type": metadata["server_config_type"],
-            "host": metadata["databricks_instance"],
+            "server": metadata["server"],
+            "type": metadata["type"],
+            "host": metadata["host"],
             "catalog": catalog,
             "schema": schema
         }

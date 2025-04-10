@@ -1,0 +1,26 @@
+[
+  {
+    "customer": {
+        "quality": [
+            {
+                "type": "sql",
+                "description": "Ensures customer table has 100 or less customers",
+                "query": "SELECT COUNT(*) FROM customer",
+                "mustBeLessThanOrEqualTo": 100
+            },
+            {
+                "type": "sql",
+                "description": "Ensures every customer has an email",
+                "query": "SELECT COUNT(*) FROM customer WHERE email IS NULL",
+                "mustBe": 0
+            },
+            {
+                "type": "sql",
+                "description": "Ensures every customer has a first and last name",
+                "query": "SELECT COUNT(*) FROM customer WHERE first_name IS NULL OR last_name IS NULL",
+                "mustBe": 0
+            }
+        ]
+    }
+  }
+]

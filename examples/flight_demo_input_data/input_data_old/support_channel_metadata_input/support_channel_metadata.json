@@ -1,12 +1,12 @@
 [ 
   {
-    "channel": "DAS Teams Channel (Interactive)",
-    "tool": "teams",
-    "scope": "interactive",
-    "url": "https://teams.microsoft.com/channel/das"
+  "channel": "DAS Teams Channel",
+  "tool": "teams",
+  "scope": "interactive",
+  "url": "https://teams.microsoft.com/channel/das"
   },
   {
-    "channel": "DAS Teams Channel (Announcements)",
+    "channel": "DAS Teams Channel",
     "tool": "teams",
     "scope": "annoucements",
     "url": "https://teams.microsoft.com/channel/das/announcements"

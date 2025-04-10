@@ -1,7 +1,9 @@
 [
   {
-    "environment": "development",
-    "server_config_type": "databricks",
-    "databricks_instance": "https://adb-5809742986594827.7.azuredatabricks.net"
+    "server": "development",
+    "type": "databricks",
+    "host": "https://adb-4191419936804633.13.azuredatabricks.net/",
+    "catalog": "hive_metastore",
+    "schema": "default"
   }
 ]

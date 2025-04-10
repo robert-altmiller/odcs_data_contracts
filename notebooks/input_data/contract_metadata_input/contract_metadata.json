@@ -1,16 +1,16 @@
 [
   {
-    "contract_title": "Testing Data Contract",
-    "contract_version": "1.1.0",
-    "contract_status": "active",
-    "contract_domain": "flight",
-    "contract_data_product": "flight data products",
-    "contract_tenant": "boeing airlines",
-    "contract_description": {
-      "purpose": "tables with test data for testing",
-      "limitations": "",
-      "usage": ""
+    "name": "Flight Stats",
+    "version": "1.0.0",
+    "domain": "flight",
+    "status": "active",
+    "dataproduct": "Passenger Flights Data Product",
+    "tenant": "Boeing Airlines",
+    "description": {
+      "purpose": "The data_contracts_dev schema contains information about passenger flights",
+      "limitations": "No limitations",
+      "usage": "All"
     },
-    "contract_tags": ["team:flight", "scope:das"]
+    "tags": ["team:passenger_flights", "scope:das_boeing"]
   }
 ]
