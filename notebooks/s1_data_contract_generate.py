@@ -301,6 +301,52 @@ data_contract_odcs_yaml = update_odcs_sla_metadata(data_contract_odcs_yaml, sla_
 
 # MAGIC %md
 # MAGIC
+# MAGIC ## Step: Update ODCS Team (Custom)
+# MAGIC
+# MAGIC The ODCS team configuration specifies username, role, datein, dateout, replacebyusernam, comment, and name.  These fields are additional metadata for the data consumer to understand who supports a specifc product domain.  This is important for a data consumer because these product domain subject matter experts (SMEs) can be reached if there are issues, questions or enhancements needed for a data product.
+# MAGIC
+# MAGIC This section below uses the Python helper function 'update_odcs_team_metadata()' in the helpers folder --> contract_helpers.py to read user specified JSON high-level contract metadata in the 'input_data' folder --> 'team_metadata_input' folder --> teams_metadata.json and append the Team metadata to the ODCS data contract.  There is no limit on the number of Team requirements in an ODCS data contract.
+
+# COMMAND ----------
+
+# DBTITLE 1,Update ODCS Team (Custom)
+# Add teams to the ODCS data contract
+data_contract_odcs_yaml = update_odcs_team_metadata(data_contract_odcs_yaml, team_metadata_input)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ## Step: Update ODCS Roles (Custom)
+# MAGIC
+# MAGIC The ODCS roles configuration specifies role, access, firstlevelapprovers, and secondlevelapprovers.  These fields are additional metadata that define what roles data consumers need to be able to access data products.  These roles can also be mapped directly to user groups.  These roles are important for data consumers to have the right level of access to a data product.
+# MAGIC
+# MAGIC This section below uses the Python helper function 'update_odcs_roles_metadata()' in the helpers folder --> contract_helpers.py to read user specified JSON high-level contract metadata in the 'input_data' folder --> 'roles_metadata_input' folder --> roles_metadata.json and append the Roles metadata to the ODCS data contract.  There is no limit on the number of Role requirements in an ODCS data contract.
+
+# COMMAND ----------
+
+# DBTITLE 1,Update ODCS Roles (Custom)
+data_contract_odcs_yaml = update_odcs_roles_metadata(data_contract_odcs_yaml, roles_metadata_input)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ## Step: Update ODCS Pricing (Custom)
+# MAGIC
+# MAGIC The ODCS pricing configuration specifies priceamount, priceunit, anbd pricecurrency.  These fields are additional metadata that define how much .  These roles can also be mapped directly to user groups.  These roles are important for data consumers to have the right level of access to a data product.
+# MAGIC
+# MAGIC This section below uses the Python helper function 'update_odcs_pricing_metadata()' in the helpers folder --> contract_helpers.py to read user specified JSON high-level contract metadata in the 'input_data' folder --> 'pricing_metadata_input' folder --> pricing_metadata.json and append the Pricing metadata to the ODCS data contract.  There is no limit on the number of Pricing requirements in an ODCS data contract.
+
+# COMMAND ----------
+
+# DBTITLE 1,Update ODCS Pricing (Custom)
+data_contract_odcs_yaml = update_odcs_pricing_metadata(data_contract_odcs_yaml, pricing_metadata_input)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
 # MAGIC ## Step: Save ODCS Data Contract Locally
 # MAGIC
 # MAGIC After all the required sections are appended to the ODCS data contract object it's time to save the contract locally, in the Databricks file system, or in a Unity Catalog (UC) volume.  The __RECOMMENDATION__ is to use a custom UC volumes location that is backed by a storage account S3 bucket or ADLSGEN2 container. Since the contract data-first approach creates an ODCS data contract at the Catalog.Schema level the __NAMING CONVENTION__ for the contract should reflect the following pattern: '{catalog_name}__{schema_name}.yaml'.  It is also important to ensure you have a robust and scalable organizational folder structure or Spark dataframe partitioning strategy for storing data contracts.  This folder structure or Spark dataframe partitioning strategy should enable storing multiple versions of contracts easily when existing contracts are updated or deleted from over time.  In consideration of the spark dataframe method in 'Example 3' below the contract 'version_number' would have to be stored in each row of the dataframe.  A single row in the Spark dataframe would represent all the data associated with one Catalog.Schema data product ODCS data contract.

@@ -468,3 +468,18 @@ sla_metadata_input = read_json_file(file_path = sla_metadata_input_path)
 sla_metadata_input_path = f"{input_base_path}/sla_metadata_input/sla_metadata.json"
 sla_metadata_input = read_json_file(file_path = sla_metadata_input_path)
 # print(f"sla_metadata_input:\n{sla_metadata_input}\n")
+
+# Team metadata input
+team_metadata_input_path = f"{input_base_path}/team_metadata_input/team_metadata.json"
+team_metadata_input = read_json_file(file_path = team_metadata_input_path)
+# print(f"team_metadata_input:\n{team_metadata_input}\n")
+
+# Roles metadata input
+roles_metadata_input_path = f"{input_base_path}/roles_metadata_input/roles_metadata.json"
+roles_metadata_input = read_json_file(file_path = roles_metadata_input_path)
+# print(f"roles_metadata_input:\n{roles_metadata_input}\n")
+
+# Price metadata input
+pricing_metadata_input_path = f"{input_base_path}/pricing_metadata_input/pricing_metadata.json"
+pricing_metadata_input = read_json_file(file_path = pricing_metadata_input_path)
+# print(f"pricing_metadata_input:\n{pricing_metadata_input}\n")

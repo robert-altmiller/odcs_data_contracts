@@ -1,0 +1,26 @@
+[
+  {
+    "username": "ceastwood",
+    "role": "Data Scientist",
+    "datein": "2024-08-02",
+    "dateout": "2024-10-01",
+    "replacedbyusername": "mhopper"
+  },
+  {
+    "username": "mhopper",
+    "role": "Data Scientist",
+    "datein": "2024-10-01"
+  },
+  {
+    "username": "rcrabtree",
+    "role": "Data Engineer",
+    "datein": "2024-10-01"
+  },
+  {
+    "username": "daustin",
+    "role": "Owner",
+    "comment": "Full owner admin access",
+    "name": "David Austin",
+    "datein": "2024-10-01"
+  }
+]

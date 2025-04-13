@@ -1,0 +1,26 @@
+[
+  {
+    "role": "data_contract_user",
+    "access": "read",
+    "firstlevelapprovers": "Product Domain Manager",
+    "secondlevelapprovers": "Product Domain Engineer"
+  },
+  {
+    "role": "data_contract_contributors",
+    "access": "write",
+    "firstlevelapprovers": "Product Domain Manager",
+    "secondlevelapprovers": "Product Domain Engineer"
+  },
+  {
+    "role": "data_contract_admins",
+    "access": "admin",
+    "firstlevelapprovers": "Product Domain Manager",
+    "secondlevelapprovers": "Product Domain Engineer"
+  },
+  {
+    "role": "data_contract_owners",
+    "access": "owner",
+    "firstlevelapprovers": "Product Domain Manager",
+    "secondlevelapprovers": "Product Domain Engineer"
+  }
+]

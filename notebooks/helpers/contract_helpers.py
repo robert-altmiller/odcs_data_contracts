@@ -623,6 +623,124 @@ def update_odcs_sla_metadata(data_contract, sla_metadata_input):
 
 # COMMAND ----------
 
+# DBTITLE 1,Update ODCS Team (Custom)
+def update_odcs_team_metadata(data_contract, team_metadata_input):
+    """
+    Appends Team metadata to the ODCS data contract.
+    This updates Team properties (e.g., usernames, roles) associated 
+    with the data product.
+    Args:
+        data_contract (dict): The ODCS data contract dictionary to update.
+        team_metadata_input (list of dict): A list containing Team metadata entries.
+            Each entry can contain the following keys:
+            - name (str): user full name.
+            - username (str): user name.
+            - role (str): user role.
+            - datein (str): access granted date.
+            - dateout (str): revoked access date.
+            - replacebyusername (srt): replace by username.
+            - comment (str): comments.
+    Returns:
+        dict: The updated data contract dictionary with new Team metadata.
+    """
+    # Ensure Team is a list
+    existing_team = data_contract.setdefault("team", [])
+
+    for metadata in team_metadata_input:
+        updated_team_metadata = {
+            "username": metadata["username"],
+            "role": metadata["role"],
+            "dateIn": metadata["datein"]
+        }
+        if "dateout" in metadata: updated_team_metadata["dateOut"] = metadata["dateout"]
+        if "replacebyusername" in metadata: updated_team_metadata["replaceByUsername"] = metadata["replacebyusername"]
+        if "comment" in metadata: updated_team_metadata["comment"] = metadata["comment"]
+        if "name" in metadata: updated_team_metadata["name"] = metadata["name"]
+
+        # Check if Team metadata already exists
+        if json.dumps(updated_team_metadata, sort_keys=True) not in [json.dumps(s, sort_keys=True) for s in existing_team]:
+            existing_team.append(updated_team_metadata)
+            print(f"appended team to ODCS data contract: '{updated_team_metadata}' to data contract")
+        else:
+            print(f"already appended team to ODCS data contract: '{updated_team_metadata}' to data contract")
+    return data_contract
+
+# COMMAND ----------
+
+# DBTITLE 1,Update ODCS Roles (Custom)
+def update_odcs_roles_metadata(data_contract, roles_metadata_input):
+    """
+    Appends Roles metadata to the ODCS data contract.
+    This updates Roles properties (e.g. role, access level) associated 
+    with the data product.
+    Args:
+        data_contract (dict): The ODCS data contract dictionary to update.
+        roles_metadata_input (list of dict): A list containing Roles metadata entries.
+            Each entry can contain the following keys:
+            - role (str): user name.
+            - access (str): role access.
+            - firstlevelapprovers (str): first level approver.
+            - secondlevelapprovers (str): second level approver.
+    Returns:
+        dict: The updated data contract dictionary with new Roles metadata.
+    """
+    # Ensure Roles is a list
+    existing_roles = data_contract.setdefault("roles", [])
+
+    for metadata in roles_metadata_input:
+        updated_roles_metadata = {
+            "role": metadata["role"],
+            "access": metadata["access"],
+            "firstlevelApprovers": metadata["firstlevelapprovers"],
+            "secondlevelApprovers": metadata["secondlevelapprovers"]
+        }
+
+        # Check if Roles metadata already exists
+        if json.dumps(updated_roles_metadata, sort_keys=True) not in [json.dumps(s, sort_keys=True) for s in existing_roles]:
+            existing_roles.append(updated_roles_metadata)
+            print(f"appended roles to ODCS data contract: '{updated_roles_metadata}' to data contract")
+        else:
+            print(f"already appended roles to ODCS data contract: '{updated_roles_metadata}' to data contract")
+    return data_contract
+
+# COMMAND ----------
+
+# DBTITLE 1,Update ODCS Pricing (Custom)
+def update_odcs_pricing_metadata(data_contract, pricing_metadata_input):
+    """
+    Appends Pricing metadata to the ODCS data contract.
+    This updates Roles properties (e.g. priceamount, pricecurrency) associated 
+    with the data product.
+    Args:
+        data_contract (dict): The ODCS data contract dictionary to update.
+        pricing_metadata_input (list of dict): A list containing Roles metadata entries.
+            Each entry can contain the following keys:
+            - priceamount (float): price amount.
+            - pricecurrencyt (str): price unit (e.g. megabytes).
+            - priceunit (str): pricing unit.
+    Returns:
+        dict: The updated data contract dictionary with new Roles metadata.
+    """
+    # Ensure Pricing is a list
+    existing_pricing = data_contract.setdefault("price", [])
+
+    for metadata in pricing_metadata_input:
+        updated_pricing_metadata = {
+            "priceAmount": float(metadata["priceamount"]),
+            "priceCurrency": metadata["pricecurrency"],
+            "priceUnit": metadata["priceunit"]
+        }
+
+        # Check if Roles metadata already exists
+        if json.dumps(updated_pricing_metadata, sort_keys=True) not in [json.dumps(s, sort_keys=True) for s in existing_pricing]:
+            existing_pricing.append(updated_pricing_metadata)
+            print(f"appended roles to ODCS data contract: '{updated_pricing_metadata}' to data contract")
+        else:
+            print(f"already appended roles to ODCS data contract: '{updated_pricing_metadata}' to data contract")
+    return data_contract
+
+# COMMAND ----------
+
 # DBTITLE 1,Save ODCS Data Contract Locally
 def save_odcs_data_contract_local(data_contract, catalog, schema, yaml_folder_path):
     """
