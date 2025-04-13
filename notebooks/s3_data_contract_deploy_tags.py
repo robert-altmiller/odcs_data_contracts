@@ -1,11 +1,6 @@
 # Databricks notebook source
 # DBTITLE 1,Import Python Helpers
-# MAGIC %run "./helpers"
-
-# COMMAND ----------
-
-# DBTITLE 1,Python Imports
-import yaml
+# MAGIC %run "./helpers/contract_helpers"
 
 # COMMAND ----------
 

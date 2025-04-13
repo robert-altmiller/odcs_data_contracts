@@ -10,13 +10,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 
 # DBTITLE 1,Import Python Helpers
-# MAGIC %run "./helpers"
-
-# COMMAND ----------
-
-# DBTITLE 1,Python Imports
-import ast, re, time
-from datacontract.data_contract import DataContract
+# MAGIC %run "./helpers/contract_helpers"
 
 # COMMAND ----------
 

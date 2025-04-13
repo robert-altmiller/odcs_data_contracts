@@ -9,15 +9,8 @@ dbutils.library.restartPython()
 
 # COMMAND ----------
 
-# DBTITLE 1,Python Imports
-import json, os, time, yaml
-import pyspark.sql.functions as F
-from datacontract.data_contract import DataContract
-
-# COMMAND ----------
-
 # DBTITLE 1,Import Python Helpers
-# MAGIC %run "./helpers"
+# MAGIC %run "./helpers/contract_helpers"
 
 # COMMAND ----------
 

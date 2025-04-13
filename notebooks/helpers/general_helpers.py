@@ -1,32 +1,20 @@
 # Databricks notebook source
 # DBTITLE 1,Library Imports
-import json
+# Standard library imports
+import ast, json, os, re, shutil, time
+from datetime import datetime, date
 
-# COMMAND ----------
+# Third-party libraries
+import numpy as np
+import pandas as pd
+import yaml
 
-# DBTITLE 1,Check if Running in a Databricks Job (Doesn't Work With Shared Cluster)
-# 0def get_job_context():
-#     """Retrieve job-related context from the current Databricks notebook."""
-#     # Retrieve the notebook context
-#     ctx = dbutils.notebook.entry_point.getDbutils().notebook().getContext()
-#     # Convert the context to a JSON string
-#     ctx_json = ctx.toJson()
-#     # Parse the JSON string into a Python dictionary
-#     ctx_dict = json.loads(ctx_json)
-#     # Access the 'tags' dictionary
-#     tags_dict = ctx_dict.get('tags', {})
-#     # Filter for keys containing 'job' or 'run'
-#     job_context = {k: v for k, v in tags_dict.items() if 'job' in k.lower() or 'run' in k.lower()}
-#     return ctx_json
+# PySpark imports
+import pyspark.sql.functions as F
+from pyspark.sql.types import *
 
-
-# def is_running_in_databricks_workflow():
-#     """Detect if running inside a Databricks Workflow job."""
-#     job_context = get_job_context()
-#     return 'jobName' in job_context
-
-# Unit test
-# print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
+# ODCS data contract SDK
+from datacontract.data_contract import DataContract
 
 # COMMAND ----------
 
