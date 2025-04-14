@@ -4,6 +4,12 @@
 
 # COMMAND ----------
 
+# DBTITLE 1,Remove DB Widgets
+dbutils.widgets.removeAll()
+time.sleep(5)
+
+# COMMAND ----------
+
 # DBTITLE 1,Workflow Widget Parameters
 # Folder and File Path Widget Parameters
 dbutils.widgets.text("source_catalog", "hive_metastore")
