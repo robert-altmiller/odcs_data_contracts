@@ -27,7 +27,7 @@ This repository is designed to automate the generation of Open Data Contract Sta
 
 After the entire data contract has been successfully created from a Databricks schema and tables this data contract can be deployed using the Data Contract CLI to a __new__ Databricks 'target catalog' and 'target schema':
 
-- The first step is to create the tables defined in the data contract in a Databricks target schema by running Data Contract CLI generated SQL DDLs.  This includes all table and column level comments and descriptions.
+- The first step is to create the tables + columns + column datatypes + table/column comments and descriptions defined in the data contract in a Databricks target schema by running Data Contract CLI generated SQL DDLs.
 - The second step is to deploy the tags to the created tables in the target schema.
 - The third step is to load the data from the Databricks source schema tables to the Databricks target schema tables.  This includes loading all complex nested struct type data.
 - The fourth step is to run the Data Contract CLI out of the box (OOB) and user-defined data quality SQL rules.  The OOB rules check to make sure all columns exists, correct datatypes have been assigned.  User-defined data quality rules are specified using Databricks SQL syntax.  For example, rules can be used to to check and make sure a table has data and no duplicates exist across all rows.
