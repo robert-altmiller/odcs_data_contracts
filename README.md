@@ -57,6 +57,6 @@ Here is the repo folder structure for using the [Github actions](/pipeline_files
 
 ![github_actions.png](/readme_images/github_actions.png)
 
-Here is the repo folder structure for using the [Gitlab actions](/pipeline_files/gitlab/) workflow.  To use this workflow you will need to add a '.' to the front of the filename.
+Here is the repo folder structure for using the [Gitlab actions](/pipeline_files/gitlab/) workflow.  To use this workflow you will need to add a ' . ' to the front of the filename.
 
 ![gitlab_actions.png](/readme_images/gitlab_actions.png)
