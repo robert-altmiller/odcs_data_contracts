@@ -51,12 +51,12 @@ Here are the steps outlined above:
 
 ## Automation with Databricks Asset Bundles (DABS) and CICD
 
-We maintain both [Github actions](/pipeline_files/github/) and [Gitlab actions](/pipeline_files/gitlab/) workflows for deploying steps 1-5 above using two Databricks [workflows](/resources/workflows/).
+We maintain both __Github actions__ and __Gitlab actions__ workflows for deploying steps 1-5 above using two Databricks [workflows](/resources/workflows/).
 
-Here is the repo folder structure for using the __Github actions__ workflow:
+Here is the repo folder structure for using the [Github actions]((/pipeline_files/github/)) workflow:
 
-![github_actions_folder_setup1.png](/readme_images/github_actions_folder_setup.png)
+![github_actions.png](/readme_images/github_actions.png)
 
-Here is the repo folder structure for using the __Gitlab actions__ workflow:
+Here is the repo folder structure for using the [Gitlab actions](/pipeline_files/gitlab/) workflow:
 
-![gitlab_actions_folder_setup2.png](/readme_images/gitlab_actions_folder_setup.png)
+![gitlab_actions.png](/readme_images/gitlab_actions.png)
