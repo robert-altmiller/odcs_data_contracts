@@ -55,8 +55,8 @@ We maintain both [Github actions](/pipeline_files/github/) and [Gitlab actions](
 
 Here is the repo folder structure for using the __Github actions__ workflow:
 
-![github_actions_folder_setup.png](/readme_images/github_actions_folder_setup.png)
+![github_actions_folder_setup1.png](/readme_images/github_actions_folder_setup.png)
 
 Here is the repo folder structure for using the __Gitlab actions__ workflow:
 
-![gitlab_actions_folder_setup.png](/readme_images/gitlab_actions_folder_setup.png)
+![gitlab_actions_folder_setup2.png](/readme_images/gitlab_actions_folder_setup.png)
