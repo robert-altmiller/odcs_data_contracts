@@ -16,7 +16,7 @@ dbutils.library.restartPython()
 
 # DBTITLE 1,Remove DB Widgets
 dbutils.widgets.removeAll()
-time.sleep(5)
+time.sleep(2)
 
 # COMMAND ----------
 

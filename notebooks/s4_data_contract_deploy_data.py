@@ -1,9 +1,4 @@
 # Databricks notebook source
-# DBTITLE 1,Restart Python
-dbutils.library.restartPython()
-
-# COMMAND ----------
-
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
 
@@ -11,7 +6,7 @@ dbutils.library.restartPython()
 
 # DBTITLE 1,Remove DB Widgets
 dbutils.widgets.removeAll()
-time.sleep(5)
+time.sleep(2)
 
 # COMMAND ----------
 
