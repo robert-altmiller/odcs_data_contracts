@@ -1,4 +1,4 @@
-# Databricks Contract Factory (ODCS)
+# Databricks Data Contract Cookbook
 
 Operational Data Contract Specification (ODCS) data contracts are structured agreements between data producers and consumers that define the expectations, structure, and quality of shared data. These contracts are written in YAML and follow a standardized specification to ensure consistency across teams and platforms. They include schema definitions, metadata, and semantic tags, and they serve as the source of truth for how data should look and behave—enabling validation, documentation, and automation across the data lifecycle. Within ODCS, data contracts help enforce schema governance, improve data quality, and streamline collaboration between data producers and consumers in large-scale data platforms and data meshes.
 
@@ -20,3 +20,5 @@ __ODCS Helpful Links:__
 - [Bitol IO ODCS Documentation](https://bitol-io.github.io/open-data-contract-standard/latest/)
 - [Data Contract Manager ODCS Documentation](https://datacontract-manager.com/learn/open-data-contract-standard)
 - [Data Contract vs Data Product Specifications](https://medium.com/%40andrea_gioia/data-contract-vs-data-product-specifications-8ffa3cc16725)
+
+__How do I use the Databricks Data Contract Cookbook:__
