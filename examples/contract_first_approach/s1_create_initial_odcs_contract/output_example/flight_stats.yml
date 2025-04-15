@@ -1,0 +1,142 @@
+apiVersion: v3.0.0
+domain: Curtis
+id: my-data-contract-id
+kind: DataContract
+name: My Data Contract
+schema:
+- logicalType: object
+  name: flightstats
+  physicalName: flightstats
+  physicalType: object
+  properties:
+  - logicalType: string
+    name: departure_airport
+    nullable: false
+    physicalType: string
+    tags:
+    - segment:departure
+    - pii:false
+    unique: false
+  - logicalType: integer
+    name: departure_gate
+    nullable: true
+    physicalType: integer
+    tags:
+    - segment:departure
+    - pii:false
+    unique: false
+  - logicalType: integer
+    name: economy_number_of_seats
+    nullable: false
+    physicalType: integer
+    tags:
+    - segment:seating
+    - pii:false
+    unique: false
+  - logicalType: string
+    name: aircraftmanufacturer
+    nullable: false
+    physicalType: string
+    tags:
+    - segment:manufacturer
+    - pii:false
+    unique: false
+  - logicalType: string
+    name: airline
+    nullable: false
+    physicalType: string
+    tags:
+    - segment:airline
+    - pii:false
+    unique: false
+  - logicalType: string
+    name: flight_number
+    nullable: false
+    physicalType: string
+    tags:
+    - segment:airline
+    - pii:false
+    unique: false
+  quality:
+  - description: Ensures 'flightstats' table has data
+    mustBeGreaterThanOrEqualTo: 0
+    query: SELECT COUNT(*) FROM flightstats
+    type: sql
+  - mustBe: 0
+    name: 'Count of null values in departure_gate '
+    query: select count(*) from  flightstats where departure_gate is null
+    type: sql
+  tags:
+  - segment:departure
+  - pii:false
+- logicalType: object
+  name: flightdeparture
+  physicalName: flightdeparture
+  physicalType: object
+  properties:
+  - logicalType: string
+    name: departure_airport
+    nullable: false
+    physicalType: string
+    tags:
+    - segment:departure
+    - pii:false
+    unique: false
+  - logicalType: integer
+    name: departure_gate
+    nullable: true
+    physicalType: integer
+    tags:
+    - segment:departure
+    - pii:false
+    unique: false
+  - logicalType: integer
+    name: economy_number_of_seats
+    nullable: false
+    physicalType: integer
+    tags:
+    - segment:seating
+    - pii:false
+    unique: false
+  - logicalType: string
+    name: aircraftmanufacturer
+    nullable: false
+    physicalType: string
+    tags:
+    - segment:manufacturer
+    - pii:false
+    unique: false
+  - logicalType: string
+    name: airline
+    nullable: false
+    physicalType: string
+    tags:
+    - segment:airline
+    - pii:false
+    unique: false
+  - logicalType: string
+    name: flight_number
+    nullable: false
+    physicalType: string
+    tags:
+    - segment:airline
+    - pii:false
+    unique: false
+  quality:
+  - description: Ensures 'flightdeparture' table has data
+    mustBeGreaterThanOrEqualTo: 0
+    query: SELECT COUNT(*) FROM flightdeparture
+    type: sql
+  tags:
+  - segment:departure
+  - pii:false
+servers:
+- catalog: flightstats_historical_dev_azr_westus
+  host: adb-4191419936804633.13.azuredatabricks.net
+  schema: data_contract_dev
+  server: development
+  type: databricks
+status: draft
+tags:
+- segment:departure
+version: 0.0.1
