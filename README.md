@@ -24,7 +24,7 @@ __ODCS Helpful Links:__
 - [Data Contract vs Data Product Specifications](https://medium.com/%40andrea_gioia/data-contract-vs-data-product-specifications-8ffa3cc16725)
 
 
-## How do I use the Databricks Data Contract Cookbook:
+## How do I use the Databricks Data Contract Cookbook?
 
 This repository is designed to automate the generation of Open Data Contract Standard (ODCS) YAML data contracts from a Databricks schema and all tables in the schema.  The automation is able to handle creating the entire schema, tables, columns, and datatypes - including complex nested struct types, arrays, and lists - in the data contract.  Automation also captures all the schema, table, and column comments, descriptions, and tags.  User defined inputs (e.g. json files) define the high level contract metadata, data quality rules, teams and roles, pricing, server details, and support channels.  These user inputs are added to the data contract after the base contract has been created.  
 
