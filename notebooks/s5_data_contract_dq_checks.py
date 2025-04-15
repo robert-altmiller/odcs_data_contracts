@@ -1,14 +1,4 @@
 # Databricks notebook source
-# DBTITLE 1,Pip Install Libraries
-# MAGIC %pip install 'datacontract-cli[databricks]'
-
-# COMMAND ----------
-
-# DBTITLE 1,Restart Python
-dbutils.library.restartPython()
-
-# COMMAND ----------
-
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
 
@@ -39,34 +29,17 @@ print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}
 # COMMAND ----------
 
 # DBTITLE 1,Workflow Widget Parameters
-# Data Contract Parameters
-
-dbutils.widgets.text("source_catalog", "hive_metastore")
-source_catalog = dbutils.widgets.get("source_catalog")
-print(f"source_catalog: {source_catalog}")
-
-
-dbutils.widgets.text("source_schema", "default")
-source_schema = dbutils.widgets.get("source_schema")
-print(f"source_schema: {source_schema}")
-
-
-# Create yaml_file_path dynamically using f-string
-yaml_file_path_default = f"./data_contracts_data/{source_catalog}__{source_schema}.yaml"
-dbutils.widgets.text("yaml_file_path", yaml_file_path_default)
-yaml_file_path = dbutils.widgets.get("yaml_file_path")
-print(f"yaml_file_path: {yaml_file_path}")
-
+# Widget Parameters
 
 dbutils.widgets.text("dq_folder_path", "./data_quality")
 dq_folder_path = dbutils.widgets.get("dq_folder_path")
 print(f"dq_folder_path: {dq_folder_path}")
 
-# COMMAND ----------
 
-# DBTITLE 1,Initialize the data contract object
-# Initialize the data contract object
-data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
+# yaml_file_path = sourcecatalog__sourceschema.yaml
+dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/hive_metastore__default.yaml")
+yaml_file_path = dbutils.widgets.get("yaml_file_path")
+print(f"yaml_file_path: {yaml_file_path}")
 
 # COMMAND ----------
 
@@ -76,11 +49,10 @@ with open(yaml_file_path, 'r') as f:
 
 # COMMAND ----------
 
-# DBTITLE 1,Get Contract Catalog and Schema
+# DBTITLE 1,Read Target Catalog and Target Schema From Data Contract
 # Get the data contract catalog and schema
-contract_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
-contract_schema = data_contract_odcs_yaml["servers"][0]["schema"]
-
+target_catalog = data_contract_odcs_yaml["servers"][0]["catalog"] # This represents target catalog
+target_schema = data_contract_odcs_yaml["servers"][0]["schema"] # This represents target schema
 
 # COMMAND ----------
 
@@ -144,7 +116,7 @@ def run_data_quality_tests(data_contract, yaml_file_path, dq_path="./data_qualit
 dq_results_df = run_data_quality_tests(data_contract, yaml_file_path, dq_path = dq_folder_path)
 
 # Write to a managed Delta table (overwrite mode)
-dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{contract_catalog}.{contract_schema}.odcs_data_quality")
+dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{target_catalog}.{target_schema}.odcs_data_quality")
 
 # Display the results
 display(dq_results_df)

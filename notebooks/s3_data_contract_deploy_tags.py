@@ -12,17 +12,7 @@ time.sleep(5)
 
 # DBTITLE 1,Workflow Widget Parameters
 # Widget Parameters
-dbutils.widgets.text("source_catalog", "hive_metastore")
-source_catalog = dbutils.widgets.get("source_catalog")
-print(f"source_catalog: {source_catalog}")
-
-
-dbutils.widgets.text("source_schema", "default")
-source_schema = dbutils.widgets.get("source_schema")
-print(f"source_schema: {source_schema}")
-
-
-dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/{source_catalog}__{source_schema}.yaml")
+dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/hive_metastore__default.yaml")
 yaml_file_path = dbutils.widgets.get("yaml_file_path")
 print(f"yaml_file_path: {yaml_file_path}")
 
@@ -31,6 +21,13 @@ print(f"yaml_file_path: {yaml_file_path}")
 # DBTITLE 1,Read in the Data Contract Yaml
 with open(yaml_file_path, 'r') as f:
     data_contract_odcs_yaml = yaml.safe_load(f)
+
+# COMMAND ----------
+
+# DBTITLE 1,Read the Target Catalog and Target Schema From Data Contract
+# Get the data contract catalog and schema
+target_catalog = data_contract_odcs_yaml["servers"][0]["catalog"] # This represents target catalog
+target_schema = data_contract_odcs_yaml["servers"][0]["schema"] # This represents target schema
 
 # COMMAND ----------
 
@@ -56,7 +53,6 @@ def format_tags(tags_list):
 # COMMAND ----------
 
 # DBTITLE 1,Deploy Tags Using Databricks SQL
-
 def deploy_tags(level, deploy_tags_list):
     """
     Deploys formatted tags to Unity Catalog objects using the apply_uc_tags function.
@@ -77,20 +73,14 @@ def deploy_tags(level, deploy_tags_list):
 # COMMAND ----------
 
 # DBTITLE 1,Get Tags From Data Contract
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
-# Get the data contract catalog and schema
-contract_source_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
-contract_source_schema = data_contract_odcs_yaml["servers"][0]["schema"]
-
 # Deploy schema-level tags
 schema_tags_formatted = format_tags(data_contract_odcs_yaml["tags"])
 schema_tags_deploy = {
-    f"{contract_source_catalog}.{contract_source_schema}": schema_tags_formatted
+    f"{target_schema}.{target_schema}": schema_tags_formatted
 }
 if schema_tags_formatted:
     results = deploy_tags("schema", schema_tags_deploy)
-    print(f"{results} for {contract_source_catalog}.{contract_source_schema}\n")
+    print(f"{results} for {target_schema}.{target_schema}\n")
 
 
 # Define threaded column deployment
@@ -117,18 +107,18 @@ with ThreadPoolExecutor(max_workers=10) as executor:
         table_tags_formatted = format_tags(table_properties.get("tags", {}))
         if table_tags_formatted:
             table_tags_deploy = {
-                f"{contract_source_catalog}.{contract_source_schema}.{source_table}": table_tags_formatted
+                f"{target_catalog}.{target_schema}.{source_table}": table_tags_formatted
             }
             results = deploy_tags("table", table_tags_deploy)
-            print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}\n")
+            print(f"{results} for {target_catalog}.{target_schema}.{source_table}\n")
 
         # Column-level tags (submitted to thread pool)
         for col_properties in table_properties.get("properties", []):
             futures.append(
                 executor.submit(
                     deploy_column_tag,
-                    contract_source_catalog,
-                    contract_source_schema,
+                    target_catalog,
+                    target_schema,
                     source_table,
                     col_properties
                 )

@@ -1,4 +1,9 @@
 # Databricks notebook source
+# DBTITLE 1,Restart Python
+dbutils.library.restartPython()
+
+# COMMAND ----------
+
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
 
@@ -11,6 +16,7 @@ time.sleep(5)
 # COMMAND ----------
 
 # DBTITLE 1,Workflow Widget Parameters
+# Widget Parameters
 dbutils.widgets.text("source_catalog", "hive_metastore")
 source_catalog = dbutils.widgets.get("source_catalog")
 print(f"source_catalog: {source_catalog}")
@@ -21,21 +27,28 @@ source_schema = dbutils.widgets.get("source_schema")
 print(f"source_schema: {source_schema}")
 
 
-dbutils.widgets.text("target_catalog", "hive_metastore")
-target_catalog = dbutils.widgets.get("target_catalog")
-print(f"target_catalog: {target_catalog}")
-
-
-dbutils.widgets.text("target_schema", "default_target")
-target_schema = dbutils.widgets.get("target_schema")
-# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="target_schema", value=target_schema) 
-print(f"target_schema: {target_schema}")
+# yaml_file_path = sourcecatalog__sourceschema.yaml
+dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/hive_metastore__default.yaml")
+yaml_file_path = dbutils.widgets.get("yaml_file_path")
+print(f"yaml_file_path: {yaml_file_path}")
 
 
 # Get a list of the tables in a Catalog.Schema
 # list_tables_in_schema() Python function is in the helpers notebook
 source_tables, tables_with_desc_dict = list_tables_in_schema(source_catalog, source_schema)
+
+# COMMAND ----------
+
+# DBTITLE 1,Read in the Data Contact Yaml
+with open(yaml_file_path, 'r') as f:
+    data_contract_odcs_yaml = yaml.safe_load(f)
+
+# COMMAND ----------
+
+# DBTITLE 1,Read Target Catalog and Target Schema From Data Contract
+# Get the data contract catalog and schema
+target_catalog = data_contract_odcs_yaml["servers"][0]["catalog"] # This represents target catalog
+target_schema = data_contract_odcs_yaml["servers"][0]["schema"] # This represents target schema
 
 # COMMAND ----------
 

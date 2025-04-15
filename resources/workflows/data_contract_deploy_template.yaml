@@ -22,9 +22,7 @@ resources:
           notebook_task:
             notebook_path: notebooks/s3_data_contract_deploy_tags
             base_parameters:
-              {% raw %}source_catalog: "{{tasks.Data_Contract_Tables.values.source_catalog}}"
-              source_schema: "{{tasks.Data_Contract_Tables.values.source_schema}}"
-              yaml_file_path: "{{tasks.Data_Contract_Tables.values.yaml_file_path}}"{% endraw %}
+              {% raw %}yaml_file_path: "{{tasks.Data_Contract_Tables.values.yaml_file_path}}"{% endraw %}
             source: GIT
           job_cluster_key: Job_cluster
 
@@ -49,9 +47,7 @@ resources:
             base_parameters:
               dq_folder_path: "{{ params.base_path }}/{{ params.dq_folder_path }}"
               running_in_workflow: True
-              {% raw %}source_catalog: "{{tasks.Data_Contract_Tables.values.source_catalog}}"
-              source_schema: "{{tasks.Data_Contract_Tables.values.source_schema}}"
-              yaml_file_path: "{{tasks.Data_Contract_Tables.values.yaml_file_path}}"{% endraw %}
+              {% raw %}yaml_file_path: "{{tasks.Data_Contract_Tables.values.yaml_file_path}}"{% endraw %}
             source: GIT
           job_cluster_key: Job_cluster
           libraries:
