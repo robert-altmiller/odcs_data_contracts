@@ -22,3 +22,13 @@ __ODCS Helpful Links:__
 - [Data Contract vs Data Product Specifications](https://medium.com/%40andrea_gioia/data-contract-vs-data-product-specifications-8ffa3cc16725)
 
 __How do I use the Databricks Data Contract Cookbook:__
+
+This repository is designed to automate the generation of Open Data Contract Standard (ODCS) YAML data contracts from a Databricks schema and all tables in the schema.  The automation is able to handle creating the entire schema, tables, columns, and datatypes - including complex nested struct types, arrays, and lists - in the data contract.  Automation also captures all the schema, table, and column comments, descriptions, and tags.  User defined inputs (e.g. json files) define the high level contract metadata, data quality rules, teams and roles, pricing, server details, and support channels.  These user inputs are added to the data contract after the base contract has been created.  
+
+After the entire data contract has been generated from a Databricks schema and tables this data contract can be deployed using the Data Contract CLI to a __new__ Databricks 'target catalog' and 'target schema':
+
+- The first step is to create the tables defined in the data contract in a Databricks target schema by running Data Contract CLI generated SQL DDLs.  This includes all table and column level comments and descriptions.
+- The second step is to deploy the tags to the created tables in the target schema.
+- The third step is to load the data from the Databricks source schema tables to the Databricks target schema tables.  This includes loading all complex nested struct type data.
+- The fourth step is to run the Data Contract CLI out of the box (OOB) and user-defined data quality SQL rules.  The OOB rules check to make sure all columns exists, correct datatypes have been assigned.  User-defined data quality rules are specified using Databricks SQL syntax.  For example, rules can be used to to check and make sure a table has data and no duplicates exist across all rows.
+
