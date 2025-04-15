@@ -709,7 +709,7 @@ def update_odcs_roles_metadata(data_contract, roles_metadata_input):
 def update_odcs_pricing_metadata(data_contract, pricing_metadata_input):
     """
     Appends Pricing metadata to the ODCS data contract.
-    This updates Roles properties (e.g. priceamount, pricecurrency) associated 
+    This updates Pricing properties (e.g. priceamount, pricecurrency) associated 
     with the data product.
     Args:
         data_contract (dict): The ODCS data contract dictionary to update.
@@ -730,7 +730,7 @@ def update_odcs_pricing_metadata(data_contract, pricing_metadata_input):
         "priceUnit": pricing_metadata_input["priceunit"]
     }
 
-    # Check if Roles metadata already exists
+    # Check if Pricing metadata already exists
     if json.dumps(updated_pricing_metadata, sort_keys=True) != json.dumps(existing_pricing, sort_keys=True):
         data_contract["price"] = updated_pricing_metadata
         print(f"updated pricing to ODCS data contract: '{updated_pricing_metadata}'")
