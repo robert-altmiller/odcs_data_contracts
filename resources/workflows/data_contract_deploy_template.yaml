@@ -32,8 +32,6 @@ resources:
           notebook_task:
             notebook_path: notebooks/s4_data_contract_deploy_data
             base_parameters:
-              target_catalog: ${var.odcs_contract_target_catalog}
-              target_schema: ${var.odcs_contract_target_schema}
               {% raw %}source_schema: "{{tasks.Data_Contract_Tables.values.source_schema}}"
               source_catalog: "{{tasks.Data_Contract_Tables.values.source_catalog}}"{% endraw %}
             source: GIT
