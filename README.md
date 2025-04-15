@@ -25,7 +25,7 @@ __How do I use the Databricks Data Contract Cookbook:__
 
 This repository is designed to automate the generation of Open Data Contract Standard (ODCS) YAML data contracts from a Databricks schema and all tables in the schema.  The automation is able to handle creating the entire schema, tables, columns, and datatypes - including complex nested struct types, arrays, and lists - in the data contract.  Automation also captures all the schema, table, and column comments, descriptions, and tags.  User defined inputs (e.g. json files) define the high level contract metadata, data quality rules, teams and roles, pricing, server details, and support channels.  These user inputs are added to the data contract after the base contract has been created.  
 
-After the entire data contract has been generated from a Databricks schema and tables this data contract can be deployed using the Data Contract CLI to a __new__ Databricks 'target catalog' and 'target schema':
+After the entire data contract has been successfully created from a Databricks schema and tables this data contract can be deployed using the Data Contract CLI to a __new__ Databricks 'target catalog' and 'target schema':
 
 - The first step is to create the tables defined in the data contract in a Databricks target schema by running Data Contract CLI generated SQL DDLs.  This includes all table and column level comments and descriptions.
 - The second step is to deploy the tags to the created tables in the target schema.
