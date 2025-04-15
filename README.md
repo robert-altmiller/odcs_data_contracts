@@ -49,3 +49,14 @@ Here are the steps outlined above:
 - The [fourth step](/notebooks/s4_data_contract_deploy_data.py) is to load the data from the Databricks 'source' schema tables to the Databricks 'target' schema tables.  This includes loading all complex nested struct type data.
 - The [fifth step](/notebooks/s5_data_contract_dq_checks.py) is to run the Data Contract CLI out of the box (OOB) and user-defined data quality (DQ) SQL rules.  The OOB rules check to make sure all columns exists, and correct datatypes have been assigned.  User-defined data quality rules are specified using Databricks SQL syntax.  For example, custom rules can be used to check that a table has data and no duplicates exist across all rows.
 
+## Automation with Databricks Asset Bundles (DABS) and CICD
+
+We maintain both [Github actions](/pipeline_files/github/) and [Gitlab actions](/pipeline_files/gitlab/) workflows for deploying steps 1-5 above using two Databricks [workflows](/resources/workflows/).
+
+Here is the repo folder structure for using the __Github actions__ workflow:
+
+[github_actions_folder_setup.png](/readme_images/github_actions_folder_setup.png)
+
+Here is the repo folder structure for using the __Gitlab actions__ workflow:
+
+[gitlab_actions_folder_setup.png](/readme_images/gitlab_actions_folder_setup.png)

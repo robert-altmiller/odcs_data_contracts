@@ -1,5 +1,5 @@
 apiVersion: v3.0.0
-domain: Curtis
+domain: Flight
 id: my-data-contract-id
 kind: DataContract
 name: My Data Contract
