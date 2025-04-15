@@ -37,8 +37,7 @@ resources:
               target_catalog: ${var.odcs_contract_target_catalog}
               target_schema: ${var.odcs_contract_target_schema}
               {% raw %}source_schema: "{{tasks.Data_Contract_Tables.values.source_schema}}"
-              source_catalog: "{{tasks.Data_Contract_Tables.values.source_catalog}}"
-              data_contract_folder_path: "{{tasks.Data_Contract_Tables.values.data_contract_folder_path}}"{% endraw %}
+              source_catalog: "{{tasks.Data_Contract_Tables.values.source_catalog}}"{% endraw %}
             source: GIT
           job_cluster_key: Job_cluster
 
