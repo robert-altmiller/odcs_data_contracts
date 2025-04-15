@@ -5,12 +5,12 @@
     "domain": "flight",
     "status": "active",
     "dataproduct": "Passenger Flights Data Product",
-    "tenant": "Boeing Airlines",
+    "tenant": "Altmiller Airlines",
     "description": {
       "purpose": "The data_contracts_dev schema contains information about passenger flights",
       "limitations": "No limitations",
       "usage": "All"
     },
-    "tags": ["team:passenger_flights", "scope:das_boeing"]
+    "tags": ["team:passenger_flights", "scope:altmiller_test"]
   }
 ]

@@ -5,12 +5,12 @@
     "contract_status": "active",
     "contract_domain": "flight",
     "contract_data_product": "flight data products",
-    "contract_tenant": "boeing airlines",
+    "contract_tenant": "altmiller airlines",
     "contract_description": {
       "purpose": "tables with test data for testing",
       "limitations": "",
       "usage": ""
     },
-    "contract_tags": ["team:flight", "scope:das"]
+    "contract_tags": ["team:flight", "scope:test"]
   }
 ]

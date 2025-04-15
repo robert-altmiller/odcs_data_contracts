@@ -549,7 +549,7 @@ def update_odcs_support_channel(data_contract, support_channel_metadata_input):
     Args:
         The support_channel_metadata_input list contains the following:
         data_contract (dict): The ODCS data contract dictionary to update.
-        channel (str): The name or label of the support channel (e.g., "DAS Teams Channel").
+        channel (str): The name or label of the support channel (e.g., "Test Teams Channel").
         tool (str): The communication tool used (e.g., "teams", "email").
         scope (str): The type of support channel (e.g., "interactive", "announcements").
         url (str): The URL or address of the support channel.

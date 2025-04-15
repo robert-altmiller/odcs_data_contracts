@@ -6,9 +6,9 @@ base_path: /Volumes/flightstats_historical_dev_azr_westus/data_contract_dev/cont
 target_schema: data_contract_prod
 
 # Workflow Git Source
-git_source:  gitLab
-git_repo_url: https://gitlab-ext.digitalaviationservices.com/bddm/das-platform/odcs_data_contracts.git
-git_branch: feature/odcs-1-dev
+git_source:  github
+git_repo_url: https://github.com/altmiller/flight_demo_input_data.git
+git_branch: main
 
 #---DO NOT MODIFY ANY OF THE VARIABLES BELOW---
 
