@@ -12,6 +12,7 @@ time.sleep(2)
 
 # DBTITLE 1,Workflow Widget Parameters
 # Widget Parameters
+# yaml_file_path = sourcecatalog__sourceschema.yaml
 dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/hive_metastore__default.yaml")
 yaml_file_path = dbutils.widgets.get("yaml_file_path")
 print(f"yaml_file_path: {yaml_file_path}")
@@ -130,39 +131,3 @@ with ThreadPoolExecutor(max_workers=10) as executor:
         if result:
             print(result)
 
-
-# COMMAND ----------
-
-# DBTITLE 1,Get Tags From Data Contract (Old)
-# # Get the data contract catalog and schema
-# contract_source_catalog = data_contract_odcs_yaml["servers"][0]["catalog"]
-# contract_source_schema = data_contract_odcs_yaml["servers"][0]["schema"]
-
-    
-# # Deploy schema level tags
-# schema_tags_formatted = format_tags(data_contract_odcs_yaml["tags"])
-# schema_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}": schema_tags_formatted}
-# if schema_tags_deploy: # Created SQL alter tags stmt
-#     results = deploy_tags("schema", schema_tags_deploy)
-#     print(f"{results} for {contract_source_catalog}.{contract_source_schema}\n")
-
-
-# # Deploy table level tags
-# schema_obj = data_contract_odcs_yaml["schema"]
-# for table_properties in schema_obj:
-#     source_table = table_properties["name"]
-#     table_tags_formatted = format_tags(table_properties["tags"])
-#     if table_tags_formatted: # Created SQL alter tags stmt
-#         table_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}.{source_table}": table_tags_formatted}
-#         results = deploy_tags("table", table_tags_deploy)
-#         print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}\n")
-
-
-#     # Deploy column level tags
-#     for col_properties in table_properties["properties"]:
-#         source_col = col_properties["name"]
-#         col_tags_formatted = format_tags(col_properties["tags"])
-#         if col_tags_formatted: # Created SQL alter tags stmt
-#             col_tags_deploy = {f"{contract_source_catalog}.{contract_source_schema}.{source_table}.{source_col}": col_tags_formatted}
-#             results = deploy_tags("column", col_tags_deploy)
-#             print(f"{results} for {contract_source_catalog}.{contract_source_schema}.{source_table}.{source_col}\n")

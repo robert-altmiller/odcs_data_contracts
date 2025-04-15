@@ -44,6 +44,7 @@ print(f"data_contract_folder_path: {data_contract_folder_path}")
 
 
 # This variable below is used in the workflow named 'data_contract_deploy' and task 's5_data_contract_dq_checks' (IMPORTANT)
+# yaml_file_path = sourcecatalog__sourceschema.yaml
 yaml_file_path = f"{data_contract_folder_path}/{source_catalog}__{source_schema}.yaml"
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="yaml_file_path", value=yaml_file_path)
@@ -51,7 +52,7 @@ print(f"yaml_file_path: {yaml_file_path}")
 
 # COMMAND ----------
 
-# DBTITLE 1,Read in the Data Contract Yaml File
+# DBTITLE 1,Initialize the Data Contract Object
 data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
 
 # COMMAND ----------

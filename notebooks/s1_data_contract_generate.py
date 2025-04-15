@@ -135,9 +135,9 @@ print(f"source_schema: {source_schema}")
 # list_tables_in_schema() Python function is in the helpers notebook
 tables_list, tables_with_desc_dict = list_tables_in_schema(source_catalog, source_schema)
 
-# remove data quality tables created by the data contract framework
-# tables_list = [t for t in tables_list if "data_quality" not in t]
-# tables_with_desc_dict = {k: v for k, v in tables_with_desc_dict.items() if "data_quality" not in k}
+# remove data quality tables created by the data contract framework if they exist
+tables_list = [t for t in tables_list if "data_quality" not in t]
+tables_with_desc_dict = {k: v for k, v in tables_with_desc_dict.items() if "data_quality" not in k}
 
 print(f"tables_list: {tables_list}")
 

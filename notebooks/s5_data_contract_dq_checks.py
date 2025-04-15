@@ -1,4 +1,14 @@
 # Databricks notebook source
+# DBTITLE 1,Pip Install Libraries
+# MAGIC %pip install 'datacontract-cli[databricks]'
+
+# COMMAND ----------
+
+# DBTITLE 1,Restart Python
+dbutils.library.restartPython()
+
+# COMMAND ----------
+
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
 
@@ -30,7 +40,6 @@ print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}
 
 # DBTITLE 1,Workflow Widget Parameters
 # Widget Parameters
-
 dbutils.widgets.text("dq_folder_path", "./data_quality")
 dq_folder_path = dbutils.widgets.get("dq_folder_path")
 print(f"dq_folder_path: {dq_folder_path}")
@@ -40,6 +49,11 @@ print(f"dq_folder_path: {dq_folder_path}")
 dbutils.widgets.text("yaml_file_path", f"./data_contracts_data/hive_metastore__default.yaml")
 yaml_file_path = dbutils.widgets.get("yaml_file_path")
 print(f"yaml_file_path: {yaml_file_path}")
+
+# COMMAND ----------
+
+# DBTITLE 1,Initialize the Data Contract Object
+data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
 
 # COMMAND ----------
 
