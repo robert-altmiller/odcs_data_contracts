@@ -28,7 +28,18 @@ __ODCS Helpful Links:__
 
 ## How do I use the Databricks Data Contract Cookbook?
 
-This repository is designed to automate the generation of Open Data Contract Standard (ODCS) YAML data contracts from a Databricks schema and all tables in the schema.  The automation is able to handle creating the entire schema, tables, columns, and datatypes - including complex nested struct types, arrays, and lists - in the data contract.  Automation also captures all the schema, table, and column comments, descriptions, and tags.  [User defined inputs (e.g. json files)](/notebooks/input_data) define the [high level contract metadata](/notebooks/input_data/contract_metadata_input/), [custom data quality rules](/notebooks/input_data/data_quality_rules_input/), [teams](/notebooks/input_data/team_metadata_input/) and [roles](/notebooks/input_data/roles_metadata_input/), [service level agreements](/notebooks/input_data/sla_metadata_input/), [pricing](/notebooks/input_data/pricing_metadata_input/), [server details](/notebooks/input_data/server_metadata_input/), and [support channels](/notebooks/input_data/support_channel_metadata_input/).  These user inputs are added to the data contract after the base contract has been created.  After the entire data contract has been successfully created from a Databricks schema and tables this data contract can be deployed using the Data Contract CLI to a __new__ Databricks 'target catalog' and 'target schema'.
+This repository is designed to automate the generation of Open Data Contract Standard (ODCS) YAML data contracts from a Databricks schema and all tables in the schema.  The automation is able to handle creating the entire schema, tables, columns, and datatypes - including complex nested struct types, arrays, and lists - in the data contract.  Automation also captures all the schema, table, and column comments, descriptions, and tags.  [User defined inputs (e.g. json files)](/notebooks/input_data) define the following:
+
+- [high level contract metadata](/notebooks/input_data/contract_metadata_input/)
+- [custom data quality rules](/notebooks/input_data/data_quality_rules_input/)
+- [service level agreements](/notebooks/input_data/sla_metadata_input/)
+- [teams](/notebooks/input_data/team_metadata_input/)
+- [roles](/notebooks/input_data/roles_metadata_input/)
+- [support channels](/notebooks/input_data/support_channel_metadata_input/).  
+- [pricing](/notebooks/input_data/pricing_metadata_input/)
+- [server details](/notebooks/input_data/server_metadata_input/)
+
+These user inputs are added to the data contract after the base contract has been created.  After the entire data contract has been successfully created from a Databricks schema and tables this data contract can be deployed using the Data Contract CLI to a __new__ Databricks 'target catalog' and 'target schema'.
 
 Here are the steps outlined above:
 
