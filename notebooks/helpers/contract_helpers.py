@@ -713,30 +713,29 @@ def update_odcs_pricing_metadata(data_contract, pricing_metadata_input):
     with the data product.
     Args:
         data_contract (dict): The ODCS data contract dictionary to update.
-        pricing_metadata_input (list of dict): A list containing Roles metadata entries.
-            Each entry can contain the following keys:
+        pricing_metadata_input (dict): A dict containing the Pricing metadata entry.
+            The entry can contain the following keys:
             - priceamount (float): price amount.
             - pricecurrencyt (str): price unit (e.g. megabytes).
             - priceunit (str): pricing unit.
     Returns:
-        dict: The updated data contract dictionary with new Roles metadata.
+        dict: The updated data contract dictionary with new Pricing metadata.
     """
     # Ensure Pricing is a list
-    existing_pricing = data_contract.setdefault("price", [])
+    existing_pricing = data_contract.setdefault("price", {})
 
-    for metadata in pricing_metadata_input:
-        updated_pricing_metadata = {
-            "priceAmount": float(metadata["priceamount"]),
-            "priceCurrency": metadata["pricecurrency"],
-            "priceUnit": metadata["priceunit"]
-        }
+    updated_pricing_metadata = {
+        "priceAmount": float(pricing_metadata_input["priceamount"]),
+        "priceCurrency": pricing_metadata_input["pricecurrency"],
+        "priceUnit": pricing_metadata_input["priceunit"]
+    }
 
-        # Check if Roles metadata already exists
-        if json.dumps(updated_pricing_metadata, sort_keys=True) not in [json.dumps(s, sort_keys=True) for s in existing_pricing]:
-            existing_pricing.append(updated_pricing_metadata)
-            print(f"appended roles to ODCS data contract: '{updated_pricing_metadata}' to data contract")
-        else:
-            print(f"already appended roles to ODCS data contract: '{updated_pricing_metadata}' to data contract")
+    # Check if Roles metadata already exists
+    if json.dumps(updated_pricing_metadata, sort_keys=True) != json.dumps(existing_pricing, sort_keys=True):
+        data_contract["price"] = updated_pricing_metadata
+        print(f"updated pricing to ODCS data contract: '{updated_pricing_metadata}'")
+    else:
+        print(f"already updated pricing to ODCS data contract: '{updated_pricing_metadata}' to data contract")
     return data_contract
 
 # COMMAND ----------
