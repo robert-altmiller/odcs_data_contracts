@@ -21,6 +21,11 @@ source_schema = dbutils.widgets.get("source_schema")
 print(f"source_schema: {source_schema}")
 
 
+dbutils.widgets.text("target_catalog", "hive_metastore")
+target_catalog = dbutils.widgets.get("target_catalog")
+print(f"target_catalog: {target_catalog}")
+
+
 dbutils.widgets.text("target_schema", "default_target")
 target_schema = dbutils.widgets.get("target_schema")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
@@ -42,7 +47,7 @@ for table in source_tables:
         continue
     
     source_table = f"{source_catalog}.{source_schema}.{table}"
-    target_table = f"{source_catalog}.{target_schema}.{table}"
+    target_table = f"{target_catalog}.{target_schema}.{table}"
     
     try:
         spark.sql(f"DESCRIBE TABLE {target_table}")

@@ -11,7 +11,7 @@ time.sleep(5)
 # COMMAND ----------
 
 # DBTITLE 1,Workflow Widget Parameters
-# Folder and File Path Widget Parameters
+# Widget Parameters
 dbutils.widgets.text("source_catalog", "hive_metastore")
 source_catalog = dbutils.widgets.get("source_catalog")
 print(f"source_catalog: {source_catalog}")

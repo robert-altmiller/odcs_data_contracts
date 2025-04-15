@@ -81,7 +81,7 @@ databricks_instance = spark.conf.get("spark.databricks.workspaceUrl")
 databricks_pat = dbutils.notebook.entry_point.getDbutils().notebook().getContext().apiToken().get()
 
 
-# Folder path parameters
+# Widget Parameters
 dbutils.widgets.text("avro_folder_path", "./avro_data")  # should be a volume
 avro_folder_path = dbutils.widgets.get("avro_folder_path")
 print(f"avro_folder_path: {avro_folder_path}")
@@ -109,12 +109,12 @@ yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
 print(f"yaml_folder_path: {yaml_folder_path}")
 
 
-# Source catalog and source schema parameters
+# Source catalog parameter
 dbutils.widgets.text("source_catalog", "hive_metastore")
 source_catalog = dbutils.widgets.get("source_catalog")
 print(f"source_catalog: {source_catalog}")
 
-
+# Source schema parameter
 dbutils.widgets.text("source_schema", "default")
 source_schema = dbutils.widgets.get("source_schema")
 print(f"source_schema: {source_schema}")

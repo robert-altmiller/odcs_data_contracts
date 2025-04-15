@@ -21,7 +21,7 @@ time.sleep(5)
 # COMMAND ----------
 
 # DBTITLE 1,Workflow Widget Parameters
-# Folder and File Path Widget Parameters
+# Widget Parameters
 dbutils.widgets.text("source_catalog", "hive_metastore")
 source_catalog = dbutils.widgets.get("source_catalog")
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
@@ -43,8 +43,7 @@ dbutils.jobs.taskValues.set(key="data_contract_folder_path", value=data_contract
 print(f"data_contract_folder_path: {data_contract_folder_path}")
 
 
-# This variable below is used in the workflow named 'data_contract_deploy' task which 
-# runs 's4_data_contract_deploy_data' and 's5_data_contract_dq_checks' (IMPORTANT)
+# This variable below is used in the workflow named 'data_contract_deploy' and task 's5_data_contract_dq_checks' (IMPORTANT)
 yaml_file_path = f"{data_contract_folder_path}/{source_catalog}__{source_schema}.yaml"
 # BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
 dbutils.jobs.taskValues.set(key="yaml_file_path", value=yaml_file_path)
