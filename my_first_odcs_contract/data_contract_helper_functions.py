@@ -101,7 +101,7 @@ dbutils.widgets.text(
 )
 data_contract_description = dbutils.widgets.get("data_contract_description")
 
-dbutils.widgets.text("data_contract_tags", "['flight', 'das']")
+dbutils.widgets.text("data_contract_tags", "['flight', 'test']")
 data_contract_tags = dbutils.widgets.get("data_contract_tags")
 data_contract_tags = ast.literal_eval(dbutils.widgets.get("data_contract_tags"))
 
@@ -462,7 +462,7 @@ def update_odcs_domain_status(data_contract, contract_title, contract_version, p
     data_contract["status"] = contract_status
     data_contract["domain"] = product_domain
     data_contract["dataProduct"] = "flight data products"
-    data_contract["tenant"] = "boeing airlines"
+    data_contract["tenant"] = "altmiller airlines"
     description = {
         "purpose": "Tables with test data for testing",
         "limitations": None, # None ensures a null in the data contract
@@ -517,7 +517,7 @@ def update_odcs_support_channel(data_contract, channel, tool, scope, url, descri
     that users of the data product can use for help, announcements, or collaboration.
     Args:
         data_contract (dict): The ODCS data contract dictionary to update.
-        channel (str): The name or label of the support channel (e.g., "DAS Teams Channel").
+        channel (str): The name or label of the support channel (e.g., "Test Teams Channel").
         tool (str): The communication tool used (e.g., "teams", "email").
         scope (str): The type of support channel (e.g., "interactive", "announcements").
         url (str): The URL or address of the support channel.
@@ -541,9 +541,9 @@ def update_odcs_support_channel(data_contract, channel, tool, scope, url, descri
     return data_contract
   
 # Add support channels to the ODCS data contract
-data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "DAS Teams Channel", "teams", "interactive", "https://teams.microsoft.com/channel/das")
-data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "DAS Teams Channel", "teams", "announcements", "https://teams.microsoft.com/channel/das/announcements")
-data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "DAS Email", "email", "announcements", "mailto:dasteam@boeing.com", description= "Team email for all team announcements")
+data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "Test Teams Channel", "teams", "interactive", "https://teams.microsoft.com/channel/Test")
+data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "Test Teams Channel", "teams", "announcements", "https://teams.microsoft.com/channel/Test/announcements")
+data_contract_odcs_yaml = update_odcs_support_channel(data_contract_odcs_yaml, "Test Email", "email", "announcements", "mailto:test@altmiller.com", description= "Team email for all team announcements")
 
 # COMMAND ----------
 

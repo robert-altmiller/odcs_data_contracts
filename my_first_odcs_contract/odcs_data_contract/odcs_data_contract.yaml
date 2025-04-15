@@ -172,14 +172,14 @@ schema:
       > 1
     mustBe: 0
 dataProduct: flight data products
-tenant: boeing airlines
+tenant: altmiller airlines
 description:
   purpose: Tables with test data for testing
   limitations: null
   usage: null
 tags:
 - flight
-- das
+- test
 servers:
 - server: development
   type: databricks
@@ -187,17 +187,17 @@ servers:
   catalog: hive_metastore
   schema: default
 support:
-- channel: DAS Teams Channel
+- channel: Test Teams Channel
   tool: teams
   scope: interactive
-  url: https://teams.microsoft.com/channel/das
-- channel: DAS Teams Channel
+  url: https://teams.microsoft.com/channel/Test
+- channel: Test Teams Channel
   tool: teams
   scope: announcements
-  url: https://teams.microsoft.com/channel/das/announcements
-- channel: DAS Email
+  url: https://teams.microsoft.com/channel/Test/announcements
+- channel: Test Email
   tool: email
   scope: announcements
-  url: mailto:dasteam@boeing.com
+  url: mailto:test@altmiller.com
   description:
   - Team email for all team announcements
