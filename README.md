@@ -30,7 +30,7 @@ __ODCS Helpful Links:__
 
 This repository is designed to automate the generation of Open Data Contract Standard (ODCS) YAML data contracts from a Databricks schema and all tables in the schema.  The automation is able to handle creating the entire schema, tables, columns, and datatypes - including complex nested struct types, arrays, and lists - in the data contract.  Automation also captures all the schema, table, and column comments, descriptions, and tags.  [User defined inputs (e.g. json files)](/notebooks/input_data) define the following:
 
-- [high level contract metadata](/notebooks/input_data/contract_metadata_input/)
+- [high-level contract metadata](/notebooks/input_data/contract_metadata_input/)
 - [custom data quality rules](/notebooks/input_data/data_quality_rules_input/)
 - [service level agreements](/notebooks/input_data/sla_metadata_input/)
 - [teams](/notebooks/input_data/team_metadata_input/)
