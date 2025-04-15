@@ -27,14 +27,6 @@ on:
         description: 'ODCS Contract Source Schema'
         required: true
         default: 'default'
-      ODCS_CONTRACT_TARGET_CATALOG: # variable
-        description: 'ODCS Contract Target Catalog'
-        required: true
-        default: 'hive_metastore'
-      ODCS_CONTRACT_TARGET_SCHEMA: # variable
-        description: 'ODCS Contract Target Schema'
-        required: true
-        default: 'default_target'
 
 jobs:
   deploy:
@@ -90,14 +82,6 @@ jobs:
           # Get ODCS contract source schema
           ODCS_CONTRACT_SOURCE_SCHEMA="${{ github.event.inputs.ODCS_CONTRACT_SOURCE_SCHEMA || 'default' }}"
           echo "ODCS_CONTRACT_SOURCE_SCHEMA: $ODCS_CONTRACT_SOURCE_SCHEMA"
-      
-          # Get ODCS contract target catalog
-          ODCS_CONTRACT_TARGET_CATALOG="${{ github.event.inputs.ODCS_CONTRACT_TARGET_CATALOG || 'hive_metastore' }}"
-          echo "ODCS_CONTRACT_TARGET_CATALOG: $ODCS_CONTRACT_TARGET_CATALOG"
-
-          # Get ODCS contract target schema
-          ODCS_CONTRACT_TARGET_SCHEMA="${{ github.event.inputs.ODCS_CONTRACT_TARGET_SCHEMA || 'default_target' }}"
-          echo "ODCS_CONTRACT_TARGET_SCHEMA: $ODCS_CONTRACT_TARGET_SCHEMA"
 
           # Convert email to username
           USER_NAME=$(echo "$USER_EMAIL" | cut -d '@' -f 1 | tr '.' '_')
@@ -110,8 +94,6 @@ jobs:
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           echo "ODCS_CONTRACT_SOURCE_CATALOG=$ODCS_CONTRACT_SOURCE_CATALOG" >> $GITHUB_ENV
           echo "ODCS_CONTRACT_SOURCE_SCHEMA=$ODCS_CONTRACT_SOURCE_SCHEMA" >> $GITHUB_ENV
-          echo "ODCS_CONTRACT_TARGET_CATALOG=$ODCS_CONTRACT_TARGET_CATALOG" >> $GITHUB_ENV
-          echo "ODCS_CONTRACT_TARGET_SCHEMA=$ODCS_CONTRACT_TARGET_SCHEMA" >> $GITHUB_ENV
           echo "USER_EMAIL=$USER_EMAIL" >> $GITHUB_ENV
           echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
 
@@ -143,11 +125,11 @@ jobs:
           envsubst < databricks.yml > /tmp/databricks.yml && mv /tmp/databricks.yml databricks.yml
           
           # Validate and deploy DABS
-          output=$(databricks bundle validate --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="odcs_contract_target_catalog=$ODCS_CONTRACT_TARGET_CATALOG" --var="odcs_contract_target_schema=$ODCS_CONTRACT_TARGET_SCHEMA")
+          output=$(databricks bundle validate --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA")
           if echo $output | grep -q "Validation OK!"; then
             echo "Databricks Bundle Deploy Validation OK = True"
             echo "Deploying Databricks Asset Bundle to Workspace"
-            databricks bundle deploy --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="odcs_contract_target_catalog=$ODCS_CONTRACT_TARGET_CATALOG" --var="odcs_contract_target_schema=$ODCS_CONTRACT_TARGET_SCHEMA"
+            databricks bundle deploy --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA"
           else
             echo "Databricks Bundle Deploy Validation OK = False"
             exit 1

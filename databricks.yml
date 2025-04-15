@@ -20,12 +20,7 @@ variables:
   odcs_contract_source_schema:
     default: default
     description: Default ODCS source schema
-  odcs_contract_target_catalog:
-    default: default
-    description: Default ODCS target catalog
-  odcs_contract_target_schema:
-    default: default
-    description: Default ODCS target schema
+
 
 targets:
 
