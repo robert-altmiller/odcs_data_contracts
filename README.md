@@ -52,10 +52,18 @@ If you are ready to create a data contract do the following:
 Here are the required steps to create and deploy a data contract:
 
 - The [first step](/notebooks/s1_data_contract_generate.py) is to create a data contract from a 'source' Databricks schema and tables.
-    - If you wish to run this 'step 1' notebook manually simply update the following widgets in the Workflow Widget Parameter block in the notebook:
+    
+    - If you wish to run this 'step 1' notebook manually simply update the 'source_catalog' and 'source_schema' widgets in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks notebook.
     ![create_contracts_step1_params.png](/readme_images/create_contracts_step1_params.png)
 
 - The [second step](/notebooks/s2_data_contract_deploy_tables.py) is to create the tables + columns + column datatypes + table/column comments and descriptions defined in the data contract in a Databricks 'target' schema by running Data Contract CLI generated SQL DDLs.
+
+    - If you wish to run this 'step 2' notebook manually simply update the 'source_catalog' and 'source_schema' widgets widgets in the 'Workflow Widget Parameters' block in the notebook.
+    ![deploy_contracts_step2_params.png](/readme_images/deploy_contracts_step2_params.png)
+    
+    - Since 'step 2' deploys the tables in the data contract we need to update the 'server' section in data contract with the target catalog and target schema to deploy the tables to. 
+
+
 - The [third step](/notebooks/s3_data_contract_deploy_tags.py) is to deploy the schema level tags, and table/column level tags to the created tables in the 'target' schema.
 - The [fourth step](/notebooks/s4_data_contract_deploy_data.py) is to load the data from the Databricks 'source' schema tables to the Databricks 'target' schema tables.  This includes loading all complex nested struct type data.
 - The [fifth step](/notebooks/s5_data_contract_dq_checks.py) is to run the Data Contract CLI out of the box (OOB) and user-defined data quality (DQ) SQL rules.  The OOB rules check to make sure all columns exists, and correct datatypes have been assigned.  User-defined data quality rules are specified using Databricks SQL syntax.  For example, custom rules can be used to check that a table has data and no duplicates exist across all rows.
