@@ -57,9 +57,9 @@ Here are the required steps to create and deploy a data contract:
 
         ![create_contracts_step1_params.png](/readme_images/create_contracts_step1_params.png)
 
-    - After 'step 1' completes the output folders will look like the following:
+    - After 'step 1' completes the output folders will look like the following.  The name of the data contract is '{catalog_name}__{schema_name}.yaml'.
 
-        ![create_contracts_step1_output_folders.png](/readme_images/create_contracts_step1_output_folders.png)
+        ![create_contracts_step1_output_flders.png](/readme_images/create_contracts_step1_output_flders.png)
 
 - The [second step](/notebooks/s2_data_contract_deploy_tables.py) is to create the tables + columns + column datatypes + table/column comments and descriptions defined in the data contract in a Databricks 'target catalog' and 'target schema' by running Data Contract CLI generated SQL DDLs.
 
@@ -71,9 +71,13 @@ Here are the required steps to create and deploy a data contract:
         
         - ![deploy_contracts_step2_params.png](/readme_images/deploy_contracts_step2_params.png)
 
+    - After the tables have been deployed from 'step 2' check the 'target catalog' and 'target schema' to ensure the tables were created.  Check the column names, column data types, table and column level comments and descriptions.
+
 - The [third step](/notebooks/s3_data_contract_deploy_tags.py) is to deploy the schema level tags, and table/column level tags to the created tables in the 'target' schema.
 
+    - If you wish to run this 'step 3' notebook manually simply update the 'source_catalog' and 'source_schema' widgets in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks notebook.
 
+        ![create_contracts_step1_params.png](/readme_images/create_contracts_step1_params.png)
 
 - The [fourth step](/notebooks/s4_data_contract_deploy_data.py) is to load the data from the Databricks 'source' schema tables to the Databricks 'target' schema tables.  This includes loading all complex nested struct type data.
 - The [fifth step](/notebooks/s5_data_contract_dq_checks.py) is to run the Data Contract CLI out of the box (OOB) and user-defined data quality (DQ) SQL rules.  The OOB rules check to make sure all columns exists, and correct datatypes have been assigned.  User-defined data quality rules are specified using Databricks SQL syntax.  For example, custom rules can be used to check that a table has data and no duplicates exist across all rows.
