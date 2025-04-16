@@ -25,32 +25,31 @@ __ODCS Helpful Links:__
 - [Data Contract Manager ODCS Documentation](https://datacontract-manager.com/learn/open-data-contract-standard)
 - [Data Contract vs Data Product Specifications](https://medium.com/%40andrea_gioia/data-contract-vs-data-product-specifications-8ffa3cc16725)
 
-## User Input Parameters for the Databricks Data Contract Cookbook
+## How do I use the Databricks Data Contract Cookbook?
+
+This repository is designed to automate the generation of Open Data Contract Standard (ODCS) YAML data contracts from a Databricks schema and all tables in the schema.  The automation is able to handle creating the entire schema, tables, columns, and datatypes - including complex nested struct types, arrays, and lists - in the data contract.  Automation also captures all the schema, table, and column comments, descriptions, and tags.  [User input files (e.g. json files)](/notebooks/input_data) are added to the data contract after the base contract has been created.  After the entire data contract has been successfully created from a Databricks schema and tables this data contract can be deployed using the Data Contract CLI to a __new__ Databricks 'target catalog' and 'target schema'.
+
+## What are the Data Contract Cookbook User Input Parameters?
 
 If you are ready to create a data contract do the following:
 
 - Fork this Github [repository](https://github.com/robert-altmiller/odcs_data_contracts), and create a feature branch off the main branch.
-- Update all of these data contract [json metadata](/notebooks/input_data) input files with your data product specifications and requirements, and commit the changes back to your feature branch.
+- Update all of these data contract [json metadata](/notebooks/input_data) user input files with your data product specifications and requirements, and commit the changes back to your feature branch.
+    - [high-level contract metadata](/notebooks/input_data/contract_metadata_input/)
+    - [custom data quality rules](/notebooks/input_data/data_quality_rules_input/)
+    - [service level agreements](/notebooks/input_data/sla_metadata_input/)
+    - [teams](/notebooks/input_data/team_metadata_input/)
+    - [roles](/notebooks/input_data/roles_metadata_input/)
+    - [support channels](/notebooks/input_data/support_channel_metadata_input/)
+    - [pricing](/notebooks/input_data/pricing_metadata_input/)
+    - [server details](/notebooks/input_data/server_metadata_input/)
 - Update the [base_params.yaml](/resources/python/base_params.yaml) with Unity Catalog (UC) volumes path where the data contract artifacts will be created.  Also update the '__git_source__', '__git_repo_url__', and '__git_branch__' with your forked repo requirements.
 
 ![base_params.png](/readme_images/base_params.png)
 
-## How do I use the Databricks Data Contract Cookbook?
+## What notebook steps are run to create and deploy a data contract?
 
-This repository is designed to automate the generation of Open Data Contract Standard (ODCS) YAML data contracts from a Databricks schema and all tables in the schema.  The automation is able to handle creating the entire schema, tables, columns, and datatypes - including complex nested struct types, arrays, and lists - in the data contract.  Automation also captures all the schema, table, and column comments, descriptions, and tags.  [User defined inputs (e.g. json files)](/notebooks/input_data) define the following:
-
-- [high-level contract metadata](/notebooks/input_data/contract_metadata_input/)
-- [custom data quality rules](/notebooks/input_data/data_quality_rules_input/)
-- [service level agreements](/notebooks/input_data/sla_metadata_input/)
-- [teams](/notebooks/input_data/team_metadata_input/)
-- [roles](/notebooks/input_data/roles_metadata_input/)
-- [support channels](/notebooks/input_data/support_channel_metadata_input/)
-- [pricing](/notebooks/input_data/pricing_metadata_input/)
-- [server details](/notebooks/input_data/server_metadata_input/)
-
-These user inputs are added to the data contract after the base contract has been created.  After the entire data contract has been successfully created from a Databricks schema and tables this data contract can be deployed using the Data Contract CLI to a __new__ Databricks 'target catalog' and 'target schema'.
-
-Here are the steps outlined above:
+Here are the required steps to create and deploy a data contract:
 
 - The [first step](/notebooks/s1_data_contract_generate.py) is to create a data contract from a 'source' Databricks schema and tables.
 - The [second step](/notebooks/s2_data_contract_deploy_tables.py) is to create the tables + columns + column datatypes + table/column comments and descriptions defined in the data contract in a Databricks 'target' schema by running Data Contract CLI generated SQL DDLs.
