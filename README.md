@@ -52,6 +52,9 @@ If you are ready to create a data contract do the following:
 Here are the required steps to create and deploy a data contract:
 
 - The [first step](/notebooks/s1_data_contract_generate.py) is to create a data contract from a 'source' Databricks schema and tables.
+    - If you wish to run this 'step 1' notebook manually simply update the following widgets in the Workflow Widget Parameter block in the notebook:
+    ![create_contracts_step1_params.png](/readme_images/create_contracts_step1_params.png)
+
 - The [second step](/notebooks/s2_data_contract_deploy_tables.py) is to create the tables + columns + column datatypes + table/column comments and descriptions defined in the data contract in a Databricks 'target' schema by running Data Contract CLI generated SQL DDLs.
 - The [third step](/notebooks/s3_data_contract_deploy_tags.py) is to deploy the schema level tags, and table/column level tags to the created tables in the 'target' schema.
 - The [fourth step](/notebooks/s4_data_contract_deploy_data.py) is to load the data from the Databricks 'source' schema tables to the Databricks 'target' schema tables.  This includes loading all complex nested struct type data.
