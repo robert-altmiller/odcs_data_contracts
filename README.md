@@ -69,7 +69,7 @@ Here are the required steps to create and deploy a data contract:
 
     - Next, to run this 'step 2' notebook manually simply update the 'source_catalog' and 'source_schema' widgets in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks notebook.
         
-        - ![deploy_contracts_step2_params.png](/readme_images/deploy_contracts_step2_params.png)
+        ![deploy_contracts_step2_params.png](/readme_images/deploy_contracts_step2_params.png)
 
     - After the tables have been deployed from 'step 2' check the 'target catalog' and 'target schema' in Databricks to ensure the tables were created.  Check the column names, column data types, table and column level comments and descriptions.
 
