@@ -25,6 +25,15 @@ __ODCS Helpful Links:__
 - [Data Contract Manager ODCS Documentation](https://datacontract-manager.com/learn/open-data-contract-standard)
 - [Data Contract vs Data Product Specifications](https://medium.com/%40andrea_gioia/data-contract-vs-data-product-specifications-8ffa3cc16725)
 
+## User Input Parameters for the Databricks Data Contract Cookbook
+
+If you are ready to create a data contract do the following:
+
+- Fork this Github [repository](https://github.com/robert-altmiller/odcs_data_contracts), and create a feature branch off the main branch.
+- Update all of these data contract [json metadata](/notebooks/input_data) input files with your data product specifications and requirements, and commit the changes back to your feature branch.
+- Update the [base_params.yaml](/resources/python/base_params.yaml) with Unity Catalog (UC) volumes path where the data contract artifacts will be created (see below):
+
+![data_contract_deploy_template.png](/readme_images/data_contract_deploy_template.png)
 
 ## How do I use the Databricks Data Contract Cookbook?
 
