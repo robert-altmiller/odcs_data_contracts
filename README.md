@@ -53,21 +53,21 @@ Here are the required steps to create and deploy a data contract:
 
 - The [first step](/notebooks/s1_data_contract_generate.py) is to create a data contract from a 'source' Databricks schema and tables.
     
-    - If you wish to run this 'step 1' notebook manually simply update the 'source_catalog' and 'source_schema' widgets in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks notebook.
+    - If you wish to run this 'step 1' notebook manually simply update the 'source_catalog' and 'source_schema' widgets in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks 'step 1' notebook.
 
         ![create_contracts_step1_params.png](/readme_images/create_contracts_step1_params.png)
 
-    - After 'step 1' completes the output folders: 'sql_data' and 'data_contracts_data' will look like the following.  The name of the data contract is '{catalog_name}__{schema_name}.yaml'.  The 'sql_data' folder has Databricks SQL definitions (e.g. DDLs) for each table in the 'source_catalog' and 'source_schema'.  These SQL files are imported and used by the Data Contract CLI to generate the yaml 'schema' block in the base contract.
+    - After 'step 1' completes the output folders: 'sql_data' and 'data_contracts_data' will look like the following (see below).  The name of the data contract is '{catalog_name}__{schema_name}.yaml'.  The 'sql_data' folder has Databricks SQL definitions (e.g. DDLs) for each table in the 'source_catalog' and 'source_schema'.  These SQL files are imported and used by the Data Contract CLI to generate the yaml 'schema' block in the base contract.
 
         ![create_contracts_step1_output_fldrs.png](/readme_images/create_contracts_step1_output_fldrs.png)
 
 - The [second step](/notebooks/s2_data_contract_deploy_tables.py) is to create the tables + columns + column datatypes + table/column comments and descriptions defined in the data contract in a Databricks 'target catalog' and 'target schema' by running Data Contract CLI generated SQL DDLs.
 
-    - Since 'step 2' deploys the tables in the data contract we need to update the 'server' section in the data contract created from 'step 1' with the 'target catalog' and 'target schema' to deploy the tables to.
+    - Since 'step 2' deploys the tables in the data contract, we need to update the 'server' section in the data contract created from 'step 1' with the 'target catalog' and 'target schema' to deploy the tables to.
 
         ![update_data_contract_server.png](/readme_images/update_data_contract_server.png)
 
-    - Next, to run this 'step 2' notebook manually simply update the 'source_catalog' and 'source_schema' widgets in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks notebook.
+    - Next, to run this 'step 2' notebook manually simply update the 'source_catalog' and 'source_schema' widgets in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks 'step 2' notebook.
         
         ![deploy_contracts_step2_params.png](/readme_images/deploy_contracts_step2_params.png)
 
