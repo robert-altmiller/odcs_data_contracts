@@ -59,11 +59,11 @@ Here is the repo folder structure for using the [Github actions](/pipeline_files
 
 Here is the repo folder structure for using the [Gitlab actions](/pipeline_files/gitlab/) workflow.  To use this Gitlab actions workflow you will need to add a '__period__' to the front of the filename.
 
+![gitlab_actions.png](/readme_images/gitlab_actions.png)
+
 Here is the Databricks workflows repo folder structure:
 
 ![resources_folder_structure.png](/readme_images/resources_folder_structure.png)
-
-![gitlab_actions.png](/readme_images/gitlab_actions.png)
 
 The the [data_contract_create_template.yaml](/resources/workflows/data_contract_create_template.yaml) Databricks workflow executes [step 1](/notebooks/s1_data_contract_generate.py) in the previous section.  This yaml template workflow is parameterized (see below), and variables from the [base_params.yaml](/resources/python/base_params.yaml) are injected into this yaml template using the [inject_base_params.py](/resources/python/inject_base_params.py) Python script.  
 
