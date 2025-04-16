@@ -31,7 +31,7 @@ If you are ready to create a data contract do the following:
 
 - Fork this Github [repository](https://github.com/robert-altmiller/odcs_data_contracts), and create a feature branch off the main branch.
 - Update all of these data contract [json metadata](/notebooks/input_data) input files with your data product specifications and requirements, and commit the changes back to your feature branch.
-- Update the [base_params.yaml](/resources/python/base_params.yaml) with Unity Catalog (UC) volumes path where the data contract artifacts will be created (see below):
+- Update the [base_params.yaml](/resources/python/base_params.yaml) with Unity Catalog (UC) volumes path where the data contract artifacts will be created.  Also update the '__git_source__', '__git_repo_url__', and '__git_branch__' with your forked repo requirements.
 
 ![base_params.png](/readme_images/base_params.png)
 
