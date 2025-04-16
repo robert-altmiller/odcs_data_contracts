@@ -23,6 +23,7 @@ __ODCS Helpful Links:__
 - [Introduction to Data Contracts](https://www.foundational.io/blog/introduction-data-contracts)
 - [Bitol IO ODCS Documentation](https://bitol-io.github.io/open-data-contract-standard/latest/)
 - [Data Contract Manager ODCS Documentation](https://datacontract-manager.com/learn/open-data-contract-standard)
+- [Data Contract Command Line Interface (CLI)](https://github.com/datacontract/datacontract-cli)
 - [Data Contract vs Data Product Specifications](https://medium.com/%40andrea_gioia/data-contract-vs-data-product-specifications-8ffa3cc16725)
 
 ## How do I use the Databricks Data Contract Cookbook?
@@ -69,18 +70,29 @@ Here are the required steps to create and deploy a data contract:
 
     - Next, to run this 'step 2' notebook manually simply update the 'source_catalog' and 'source_schema' widgets in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks 'step 2' notebook.
         
-        ![deploy_contracts_step2_params.png](/readme_images/deploy_contracts_step2_params.png)
+        ![create_contracts_step2_params.png](/readme_images/create_contracts_step2_params.png)
 
     - After the tables have been deployed from 'step 2' check the 'target catalog' and 'target schema' in Databricks to ensure the tables were created.  Check the column names, column data types, table and column level comments and descriptions.
 
-- The [third step](/notebooks/s3_data_contract_deploy_tags.py) is to deploy the schema level tags, and table/column level tags to the created tables in the 'target' schema.
+- The [third step](/notebooks/s3_data_contract_deploy_tags.py) is to deploy the schema level tags, and table/column level tags to the created tables in the 'target catalog' and 'target schema'.
 
-    - If you wish to run this 'step 3' notebook manually simply update the 'yaml_file_path' in the 'Workflow Widget Parameters' block in the notebook to point to the location of the created contract, and run the entire Databricks notebook.
+    - If you wish to run this 'step 3' notebook manually simply update the 'yaml_file_path' in the 'Workflow Widget Parameters' block in the notebook to point to the location of the created contract, and run the entire Databricks 'step 3' notebook.
 
         ![create_contracts_step3_params.png](/readme_images/create_contracts_step3_params.png)
 
+    - After the tags have been deployed from 'step 3' check all tables in the 'target catalog' and 'target schema' in Databricks to ensure all tags were added.  Check for schema tags, table tags, and column tags.
+
 - The [fourth step](/notebooks/s4_data_contract_deploy_data.py) is to load the data from the Databricks 'source' schema tables to the Databricks 'target' schema tables.  This includes loading all complex nested struct type data.
+
+    - If you wish to run this 'step 4' notebook manually simply update the 'source_catalog', 'source_schema', and 'yaml_file_path' in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks 'step 4' notebook.
+
+        ![create_contracts_step4_params.png](/readme_images/create_contracts_step4_params.png)
+
 - The [fifth step](/notebooks/s5_data_contract_dq_checks.py) is to run the Data Contract CLI out of the box (OOB) and user-defined data quality (DQ) SQL rules.  The OOB rules check to make sure all columns exists, and correct datatypes have been assigned.  User-defined data quality rules are specified using Databricks SQL syntax.  For example, custom rules can be used to check that a table has data and no duplicates exist across all rows.
+
+    - If you wish to run this 'step 5' notebook manually simply update the 'yaml_file_path' in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks 'step 4' notebook.
+
+        ![create_contracts_step5_params.png](/readme_images/create_contracts_step5_params.png)
 
 ## Automation with Databricks Asset Bundles (DABS) and CICD
 
