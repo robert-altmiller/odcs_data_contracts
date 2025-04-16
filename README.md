@@ -34,7 +34,7 @@ This repository is designed to automate the generation of Open Data Contract Sta
 If you are ready to create a data contract do the following:
 
 - Fork this Github [repository](https://github.com/robert-altmiller/odcs_data_contracts), and create a feature branch off the main branch.
-- Update all of these data contract [json metadata](/notebooks/input_data) user input files with your data product specifications and requirements, and commit the changes back to your feature branch.
+- Update all of these data contract [json metadata](/notebooks/input_data) user input files with your data product specifications and requirements, and commit the changes back to your feature branch.  Here are [definitions](http://www.google.com) for each of these JSON user input files.
     - [high-level contract metadata](/notebooks/input_data/contract_metadata_input/)
     - [custom data quality rules](/notebooks/input_data/data_quality_rules_input/)
     - [service level agreements](/notebooks/input_data/sla_metadata_input/)
@@ -47,7 +47,7 @@ If you are ready to create a data contract do the following:
 
 ![base_params.png](/readme_images/base_params.png)
 
-## What notebook steps are run to create and deploy a data contract?
+## What Databricks notebook steps are run to create and deploy a data contract?
 
 Here are the required steps to create and deploy a data contract:
 
