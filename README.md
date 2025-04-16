@@ -57,7 +57,7 @@ Here are the required steps to create and deploy a data contract:
 
         ![create_contracts_step1_params.png](/readme_images/create_contracts_step1_params.png)
 
-    - After 'step 1' completes the output folders will look like the following.  The name of the data contract is '{catalog_name}__{schema_name}.yaml'.
+    - After 'step 1' completes the output folders: 'sql_data' and 'data_contracts_data' will look like the following.  The name of the data contract is '{catalog_name}__{schema_name}.yaml'.  The 'sql_data' folder has Databricks SQL definitions (e.g. DDLs) for each table in the 'source_catalog' and 'source_schema'.  These SQL files are imported and used by the Data Contract CLI to generate the yaml 'schema' block in the base contract.
 
         ![create_contracts_step1_output_fldrs.png](/readme_images/create_contracts_step1_output_fldrs.png)
 
