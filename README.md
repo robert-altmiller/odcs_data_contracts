@@ -35,14 +35,14 @@ If you are ready to create a data contract do the following:
 
 - Fork this Github [repository](https://github.com/robert-altmiller/odcs_data_contracts), and create a feature branch off the main branch.
 - Update all of these data contract [json metadata](/notebooks/input_data) user input files with your data product specifications and requirements, and commit the changes back to your feature branch.  Here are [definitions](http://www.google.com) for each of these JSON user input files.
-    - [high-level contract metadata](/notebooks/input_data/contract_metadata_input/)
-    - [custom data quality rules](/notebooks/input_data/data_quality_rules_input/)
-    - [service level agreements](/notebooks/input_data/sla_metadata_input/)
-    - [teams](/notebooks/input_data/team_metadata_input/)
-    - [roles](/notebooks/input_data/roles_metadata_input/)
-    - [support channels](/notebooks/input_data/support_channel_metadata_input/)
-    - [pricing](/notebooks/input_data/pricing_metadata_input/)
-    - [server details](/notebooks/input_data/server_metadata_input/)
+    - [High-Level Contract Metadata](/notebooks/input_data/contract_metadata_input/)
+    - [Custom Data Quality Rules](/notebooks/input_data/data_quality_rules_input/)
+    - [Service Level Agreements](/notebooks/input_data/sla_metadata_input/)
+    - [Teams](/notebooks/input_data/team_metadata_input/)
+    - [Roles](/notebooks/input_data/roles_metadata_input/)
+    - [Support Channels](/notebooks/input_data/support_channel_metadata_input/)
+    - [Pricing](/notebooks/input_data/pricing_metadata_input/)
+    - [Server Details](/notebooks/input_data/server_metadata_input/)
 - Update the [base_params.yaml](/resources/python/base_params.yaml) with Unity Catalog (UC) volumes path where the data contract artifacts will be created.  Also update the '__git_source__', '__git_repo_url__', and '__git_branch__' with your forked repo requirements.
 
 ![base_params.png](/readme_images/base_params.png)
