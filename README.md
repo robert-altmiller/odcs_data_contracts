@@ -134,7 +134,7 @@ The 'inject_base_params.py' Python script saves yaml template with updated varia
 
 ## How do I verify a successful DABS + CICD deployment?
 
-After the Github or Gitlab CICD pipeline run finishes a .bundle folder and 2 workflows will be created in the Databricks workspace (see below):
+After the Github or Gitlab CICD pipeline run finishes a '.bundle' folder and 2 workflows - 'data_contract_create' and 'data_contract_deploy' - will be created in the Databricks workspace (see below):
 
 ![bundle_deploy_step1.png](/readme_images/bundle_deploy_step1.png)
 
