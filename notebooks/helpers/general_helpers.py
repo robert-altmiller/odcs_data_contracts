@@ -486,3 +486,8 @@ roles_metadata_input = read_json_file(file_path = roles_metadata_input_path)
 pricing_metadata_input_path = f"{input_base_path}/pricing_metadata_input/pricing_metadata.json"
 pricing_metadata_input = read_json_file(file_path = pricing_metadata_input_path)
 # print(f"pricing_metadata_input:\n{pricing_metadata_input}\n")
+
+# Schema metadata input
+schema_metadata_input_path = f"{input_base_path}/contract_first_approach/schema_metadata_input/schema_metadata.json"
+schema_metadata_input = read_json_file(file_path = schema_metadata_input_path)
+# print(f"schema_metadata_input:\n{schema_metadata_input}\n")
