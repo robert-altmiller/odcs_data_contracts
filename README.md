@@ -45,7 +45,7 @@ If you are ready to create a data contract do the following:
     - [Pricing Details](/notebooks/input_data/pricing_metadata_input/)
     - [Server Details](/notebooks/input_data/server_metadata_input/)
 
-- If you do not have any starting data (e.g. contract first approach) please update the additional JSON user input files.
+- If you do not have any starting data (e.g. contract first approach) please update the additional JSON user input files.  The 'Schema' and 'Schema Tags' user input files will be used to generate the base data contract prior to adding the user input metadata files listed above.
 
     - [Schema Details](/notebooks/input_data/schema_metadata_input/)
     - [Schema Tags](/notebooks/input_data/tags_metadata_input/)
