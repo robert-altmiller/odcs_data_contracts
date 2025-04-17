@@ -1,14 +1,4 @@
 # Databricks notebook source
-# DBTITLE 1,Pip Install Libraries
-# MAGIC %pip install 'datacontract-cli[databricks]'
-
-# COMMAND ----------
-
-# DBTITLE 1,Restart Python
-dbutils.library.restartPython()
-
-# COMMAND ----------
-
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
 

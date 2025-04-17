@@ -18,22 +18,17 @@
 # COMMAND ----------
 
 # DBTITLE 1,Pip Install Libraries
-# MAGIC %pip install 'datacontract-cli[databricks,avro,csv,parquet,sql]' fastavro
-
-# COMMAND ----------
-
-# DBTITLE 1,Restart Python
-dbutils.library.restartPython()
-
-# COMMAND ----------
-
-# DBTITLE 1,Library Imports
-import fastavro
+# MAGIC %pip install 'datacontract-cli[avro,csv,parquet,sql]' fastavro
 
 # COMMAND ----------
 
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
+
+# COMMAND ----------
+
+# DBTITLE 1,Library Imports
+import fastavro
 
 # COMMAND ----------
 
