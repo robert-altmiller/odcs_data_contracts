@@ -1,7 +1,7 @@
 resources:
   jobs:
     s2_data_contract_deploy_tables_tags:
-      name: data_contract_deploy_tables_tags
+      name: s2_data_contract_deploy_tables_tags
       tasks:
         - task_key: Data_Contract_Tables
           notebook_task:

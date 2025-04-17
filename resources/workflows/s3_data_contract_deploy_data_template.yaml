@@ -1,7 +1,7 @@
 resources:
   jobs:
     s3_data_contract_deploy_data:
-      name: data_contract_deploy_data
+      name: s3_data_contract_deploy_data
       tasks:
 
         - task_key: Data_Contract_Data
