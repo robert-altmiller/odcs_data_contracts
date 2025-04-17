@@ -5,8 +5,6 @@ resources:
       tasks:
 
         - task_key: Data_Contract_Data
-          depends_on:
-            - task_key: Data_Contract_Tags
           notebook_task:
             notebook_path: notebooks/s4_data_contract_deploy_data
             base_parameters:
