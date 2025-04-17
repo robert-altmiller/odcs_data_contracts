@@ -329,7 +329,7 @@ def get_general_data_quality_rules(table, columns=None):
 
     These rules include:
     1. A row count check to ensure the table contains data.
-    2. A uniqueness check across specified columns to ensure no duplicate rows.
+    2. A uniqueness check across specified columns to ensure no duplicate rows (commented out).
     Args:
         table (str): The name of the table for which to create rules.
         columns (list, optional): List of column names to use for the duplicate check.

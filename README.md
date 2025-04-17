@@ -39,11 +39,17 @@ If you are ready to create a data contract do the following:
     - [High-Level Contract Metadata](/notebooks/input_data/contract_metadata_input/)
     - [Custom Data Quality Rules](/notebooks/input_data/data_quality_rules_input/)
     - [Service Level Agreements](/notebooks/input_data/sla_metadata_input/)
-    - [Teams](/notebooks/input_data/team_metadata_input/)
-    - [Roles](/notebooks/input_data/roles_metadata_input/)
+    - [Teams Details](/notebooks/input_data/team_metadata_input/)
+    - [Roles Details](/notebooks/input_data/roles_metadata_input/)
     - [Support Channels](/notebooks/input_data/support_channel_metadata_input/)
-    - [Pricing](/notebooks/input_data/pricing_metadata_input/)
+    - [Pricing Details](/notebooks/input_data/pricing_metadata_input/)
     - [Server Details](/notebooks/input_data/server_metadata_input/)
+
+- If you do not have any starting data (e.g. contract first approach) please update the additional JSON user input files.
+
+    - [Schema Details](/notebooks/input_data/schema_metadata_input/)
+    - [Schema Tags](/notebooks/input_data/tags_metadata_input/)
+
 - Update the [base_params.yaml](/resources/python/base_params.yaml) with Unity Catalog (UC) volumes path where the data contract artifacts will be created.  Also update the '__git_source__', '__git_repo_url__', and '__git_branch__' with your forked repo requirements.
 
     ![base_params.png](/readme_images/base_params.png)
