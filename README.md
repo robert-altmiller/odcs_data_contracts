@@ -30,7 +30,7 @@ __ODCS Helpful Links:__
 
 This repository is designed to automate the generation of Open Data Contract Standard (ODCS) yaml data contracts built from a Databricks schema and all tables in the schema.  The automation is able to handle creating the entire schema, tables, columns, and datatypes - including complex nested struct types, arrays, and lists - in the data contract.  Automation also captures all the schema, table, and column comments, descriptions, and tags. Additional contract metadata from [User input files (e.g. json files)](/notebooks/input_data) are added to the data contract after the base contract has been created.  After the entire data contract has been successfully created from a Databricks schema and tables this data contract can be deployed using the 'Data Contract CLI' to a __new__ Databricks 'target catalog' and 'target schema'.
 
-## What are the Data Contract Cookbook User Input Parameters?
+## What are the Data Contract Cookbook user input parameters?
 
 If you are ready to create a data contract do the following:
 
@@ -99,6 +99,10 @@ Here are the required steps to create and deploy a data contract:
     - After the 'step 5' notebook has finished running using the Data Contract CLI test() method (e.g. data_contract_object.test()), we store the data quality test results in a Unity Catalog (UC) managed table named 'odcs_data_quality' in the 'target catalog' and 'target schema'.
 
         ![create_contracts_step5_dq_table.png](/readme_images/create_contracts_step5_dq_table.png)
+
+## How do I run steps 1-5 above using Databricks workflows?
+
+If you desire to run 'step 1' above in a 'create_data_contract' Databricks workflow, and 'steps 2-5' in a 'deploy_data_contract' Databricks workflow we have built automation using Databricks Asset Bundles (DABs) + Github / Gitlab CICD pipelines to automate the deployment and creation of data product data contracts across environments (e.g. development, test, and production).
 
 ## Automation with Databricks Asset Bundles (DABS) and CICD
 
