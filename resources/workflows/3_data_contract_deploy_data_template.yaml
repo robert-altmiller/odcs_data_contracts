@@ -1,6 +1,6 @@
 resources:
   jobs:
-    data_contract_deploy_data:
+    3_data_contract_deploy_data:
       name: data_contract_deploy_data
       tasks:
 
