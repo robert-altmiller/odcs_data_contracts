@@ -1,7 +1,7 @@
 resources:
   jobs:
-    1_data_contract_create:
-      name: 1_data_contract_create
+    data_contract_create:
+      name: data_contract_create
       tasks:
         - task_key: Create_Data_Contract
           notebook_task:

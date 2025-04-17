@@ -1,7 +1,7 @@
 resources:
   jobs:
-    4_data_contract_run_dq_rules:
-      name: 4_data_contract_run_dq_rules
+    data_contract_run_dq_rules:
+      name: data_contract_run_dq_rules
       tasks:
         - task_key: Data_Contract_DQ_Rules
           depends_on:
