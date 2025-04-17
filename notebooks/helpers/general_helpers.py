@@ -467,11 +467,6 @@ support_channel_metadata_input_path = f"{input_base_path}/support_channel_metada
 support_channel_metadata_input = read_json_file(file_path = support_channel_metadata_input_path)
 # print(f"support_channel_metadata:\n{support_channel_metadata}\n")
 
-# Tags metadata input
-tags_metadata_input_path = f"{input_base_path}/tags_metadata_input/tags_metadata.json"
-tags_metadata_input = read_json_file(file_path = tags_metadata_input_path)
-# print(f"tags_metadata_input:\n{tags_metadata_input}\n")
-
 # Service level agreement (SLA) metadata input
 sla_metadata_input_path = f"{input_base_path}/sla_metadata_input/sla_metadata.json"
 sla_metadata_input = read_json_file(file_path = sla_metadata_input_path)
@@ -497,7 +492,12 @@ pricing_metadata_input_path = f"{input_base_path}/pricing_metadata_input/pricing
 pricing_metadata_input = read_json_file(file_path = pricing_metadata_input_path)
 # print(f"pricing_metadata_input:\n{pricing_metadata_input}\n")
 
-# Schema metadata input
-schema_metadata_input_path = f"{input_base_path}/contract_first_approach/schema_metadata_input/schema_metadata.json"
+# Schema metadata input (contract first approach)
+schema_metadata_input_path = f"{input_base_path}/schema_metadata_input/schema_metadata.json"
 schema_metadata_input = read_json_file(file_path = schema_metadata_input_path)
 # print(f"schema_metadata_input:\n{schema_metadata_input}\n")
+
+# Tags metadata input (contract first approach)
+tags_metadata_input_path = f"{input_base_path}/tags_metadata_input/tags_metadata.json"
+tags_metadata_input = read_json_file(file_path = tags_metadata_input_path)
+# print(f"tags_metadata_input:\n{tags_metadata_input}\n")
