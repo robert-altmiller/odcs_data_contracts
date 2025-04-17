@@ -10,6 +10,7 @@ resources:
             base_parameters:
               source_catalog: ${var.odcs_contract_source_catalog}
               source_schema: ${var.odcs_contract_source_schema}
+              yaml_file_path: "{{ params.base_path }}/{{ params.yaml_folder_path }}/${var.odcs_contract_source_catalog}__${var.odcs_contract_source_schema}.yaml"
             source: GIT
           job_cluster_key: Job_cluster
 
