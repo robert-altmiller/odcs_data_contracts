@@ -23,5 +23,7 @@ def update_workflow_template(wf_name):
         out.write(rendered)
 
 # Run for both workflows
-update_workflow_template("data_contract_create")
-update_workflow_template("data_contract_deploy")
+update_workflow_template("1_data_contract_create")
+update_workflow_template("2_data_contract_deploy_tables_tags")
+update_workflow_template("3_data_contract_deploy_data")
+update_workflow_template("4_data_contract_run_dq_rules")
