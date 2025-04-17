@@ -104,7 +104,7 @@ Here are the required steps to create and deploy a data contract:
 
 If you desire to run 'step 1' above in a 'create_data_contract' Databricks workflow, and 'steps 2-5' in a 'deploy_data_contract' Databricks workflow we have built automation using Databricks Asset Bundles (DABs) + Github / Gitlab CICD pipelines to automate the deployment and creation of data product data contracts across environments (e.g. development, test, and production).
 
-## Automation with Databricks Asset Bundles (DABS) and CICD
+## Automation with Databricks Asset Bundles (DABS) and CICD Overview
 
 We maintain both '__Github actions__' and '__Gitlab actions__' workflows for deploying steps 1-5 above using two Databricks [workflows](/resources/workflows/).
 
@@ -131,6 +131,8 @@ The the [data_contract_deploy_template.yaml](/resources/workflows/data_contract_
 ![data_contract_deploy_template.png](/readme_images/data_contract_deploy_template.png)
 
 The 'inject_base_params.py' Python script saves yaml template with updated variables as 'data_contract_deploy.yaml' during the CICD pipeline run, and this Databricks workflow 'data_contract_deploy.yaml' is deployed to the Databricks workspace using Databricks Asset Bundles (DABs).
+
+## How do I verify a successful DABS + CICD deployment?
 
 After the Github or Gitlab CICD pipeline run finishes a .bundle folder and 2 workflows will be created in the Databricks workspace (see below):
 
