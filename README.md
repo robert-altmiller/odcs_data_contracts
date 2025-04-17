@@ -136,17 +136,19 @@ The 'inject_base_params.py' Python script saves yaml template with updated varia
 
 __Prerequisites__: After you have forked this repository, created a feature branch, updated all the user input files to reflect your data product requirements, updated UC volumes path, it is time to run the CICD pipeline to deploy the DAB and workflows to your Databricks workspace.
 
-    - Steps if running using Github:
+- Steps if running using Github:
 
-        - Go to your forked repo, and click on 'actions':
-    
-            ![run_github_actions_workflow_s1.png](/readme_images/run_github_actions_workflow_s1.png)
+    - Go to your forked repo, and click on 'actions'
+
+        ![run_github_actions_workflow_s1.png](/readme_images/run_github_actions_workflow_s1.png)
         
-        - Click on the workflow 'Deploy Databricks Contracts Workflows':
-    
-            ![run_github_actions_workflow_s1.png](/readme_images/run_github_actions_workflow_s1.png)
+    - Click on the workflow 'Deploy Databricks Contracts Workflows'
 
-        - 
+        ![run_github_actions_workflow_s2.png](/readme_images/run_github_actions_workflow_s2.png)
+
+    - Fill out the 'Databricks Host URL', 'Databricks Personal Access Token (PAT)', 'Deploy Environment', 'User Email Address', 'ODCS Contract Source Catalog', and 'ODCS Contract Source Schema', and then click 'Run workflow'
+
+        ![run_github_actions_workflow_s3.png](/readme_images/run_github_actions_workflow_s3.png)
 
 ## How do I verify a successful DABS + CICD deployment?
 
