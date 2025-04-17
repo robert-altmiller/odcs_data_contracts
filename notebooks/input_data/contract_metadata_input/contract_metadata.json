@@ -1,6 +1,9 @@
 [
   {
     "name": "Flight Stats",
+    "apiVersion": "v3.0.0",
+    "kind": "DataContract",
+    "id": "flight-stats-data-contract",
     "version": "1.0.0",
     "domain": "flight",
     "status": "active",

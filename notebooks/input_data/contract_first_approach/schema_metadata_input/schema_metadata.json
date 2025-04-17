@@ -1,0 +1,82 @@
+{
+    "objects": [
+        {
+            "name": "baggage",
+            "description": "Baggage details associated with tickets",
+            "properties": [
+                {
+                    "name": "baggage_id",
+                    "type": "bigint",
+                    "required": true
+                },
+                {
+                    "name": "ticket_id",
+                    "type": "bigint",
+                    "required": true
+                },
+                {
+                    "name": "baggage_type",
+                    "type": "string"
+                },
+                {
+                    "name": "weight",
+                    "description": "Weight of the baggage",
+                    "type": "decimal(10,0)"
+                }
+            ]
+        },
+        {
+            "name": "flights",
+            "description": "Passenger flight information",
+            "properties": [
+                {
+                    "name": "flight_id",
+                    "type": "bigint",
+                    "required": true
+                },
+                {
+                    "name": "airline",
+                    "type": "string"
+                },
+                {
+                    "name": "flight_number",
+                    "type": "string"
+                },
+                {
+                    "name": "origin",
+                    "type": "string"
+                },
+                {
+                    "name": "destination",
+                    "type": "string"
+                },
+                {
+                    "name": "departure_time",
+                    "type": "timestamp"
+                },
+                {
+                    "name": "arrival_time",
+                    "type": "timestamp"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                },
+                {
+                    "name": "ingestion_datetime",
+                    "type": "timestamp"
+                },
+                {
+                    "name": "passengers",
+                    "logicalType": "object",
+                    "physicalType": "ARRAY<STRUCT<passenger_id: BIGINT, seat_number: STRING>>"
+                },
+                {
+                    "name": "flight_log",
+                    "logicalType": "object",
+                    "physicalType": "STRUCT<blocks: ARRAY<STRUCT<text: STRING, title: STRING, type: STRING>>, column_additions: ARRAY<STRING>, column_deletions: ARRAY<STRING>, column_type_mismatches: STRUCT<array_of_structs: STRUCT<actual_type: STRING, expected_type: STRING>>, fail: STRUCT<greaterThan: DOUBLE, greaterThanOrEqual: DOUBLE, lessThan: DOUBLE>, missing_column_names: ARRAY<STRING>, preferredChart: STRING, present_column_names: ARRAY<STRING>, value: DOUBLE, valueLabel: STRING, valueSeries: STRUCT<values: ARRAY<STRUCT<label: STRING, outcome: STRING, value: BIGINT>>>>"
+                }
+            ]
+        }
+    ]
+}
