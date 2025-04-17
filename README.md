@@ -46,7 +46,7 @@ If you are ready to create a data contract do the following:
     - [Server Details](/notebooks/input_data/server_metadata_input/)
 - Update the [base_params.yaml](/resources/python/base_params.yaml) with Unity Catalog (UC) volumes path where the data contract artifacts will be created.  Also update the '__git_source__', '__git_repo_url__', and '__git_branch__' with your forked repo requirements.
 
-![base_params.png](/readme_images/base_params.png)
+    ![base_params.png](/readme_images/base_params.png)
 
 ## What Databricks notebook steps are run to create and deploy a data contract?
 
@@ -82,17 +82,23 @@ Here are the required steps to create and deploy a data contract:
 
     - After the tags have been deployed from 'step 3' check all tables in the 'target catalog' and 'target schema' in Databricks to ensure all tags were added.  Check for schema tags, table tags, and column tags.
 
-- The [fourth step](/notebooks/s4_data_contract_deploy_data.py) is to load the data from the Databricks 'source' schema tables to the Databricks 'target' schema tables.  This includes loading all complex nested struct type data.
+- The [fourth step](/notebooks/s4_data_contract_deploy_data.py) is to load the data from the Databricks 'source schema' tables to the Databricks 'target schema' tables.  This includes loading all complex nested struct type data.
 
     - If you wish to run this 'step 4' notebook manually simply update the 'source_catalog', 'source_schema', and 'yaml_file_path' in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks 'step 4' notebook.
 
         ![create_contracts_step4_params.png](/readme_images/create_contracts_step4_params.png)
 
-- The [fifth step](/notebooks/s5_data_contract_dq_checks.py) is to run the Data Contract CLI out of the box (OOB) and user-defined data quality (DQ) SQL rules.  The OOB rules check to make sure all columns exists, and correct datatypes have been assigned.  User-defined data quality rules are specified using Databricks SQL syntax.  For example, custom rules can be used to check that a table has data and no duplicates exist across all rows.
+    - After the data has been copied from the 'source schema' to the 'target schema' check all tables in the 'target catalog' and 'target schema' in Databricks to ensure they all have data.
 
-    - If you wish to run this 'step 5' notebook manually simply update the 'yaml_file_path' in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks 'step 4' notebook.
+- The [fifth step](/notebooks/s5_data_contract_dq_checks.py) is to run the Data Contract CLI out of the box (OOB) and user-defined data quality (DQ) SQL rules in the data contract.  The OOB data quality rules check to make sure all columns exists, and correct datatypes have been assigned.  User-defined data quality rules are specified using Databricks SQL syntax.  For example, custom data quality rules can be used to check that a table has data and no duplicates exist across all rows.
+
+    - If you wish to run this 'step 5' notebook manually simply update the 'yaml_file_path' in the 'Workflow Widget Parameters' block in the notebook, and run the entire Databricks 'step 5' notebook.
 
         ![create_contracts_step5_params.png](/readme_images/create_contracts_step5_params.png)
+
+    - After the 'step 5' notebook has finished running using the Data Contract CLI test() method (e.g. data_contract_object.test()), we store the data quality test results in a Unity Catalog (UC) managed table named 'odcs_data_quality' in the 'target catalog' and 'target schema'.
+
+        ![create_contracts_step5_dq_table.png](/readme_images/create_contracts_step5_dq_table.png)
 
 ## Automation with Databricks Asset Bundles (DABS) and CICD
 
