@@ -114,6 +114,7 @@ dbutils.widgets.text("source_catalog", "hive_metastore")
 source_catalog = dbutils.widgets.get("source_catalog")
 print(f"source_catalog: {source_catalog}")
 
+
 # Source schema parameter
 dbutils.widgets.text("source_schema", "default")
 source_schema = dbutils.widgets.get("source_schema")
@@ -136,8 +137,8 @@ print(f"source_schema: {source_schema}")
 tables_list, tables_with_desc_dict = list_tables_in_schema(source_catalog, source_schema)
 
 # remove data quality tables created by the data contract framework if they exist
-tables_list = [t for t in tables_list if "data_quality" not in t]
-tables_with_desc_dict = {k: v for k, v in tables_with_desc_dict.items() if "data_quality" not in k}
+#tables_list = [t for t in tables_list if "data_quality" not in t]
+#tables_with_desc_dict = {k: v for k, v in tables_with_desc_dict.items() if "data_quality" not in k}
 
 print(f"tables_list: {tables_list}")
 
