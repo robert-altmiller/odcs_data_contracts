@@ -337,7 +337,7 @@ def get_general_data_quality_rules(table, columns=None):
     Returns:
         list: A list of data quality rule dictionaries formatted for use in a data contract.
     """
-    partition_by_clause = ", ".join(columns) if columns else ""
+    # partition_by_clause = ", ".join(columns) if columns else ""
     
     general_data_quality_rules = {
         f"{table}": {
@@ -353,22 +353,22 @@ def get_general_data_quality_rules(table, columns=None):
     }
 
     # Add duplicate check only if valid columns are provided
-    if partition_by_clause:
-        general_data_quality_rules[table]["quality"].append(
-            {
-                "type": "sql",
-                "description": f"Ensure '{table}' table has no duplicate rows across all columns",
-                "query": f"""
-                    SELECT COUNT(*)
-                    FROM (
-                        SELECT *, COUNT(*) OVER (PARTITION BY {partition_by_clause}) AS row_count
-                        FROM {table}
-                    ) AS subquery
-                    WHERE row_count > 1
-                """,
-                "mustBe": 0
-            }
-        )
+    # if partition_by_clause:
+    #     general_data_quality_rules[table]["quality"].append(
+    #         {
+    #             "type": "sql",
+    #             "description": f"Ensure '{table}' table has no duplicate rows across all columns",
+    #             "query": f"""
+    #                 SELECT COUNT(*)
+    #                 FROM (
+    #                     SELECT *, COUNT(*) OVER (PARTITION BY {partition_by_clause}) AS row_count
+    #                     FROM {table}
+    #                 ) AS subquery
+    #                 WHERE row_count > 1
+    #             """,
+    #             "mustBe": 0
+    #         }
+    #     )
 
     # Clean up SQL formatting (flatten multi-line SQL to single-line strings)
     for dq_rule in general_data_quality_rules[table]["quality"]:
