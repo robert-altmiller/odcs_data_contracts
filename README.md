@@ -108,7 +108,9 @@ Here are the required steps to create and deploy a data contract:
 
 ## How do I run steps 1-5 above using Databricks workflows?
 
-If you desire to run 'step 1' above in a 'create_data_contract' Databricks workflow, and 'steps 2-5' in a 'deploy_data_contract' Databricks workflow we have built automation using Databricks Asset Bundles (DABs) + Github / Gitlab CICD pipelines to automate the deployment and creation of data product data contracts across environments (e.g. development, test, and production).  Continue reading to learn more about the data contract DABs + CICD integration.
+If you desire to run 'step 1' above in a 's1_create_data_contract' Databricks workflow, 'steps 2-3' in a 's2_data_contract_deploy_tables_tags' Databricks workflow, 'step 3' in a 's3_data_contract_deploy_data' Databricks workflow, and 'step 5' in a 's4_data_contract_run_dq_rules' Databricks workflow we have built automation using Databricks Asset Bundles (DABs) + Github / Gitlab CICD pipelines to automate the deployment and creation of data product data contracts across environments (e.g. development, test, and production).  Continue reading to learn more about the data contract DABs + CICD integration.
+
+![databricks_workflows_deployed_with_dabs.png](/readme_images/databricks_workflows_deployed_with_dabs.png)
 
 ## Automation with Databricks Asset Bundles (DABS) and CICD Overview
 
