@@ -1,4 +1,22 @@
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Deploy Tags Notebook
+# MAGIC
+# MAGIC This notebook is used to deploy tags defined in the contract.
+# MAGIC
+# MAGIC Given the path to a data contract .yaml, this notebook performs the following actions:
+# MAGIC 1. Reads in the contract
+# MAGIC 2. Retrieves schema, table, and column level tags
+# MAGIC 3. Formats the tags according to unity catalog requirments
+# MAGIC 4. Deploys the tags to the relevant object in UC in a multithreaded fashion to support high throughput
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Import Contract Helpers and Reset Widgets
+
+# COMMAND ----------
+
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
 
@@ -7,6 +25,11 @@
 # DBTITLE 1,Remove DB Widgets
 dbutils.widgets.removeAll()
 time.sleep(2)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Define Widget and Read Contract
 
 # COMMAND ----------
 
@@ -22,6 +45,15 @@ print(f"yaml_file_path: {yaml_file_path}")
 # DBTITLE 1,Read in the Data Contract Yaml
 with open(yaml_file_path, 'r') as f:
     data_contract_odcs_yaml = yaml.safe_load(f)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC # Step: Parse Catalog and Schema from Contract and Define Functions
+# MAGIC
+# MAGIC Tags are stored in the contract as key:value pairs encoded as string. The string has to be parsed into a dictionary before passing to UC.
+# MAGIC
+# MAGIC The ```deploy_tags``` function relies on an apply_uc_tags function defined in the contract_helpers notebook. The ```apply_uc_tags``` function generates the necessary SQL DDL command based on the level of the tag.
 
 # COMMAND ----------
 
@@ -70,6 +102,13 @@ def deploy_tags(level, deploy_tags_list):
         return "successfully deployed tags"
     except Exception as e:
         return f"Unable to deploy tags: ({e})"
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Parse Tags from Contract and Execute DDL to Update Tags
+# MAGIC
+# MAGIC This step leverages ```ThreadPoolExecutor``` to parallelize the execution of the DDL across multiple tables and columns.
 
 # COMMAND ----------
 

@@ -1,4 +1,25 @@
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Create Tables Notebook
+# MAGIC
+# MAGIC This notebook is used to generate tables in a target catalog and schema for a given contract.
+# MAGIC
+# MAGIC Given catalog, schema, and the file path to the data contract folder, this notebook will perform the following steps:
+# MAGIC 1. Derive the full path to the relevant data contract
+# MAGIC 2. Read in the .yaml file
+# MAGIC 3. Generate CREATE TABLE IF NOT EXISTS DDL statements for each object in the contract
+# MAGIC 4. Execute each DDL statement to create the tables in the UC catalog and schema defined within the contract server metadata
+# MAGIC
+# MAGIC Note: 
+# MAGIC This notebook assumes that the data contract conforms to a standard naming convention based on the catalog and schema: [catalog]__[schema].yaml
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Import Contract Helpers and Reset Widgets
+
+# COMMAND ----------
+
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
 
@@ -7,6 +28,11 @@
 # DBTITLE 1,Remove DB Widgets
 dbutils.widgets.removeAll()
 time.sleep(2)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Define Widgets and Initialize Variables
 
 # COMMAND ----------
 
@@ -42,6 +68,11 @@ print(f"yaml_file_path: {yaml_file_path}")
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ## Step: Initialize Contract Object and Test
+
+# COMMAND ----------
+
 # DBTITLE 1,Initialize the Data Contract Object
 data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
 
@@ -55,9 +86,23 @@ print(f"'{yaml_file_path}' ODCS test validation: {test_result.result}")
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ## Step: Export SQL DDL from Contract and Split Into Individual Statements
+
+# COMMAND ----------
+
 # DBTITLE 1,Get Data Contract Custom DDL
 queries_ddl_list = data_contract.export("sql")[:-1].split(";")
 print(queries_ddl_list)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Clean and Execute SQL
+# MAGIC
+# MAGIC Cleaning Steps:
+# MAGIC - CREATE OR REPLACE TABLE is changed to CREATE TABLE IF NOT EXISTS
+# MAGIC - Decimal data types are changed to double to avoid precision errors
 
 # COMMAND ----------
 

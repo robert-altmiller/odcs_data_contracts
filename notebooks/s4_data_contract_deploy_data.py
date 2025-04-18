@@ -1,4 +1,16 @@
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Deploy Data Notebook
+# MAGIC
+# MAGIC This notebook is used to copy data from the source catalog and schema provided via the parameters to a target catalog and schema defined in the contract .yaml. Note that this is provided as a means of testing the validity of the DDL deployed in step 3 and testing data quality rules. It is not expected to be used in the production lifecycle of a normal contract.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Import Contract Helpers and Reset Widgets
+
+# COMMAND ----------
+
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
 
@@ -7,6 +19,11 @@
 # DBTITLE 1,Remove DB Widgets
 dbutils.widgets.removeAll()
 time.sleep(2)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Define Widgets, Retrieve List of Tables in Source Schema, and Read Contract
 
 # COMMAND ----------
 
@@ -44,6 +61,13 @@ with open(yaml_file_path, 'r') as f:
 # Get the data contract catalog and schema
 target_catalog = data_contract_odcs_yaml["servers"][0]["catalog"] # This represents target catalog
 target_schema = data_contract_odcs_yaml["servers"][0]["schema"] # This represents target schema
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Loop through Source Tables and Insert New Records into Target
+# MAGIC
+# MAGIC The cell below uses a Secure Hash Algorithm (SHA) across all common columns between the source and target tables to define a join key and only inserts new records into the target table.
 
 # COMMAND ----------
 

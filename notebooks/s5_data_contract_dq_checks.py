@@ -1,4 +1,16 @@
 # Databricks notebook source
+# MAGIC %md
+# MAGIC # Data Quality Notebook
+# MAGIC
+# MAGIC This notebook is used to execute data quality checks against rules defined in the contract and record the results in an ```odcs_data_quality``` table within the same schema defined by the contract.
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Import Contract Helpers and Reset Widgets
+
+# COMMAND ----------
+
 # DBTITLE 1,Import Python Helpers
 # MAGIC %run "./helpers/contract_helpers"
 
@@ -7,6 +19,13 @@
 # DBTITLE 1,Remove DB Widgets
 dbutils.widgets.removeAll()
 time.sleep(2)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Collect Parameter to Indicate Whether the Notebook was Triggered from a Databricks Workflow
+# MAGIC
+# MAGIC This information is used to update the path appropriately to make sure the notebook works when run both manually and from a workflow.
 
 # COMMAND ----------
 
@@ -25,6 +44,11 @@ def is_running_in_databricks_workflow():
 
 # Unit test
 print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Define Widget and Read Contract
 
 # COMMAND ----------
 
@@ -57,6 +81,13 @@ with open(yaml_file_path, 'r') as f:
 # Get the data contract catalog and schema
 target_catalog = data_contract_odcs_yaml["servers"][0]["catalog"] # This represents target catalog
 target_schema = data_contract_odcs_yaml["servers"][0]["schema"] # This represents target schema
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Define Function for running quality tests
+# MAGIC
+# MAGIC This function uses the Data Contract CLI's test method to perform the built-in as well as contract-defined quality checks. The results are written to a json file before being read back into a dataframe and returned.
 
 # COMMAND ----------
 
@@ -112,6 +143,13 @@ def run_data_quality_tests(data_contract, yaml_file_path, dq_path="./data_qualit
     print(f"'{yaml_file_path}' ODCS syntax validation: {test_results.result}")
 
     return df
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Step: Run Data Quality Tests and Save as Table
+# MAGIC
+# MAGIC The ```run_data_quality_tests``` function is called in this step and the returned results are appended to the ```odcs_data_quality``` table within the contract's schema.
 
 # COMMAND ----------
 
