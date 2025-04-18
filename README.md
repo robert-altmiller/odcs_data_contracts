@@ -114,7 +114,7 @@ If you desire to run 'step 1' above in a 's1_create_data_contract' Databricks wo
 
 ## Automation with Databricks Asset Bundles (DABS) and CICD Overview
 
-We maintain both '__Github actions__' and '__Gitlab actions__' workflows for deploying steps 1-5 above using two Databricks [workflows](/resources/workflows/).
+We maintain both '__Github actions__' and '__Gitlab actions__' workflows for deploying steps 1-5 above using four Databricks [workflows](/resources/workflows/).
 
 Here is the repo folder structure for using the [Github actions](/pipeline_files/github/) workflow:
 
@@ -124,9 +124,9 @@ Here is the repo folder structure for using the [Gitlab actions](/pipeline_files
 
 ![gitlab_actions.png](/readme_images/gitlab_actions.png)
 
-Here is the Databricks workflows repo folder structure:
+Here is the Databricks workflows repo folder structure.
 
-![resources_folder_structure.png](/readme_images/resources_folder_structure.png)
+![resources_flder_structure.png](/readme_images/resources_flder_structure.png)
 
 The the [data_contract_create_template.yaml](/resources/workflows/data_contract_create_template.yaml) Databricks workflow executes [step 1](/notebooks/s1_data_contract_generate.py) in the previous section.  This yaml template workflow is parameterized (see below), and variables from the [base_params.yaml](/resources/python/base_params.yaml) are injected into this yaml template using the [inject_base_params.py](/resources/python/inject_base_params.py) Python script.  
 
