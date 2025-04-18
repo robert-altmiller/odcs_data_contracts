@@ -740,6 +740,94 @@ def update_odcs_pricing_metadata(data_contract, pricing_metadata_input):
 
 # COMMAND ----------
 
+# DBTITLE 1,Update ODCS Schema (Custom)
+def convert_property_to_odcs(property: dict) -> dict:
+    """
+    Converts a property dictionary to ODCS format by adding logicalType and physicalType fields
+    and recursively converting nested array and object properties.
+    Args:
+        property (dict): The property dictionary to convert, containing type and optional nested properties
+    Returns:
+        dict: The converted property dictionary with ODCS-specific fields added
+    """
+    # Get the property type, defaulting to "object" if not specified
+    property_type = property.get("type", "object")
+
+    # Add ODCS-specific type fields
+    property["logicalType"] = property.get("logicalType", property_type)
+    property["physicalType"] = property.get("physicalType", property_type)
+
+    # Recursively convert array item properties
+    if property_type == "array":
+        property["items"] = convert_property_to_odcs(property["items"])
+
+    # Recursively convert object sub-properties
+    elif property_type == "object" and "properties" in property:
+        new_property_list = []
+        for sub_property in property["properties"]:
+            new_property_list.append(convert_property_to_odcs(sub_property))
+        property["properties"] = new_property_list
+
+    # Drop the type field since it's now captured in logical/physical types
+    if "type" in property:
+        del property["type"]
+
+    return property
+
+
+def update_odcs_schema_metadata(data_contract: dict, schema_metadata_input: dict) -> dict:
+    """
+    Updates the schema metadata block in an ODCS data contract.
+    This function transforms the input schema metadata into ODCS format and populates 
+    the "schema" section of the data contract with table definitions including their
+    properties, logical types, and physical types.
+    Args:
+        data_contract (dict): The data contract dictionary to update
+        schema_metadata_input (dict): Input schema metadata containing table definitions
+            Expected format:
+            {
+                "objects": [
+                    {
+                        "name": str,
+                        "logicalType": str,
+                        "physicalType": str,
+                        "physicalName": str,
+                        "properties": List[dict]
+                    },
+                    ...
+                ]
+            }
+    Returns:
+        dict: The updated data contract with ODCS schema metadata added
+    """
+    # Extract table definitions from input
+    tables = schema_metadata_input.get("objects")
+    odcs_schema = []
+
+    # Process each table definition
+    for table in tables:
+        table_name = table.get("name")
+        # Convert each property to ODCS format
+        properties = [convert_property_to_odcs(property) for property in table.get("properties")]
+        
+        # Construct ODCS table definition
+        odcs_table = {
+            "logicalType": table.get("logicalType", "object"),  # Default logical type to 'object'
+            "name": table.get("name"),
+            "physicalName": table.get("physicalName", table_name),  # Default to table name if not specified
+            "physicalType": table.get("physicalType", "object"),  # Default physical type to 'object'
+            "properties": properties
+        }
+        odcs_schema.append(odcs_table)
+
+    # Update schema section of data contract
+    data_contract["schema"] = odcs_schema
+
+    print(f"Updated schema metadata in ODCS data contract: '{data_contract['schema']}'")
+    return data_contract
+
+# COMMAND ----------
+
 # DBTITLE 1,Save ODCS Data Contract Locally
 def save_odcs_data_contract_local(data_contract, catalog, schema, yaml_folder_path):
     """
@@ -794,86 +882,4 @@ def lint_data_contract(yaml_file_path, spark):
     print(f"Linting (e.g. syntax) test result: {test_results.result}")
     return test_results.result
 
-def convert_property_to_odcs(property: dict) -> dict:
-    """
-    Converts a property dictionary to ODCS format by adding logicalType and physicalType fields
-    and recursively converting nested array and object properties.
-    Args:
-        property (dict): The property dictionary to convert, containing type and optional nested properties
-    Returns:
-        dict: The converted property dictionary with ODCS-specific fields added
-    """
-    # Get the property type, defaulting to "object" if not specified
-    property_type = property.get("type", "object")
 
-    # Add ODCS-specific type fields
-    property["logicalType"] = property.get("logicalType", property_type)
-    property["physicalType"] = property.get("physicalType", property_type)
-
-    # Recursively convert array item properties
-    if property_type == "array":
-        property["items"] = convert_property_to_odcs(property["items"])
-
-    # Recursively convert object sub-properties
-    elif property_type == "object" and "properties" in property:
-        new_property_list = []
-        for sub_property in property["properties"]:
-            new_property_list.append(convert_property_to_odcs(sub_property))
-        property["properties"] = new_property_list
-
-    # Drop the type field since it's now captured in logical/physical types
-    if "type" in property:
-        del property["type"]
-
-    return property
-
-def update_odcs_schema_metadata(data_contract: dict, schema_metadata_input: dict) -> dict:
-    """
-    Updates the schema metadata block in an ODCS data contract.
-    This function transforms the input schema metadata into ODCS format and populates 
-    the "schema" section of the data contract with table definitions including their
-    properties, logical types, and physical types.
-    Args:
-        data_contract (dict): The data contract dictionary to update
-        schema_metadata_input (dict): Input schema metadata containing table definitions
-            Expected format:
-            {
-                "objects": [
-                    {
-                        "name": str,
-                        "logicalType": str,
-                        "physicalType": str,
-                        "physicalName": str,
-                        "properties": List[dict]
-                    },
-                    ...
-                ]
-            }
-    Returns:
-        dict: The updated data contract with ODCS schema metadata added
-    """
-    # Extract table definitions from input
-    tables = schema_metadata_input.get("objects")
-    odcs_schema = []
-
-    # Process each table definition
-    for table in tables:
-        table_name = table.get("name")
-        # Convert each property to ODCS format
-        properties = [convert_property_to_odcs(property) for property in table.get("properties")]
-        
-        # Construct ODCS table definition
-        odcs_table = {
-            "logicalType": table.get("logicalType", "object"),  # Default logical type to 'object'
-            "name": table.get("name"),
-            "physicalName": table.get("physicalName", table_name),  # Default to table name if not specified
-            "physicalType": table.get("physicalType", "object"),  # Default physical type to 'object'
-            "properties": properties
-        }
-        odcs_schema.append(odcs_table)
-
-    # Update schema section of data contract
-    data_contract["schema"] = odcs_schema
-
-    print(f"Updated schema metadata in ODCS data contract: '{data_contract['schema']}'")
-    return data_contract
