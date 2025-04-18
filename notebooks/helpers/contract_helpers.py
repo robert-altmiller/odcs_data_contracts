@@ -798,10 +798,8 @@ def convert_property_to_odcs(property: dict) -> dict:
     """
     Converts a property dictionary to ODCS format by adding logicalType and physicalType fields
     and recursively converting nested array and object properties.
-
     Args:
         property (dict): The property dictionary to convert, containing type and optional nested properties
-
     Returns:
         dict: The converted property dictionary with ODCS-specific fields added
     """
@@ -832,11 +830,9 @@ def convert_property_to_odcs(property: dict) -> dict:
 def update_odcs_schema_metadata(data_contract: dict, schema_metadata_input: dict) -> dict:
     """
     Updates the schema metadata block in an ODCS data contract.
-
     This function transforms the input schema metadata into ODCS format and populates 
     the "schema" section of the data contract with table definitions including their
     properties, logical types, and physical types.
-
     Args:
         data_contract (dict): The data contract dictionary to update
         schema_metadata_input (dict): Input schema metadata containing table definitions
@@ -853,7 +849,6 @@ def update_odcs_schema_metadata(data_contract: dict, schema_metadata_input: dict
                     ...
                 ]
             }
-
     Returns:
         dict: The updated data contract with ODCS schema metadata added
     """
