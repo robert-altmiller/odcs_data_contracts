@@ -144,7 +144,7 @@ jobs:
           if echo $output | grep -q "Validation OK!"; then
             echo "Databricks Bundle Deploy Validation OK = True"
             echo "Deploying Databricks Asset Bundle to Workspace"
-            databricks bundle deploy --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA --var="odcs_contract_build_method=$ODCS_CONTRACT_BUILD_METHOD""
+            databricks bundle deploy --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="odcs_contract_build_method=$ODCS_CONTRACT_BUILD_METHOD"
           else
             echo "Databricks Bundle Deploy Validation OK = False"
             exit 1
