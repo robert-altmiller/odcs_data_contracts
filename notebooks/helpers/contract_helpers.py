@@ -450,7 +450,6 @@ def update_data_quality_rules(data_contract, catalog, schema, custom_dq_rules_in
             table["quality"].extend(general_dq_sql_rules)
             table["quality"].extend(custom_dq_sql_rules)
             print(f"appended '{dq_rule_type}' dq rules to table {table['name']} in ODCS data contract")
-
     return data_contract
 
 # COMMAND ----------
