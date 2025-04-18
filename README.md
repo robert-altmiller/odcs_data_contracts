@@ -162,6 +162,6 @@ __Prerequisites__: After you have forked this repository, created a feature bran
 
 After the Github or Gitlab CICD pipeline run finishes a '.bundle' folder and 2 workflows - 'data_contract_create' and 'data_contract_deploy' - will be created in the Databricks workspace (see below):
 
-![bundle_deploy_step1.png](/readme_images/bundle_deploy_step1.png)
+![dabs_deploy_step1.png](/readme_images/dabs_deploy_step1.png)
 
-![bundle_deploy_step2.png](/readme_images/bundle_deploy_step2.png)
+![dabs_deploy_step2.png](/readme_images/dabs_deploy_step2.png)
