@@ -5,12 +5,14 @@
     - [Definitions:](#definitions)
   - [Schema](#schema)
     - [Definitions:](#definitions-1)
+  - [Tags](#tags)
   - [Data Quality Rules](#data-quality-rules)
   - [Support and Communication Channels](#support-and-communication-channels)
   - [Pricing](#pricing)
   - [Team](#team)
   - [Roles](#roles)
   - [Service-Level Agreement](#service-level-agreement)
+    - [QoS Periodic Table:](#qos-periodic-table)
   - [Infrastructure and Servers](#infrastructure-and-servers)
   
 
@@ -98,7 +100,7 @@ In the case of the data-first approach to contract authoring, this section will 
 Note the examples provided for authoring complex data types: the passengers and flight_log properties within the flights object.
 
 ```json
-{
+[
     "objects": [
         {
             "name": "flights",
@@ -134,7 +136,7 @@ Note the examples provided for authoring complex data types: the passengers and 
             ]
         }
     ]
-}
+]
 ```
 [Source: schema_metadata.json](/notebooks/input_data/schema_metadata_input/schema_metadata.json)
 
@@ -178,13 +180,32 @@ Note the examples provided for authoring complex data types: the passengers and 
 </tbody>
 </table>
 
+## Tags
+
+While tags are fully supported by the ODCS specification and can be entered at any level of the contract, this implementation centralizes the authoring of tags inside of their own metadata file.
+
+```json
+[
+  {
+    "bronze": {"data_owner": "alice@databricks.com", "domain": "flights", "pii_data": "false"},
+    "bronze.flight_data": {"retention_policy": "3_years", "domain": "customer_data"},
+    "bronze.flight_data.flights": {"classification": "internal"},
+    "bronze.flight_data.flights.origin": {"sensitivity": "medium", "pii": "false"},
+    "bronze.flight_data.flights.destination": {"sensitivity": "medium", "pii": "false"}
+  }
+]
+```
+[Source: tags_metadata.json](/notebooks/input_data/tags_metadata_input/tags_metadata.json)
+
+This implementation of tagging supports key:value pairs applied to a four-level namespace as follows: [catalog].[schema].[table].[column].
+
 ## <a href="https://bitol-io.github.io/open-data-contract-standard/latest/#data-quality">Data Quality Rules</a>
 
 This section describes data quality rules & parameters. They are tightly linked to the schema described in the previous section.
 
 A number of different rule types are supported by ODCS and can be referenced in the link from the header, but only SQL rules are currently demonstrated within this framework.
 
-```
+```json
 [
   {
     "passengers": {
@@ -316,7 +337,7 @@ A number of different rule types are supported by ODCS and can be referenced in 
 
 Support and communication channels help consumers find help regarding their use of the data contract.
 
-```
+```json
 [ 
   {
     "channel": "Test Teams Channel (Interactive)",
@@ -381,7 +402,7 @@ Support and communication channels help consumers find help regarding their use 
 
 This section covers pricing when you bill your customer for using this data product.
 
-```
+```json
 {
   "priceamount": "9.95",
   "pricecurrency": "USD",
@@ -413,10 +434,263 @@ This section covers pricing when you bill your customer for using this data prod
 </tbody>
 </table>
 
-## Team
+## <a href="https://bitol-io.github.io/open-data-contract-standard/latest/#team">Team</a>
 
-## Roles
+This section lists team members and the history of their relation with this data contract.
 
-## Service-Level Agreement
+```json
+[
+  {
+    "username": "ceastwood",
+    "role": "Data Scientist",
+    "datein": "2024-08-02",
+    "dateout": "2024-10-01",
+    "replacedbyusername": "mhopper"
+  },
+  {
+    "username": "mhopper",
+    "role": "Data Scientist",
+    "datein": "2024-10-01"
+  },
+  {
+    "username": "rcrabtree",
+    "role": "Data Engineer",
+    "datein": "2024-10-01"
+  },
+  {
+    "username": "daustin",
+    "role": "Owner",
+    "comment": "Full owner admin access",
+    "name": "David Austin",
+    "datein": "2024-10-01"
+  }
+]
+```
+[Source team_metadata.json](/notebooks/input_data/team_metadata_input/team_metadata.json)
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>username</td>
+<td>The user's username or email.</td>
+</tr>
+<tr>
+<td>role</td>
+<td>The user's job role; Examples might be owner, data steward. There is no limit on the role.</td>
+</tr>
+<tr>
+<td>name</td>
+<td>The user's name.</td>
+</tr>
+<tr>
+<td>datein</td>
+<td>The date when the user joined the team.</td>
+</tr>
+<tr>
+<td>dateout</td>
+<td>The date when the user ceased to be part of the team.</td>
+</tr>
+<tr>
+<td>replacedbyusername</td>
+<td>The username of the user who replaced the previous user</td>
+</tr>
+</tbody>
+</table>
+
+## <a href="https://bitol-io.github.io/open-data-contract-standard/latest/#roles">Roles</a>
+
+This section lists the roles that a consumer may need to access the dataset depending on the type of access they require.
+
+```json
+[
+  {
+    "role": "data_contract_user",
+    "access": "read",
+    "firstlevelapprovers": "Product Domain Manager",
+    "secondlevelapprovers": "Product Domain Engineer"
+  },
+  {
+    "role": "data_contract_contributors",
+    "access": "write",
+    "firstlevelapprovers": "Product Domain Manager",
+    "secondlevelapprovers": "Product Domain Engineer"
+  },
+  {
+    "role": "data_contract_admins",
+    "access": "admin",
+    "firstlevelapprovers": "Product Domain Manager",
+    "secondlevelapprovers": "Product Domain Engineer"
+  },
+  {
+    "role": "data_contract_owners",
+    "access": "owner",
+    "firstlevelapprovers": "Product Domain Manager",
+    "secondlevelapprovers": "Product Domain Engineer"
+  }
+]
+```
+[Source: roles_metadata.json](/notebooks/input_data/roles_metadata_input/roles_metadata.json)
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>role</td>
+<td>Name of the IAM role that provides access to the dataset.</td>
+</tr>
+<tr>
+<td>access</td>
+<td>The type of access provided by the IAM role.</td>
+</tr>
+<tr>
+<td>firstlevelapprovers</td>
+<td>The name(s) of the first-level approver(s) of the role.</td>
+</tr>
+<tr>
+<td>secondlevelapprovers</td>
+<td>The name(s) of the second-level approver(s) of the role.</td>
+</tr>
+</tbody>
+</table>
+
+## <a href="https://bitol-io.github.io/open-data-contract-standard/latest/#service-level-agreement-sla">Service-Level Agreement</a>
+
+This section describes the service-level agreements (SLA).
+
+- Use the Object.Element to indicate the number to do the checks on, as in SELECT txn_ref_dt FROM tab1.
+- Separate multiple object.element by a comma, as in table1.col1, table2.col1, table1.col2.
+- If there is only one object in the contract, the object name is not required.
+
+```json
+[
+    {
+        "property": "data_freshness",
+        "value": 7,
+        "unit": "d",
+        "element": "flights"
+    },
+    {
+        "property": "retention",
+        "value": 3,
+        "unit": "y",
+        "element": "flights.ingestion_datetime"
+    },
+    {
+        "property": "frequency",
+        "value": 1,
+        "valueExt": 1,
+        "unit": "d",
+        "element": "flights.ingestion_datetime"
+    },
+    {
+        "property": "timeOfAvailability",
+        "value": "08:00-08:00",
+        "element": "flights.ingestion_datetime",
+        "driver": "analytics"
+    }
+]
+```
+[Source: sla_metadata.json](/notebooks/input_data/sla_metadata_input/sla_metadata.json)
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>property</td>
+<td>Specific property in SLA, check the <a href="https://medium.com/data-mesh-learning/what-is-data-qos-and-why-is-it-critical-c524b81e3cc1">Data QoS periodic table</a>. May requires units.</td>
+</tr>
+<tr>
+<td>value</td>
+<td>Agreement value. The label will change based on the property itself.</td>
+</tr>
+<tr>
+<td>valueExt</td>
+<td>Extended agreement value. The label will change based on the property itself.</td>
+</tr>
+<tr>
+<td>unit</td>
+<td>d, day, days for days; y, yr, years for years, etc. Units use the ISO standard.</td>
+</tr>
+<tr>
+<td>element</td>
+<td>Element(s) to check on. Multiple elements should be extremely rare and, if so, separated by commas.</td>
+</tr>
+<tr>
+<td>driver</td>
+<td>Describes the importance of the SLA from the list of: regulatory, analytics, or operational.</td>
+</tr>
+</tbody>
+</table>
+
+
+### QoS Periodic Table:
+
+![QoS Periodic Table](https://miro.medium.com/v2/resize:fit:720/format:webp/1*-8fcQN6tHf0gMLZp3q_pdg.png)
 
 ## Infrastructure and Servers
+
+The servers element describes where the data protected by this data contract is physically located. That metadata helps to know where the data is so that a data consumer can discover the data and a platform engineer can automate access.
+
+An entry in servers describes a single dataset on a specific environment and a specific technology. The servers element can contain multiple servers, each with its own configuration.
+
+The typical ways of using the top level servers element are as follows: - Single Server: The data contract protects a specific dataset at a specific location. Example: a CSV file on an SFTP server. - Multiple Environments: The data contract makes sure that the data is protected in all environments. Example: a data product with data in a dev(elopment), UAT, and prod(uction) environment on Databricks. - Different Technologies: The data contract makes sure that regardless of the offered technology, it still holds. Example: a data product offers its data in a Kafka topic and in a BigQuery table that should have the same structure and content. - Different Technologies and Multiple Environments: The data contract makes sure that regardless of the offered technology and environment, it still holds. Example: a data product offers its data in a Kafka topic and in a BigQuery table that should have the same structure and content in dev(elopment), UAT, and prod(uction).
+
+```json
+[
+  {
+    "server": "development",
+    "type": "databricks",
+    "host": "https://adb-4191419936804633.13.azuredatabricks.net/",
+    "catalog": "hive_metastore",
+    "schema": "default"
+  }
+]
+```
+[Source: server_metadata.json](/notebooks/input_data/server_metadata_input/server_metadata.json)
+
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>server</td>
+<td>Identifier of the server.</td>
+</tr>
+<tr>
+<td>type</td>
+<td>Type of the server. Can be one of: api, athena, azure, bigquery, clickhouse, databricks, denodo, dremio, duckdb, glue, cloudsql, db2, informix, kafka, kinesis, local, mysql, oracle, postgresql, postgres, presto, pubsub, redshift, s3, sftp, snowflake, sqlserver, synapse, trino, vertica, custom.</td>
+</tr>
+<tr>
+<td>host</td>
+<td>The Databricks host</td>
+</tr>
+<tr>
+<td>catalog</td>
+<td>The name of the Hive or Unity catalog</td>
+</tr>
+<tr>
+<td>schema</td>
+<td>The schema name in the catalog</td>
+</tr>
+</tbody>
+</table>
