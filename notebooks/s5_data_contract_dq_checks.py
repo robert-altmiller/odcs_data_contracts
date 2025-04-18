@@ -30,7 +30,7 @@ print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow()}
 
 # DBTITLE 1,Workflow Widget Parameters
 # Widget Parameters
-dbutils.widgets.text("dq_folder_path", "./data_quality")
+dbutils.widgets.text("dq_folder_path", "./data_contracts/data_quality")
 dq_folder_path = dbutils.widgets.get("dq_folder_path")
 print(f"dq_folder_path: {dq_folder_path}")
 
