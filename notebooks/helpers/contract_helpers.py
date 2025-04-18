@@ -480,6 +480,9 @@ def update_odcs_contract_metadata(data_contract, contract_metadata_input, catalo
     """
     for metadata in contract_metadata_input:
         data_contract["name"] = metadata["name"]
+        data_contract.setdefault("apiVersion", metadata.get("apiversion"))
+        data_contract.setdefault("kind", metadata.get("kind"))
+        data_contract.setdefault("id", metadata.get("id"))
         data_contract["version"] = metadata["version"]
         data_contract["domain"] = metadata["domain"]
         data_contract["status"] = metadata["status"]
@@ -800,6 +803,7 @@ def update_odcs_schema_metadata(data_contract: dict, schema_metadata_input: dict
     Returns:
         dict: The updated data contract with ODCS schema metadata added
     """
+    
     # Extract table definitions from input
     tables = schema_metadata_input.get("objects")
     odcs_schema = []
@@ -881,5 +885,3 @@ def lint_data_contract(yaml_file_path, spark):
     # Print lint results for visibility
     print(f"Linting (e.g. syntax) test result: {test_results.result}")
     return test_results.result
-
-
