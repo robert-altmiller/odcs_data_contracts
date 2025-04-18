@@ -1,6 +1,9 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Deploy Tags Notebook
+# MAGIC
+# MAGIC This notebook is used to deploy tags defined in the contract.
+# MAGIC
 # MAGIC Given the path to a data contract .yaml, this notebook performs the following actions:
 # MAGIC 1. Reads in the contract
 # MAGIC 2. Retrieves schema, table, and column level tags

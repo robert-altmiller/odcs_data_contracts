@@ -2,6 +2,8 @@
 # MAGIC %md
 # MAGIC # Create Tables Notebook
 # MAGIC
+# MAGIC This notebook is used to generate tables in a target catalog and schema for a given contract.
+# MAGIC
 # MAGIC Given catalog, schema, and the file path to the data contract folder, this notebook will perform the following steps:
 # MAGIC 1. Derive the full path to the relevant data contract
 # MAGIC 2. Read in the .yaml file

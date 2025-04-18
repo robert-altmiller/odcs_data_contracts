@@ -2,7 +2,7 @@
 # MAGIC %md
 # MAGIC # Deploy Data Notebook
 # MAGIC
-# MAGIC The notebook is used to copy data from the source catalog and schema provided via the parameters to a target catalog and schema defined in the contract .yaml. Note that this is provided as a means of testing the validity of the deployed DDL and data quality rules. It is not expected to be used in the production lifecycle of a normal contract.
+# MAGIC This notebook is used to copy data from the source catalog and schema provided via the parameters to a target catalog and schema defined in the contract .yaml. Note that this is provided as a means of testing the validity of the DDL deployed in step 3 and testing data quality rules. It is not expected to be used in the production lifecycle of a normal contract.
 
 # COMMAND ----------
 
