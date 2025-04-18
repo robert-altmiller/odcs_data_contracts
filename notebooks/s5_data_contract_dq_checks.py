@@ -101,7 +101,7 @@ def run_data_quality_tests(data_contract, yaml_file_path, dq_path="./data_qualit
         json_file.write(json.dumps(list_results))
 
     # Load results into Spark DataFrame
-    if is_running_in_databricks_workflow() == "True":
+    if is_running_in_databricks_workflow() == True:
         data_path = f"{dq_folder_path.replace('/dbfs', '')}/{dq_file}"
     else: 
         data_path = f"file:{os.getcwd()}/{dq_file_path.split('./')[1]}"
