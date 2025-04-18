@@ -128,9 +128,9 @@ Here is the Databricks workflows repo folder structure.
 
 ![resources_flder_structure.png](/readme_images/resources_flder_structure.png)
 
-The the [data_contract_create_template.yaml](/resources/workflows/data_contract_create_template.yaml) Databricks workflow executes [step 1](/notebooks/s1_data_contract_generate.py) in the previous section.  This yaml template workflow is parameterized (see below), and variables from the [base_params.yaml](/resources/python/base_params.yaml) are injected into this yaml template using the [inject_base_params.py](/resources/python/inject_base_params.py) Python script.  
+The the [s1_data_contract_create_template.yaml](/resources/workflows/s1_data_contract_create_template.yaml) Databricks workflow executes [step 1](/notebooks/s1_data_contract_generate.py) in the previous section.  This yaml template workflow is parameterized (see below), and variables from the [base_params.yaml](/resources/python/base_params.yaml) are injected into this yaml template using the [inject_base_params.py](/resources/python/inject_base_params.py) Python script.  
 
-![data_contract_create_template.png](/readme_images/data_contract_create_template.png)
+![s1_data_contract_create_template.png](/readme_images/s1_data_contract_create_template.png)
 
 The 'inject_base_params.py' Python script saves yaml template with updated variables as 'data_contract_create.yaml' during the CICD pipeline run, and this Databricks workflow 'data_contract_create.yaml' is deployed to the Databricks workspace using Databricks Asset Bundles (DABs).
 
