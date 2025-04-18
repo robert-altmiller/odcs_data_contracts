@@ -91,6 +91,10 @@ jobs:
           ODCS_CONTRACT_SOURCE_SCHEMA="${{ github.event.inputs.ODCS_CONTRACT_SOURCE_SCHEMA || 'default' }}"
           echo "ODCS_CONTRACT_SOURCE_SCHEMA: $ODCS_CONTRACT_SOURCE_SCHEMA"
 
+          # Get ODCS contract build method
+          ODCS_CONTRACT_BUILD_METHOD="${{ github.event.inputs.ODCS_CONTRACT_BUILD_METHOD || 'data_first' }}"
+          echo "ODCS_CONTRACT_BUILD_METHOD: $ODCS_CONTRACT_BUILD_METHOD"
+
           # Convert email to username
           USER_NAME=$(echo "$USER_EMAIL" | cut -d '@' -f 1 | tr '.' '_')
           echo "USER_NAME: $USER_NAME"
