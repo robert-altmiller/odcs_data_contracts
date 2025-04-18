@@ -140,6 +140,12 @@ The the [s2_data_contract_deploy_tabes_tags_template.yaml](/resources/workflows/
 
 The 'inject_base_params.py' Python script saves yaml template with updated variables as 's2_data_contract_deploy_tables_tags.yaml' during the CICD pipeline run, and this Databricks workflow 'data_contract_deploy_tables_tags.yaml' is deployed to the Databricks workspace using Databricks Asset Bundles (DABs).
 
+The the [s3_data_contract_deploy_data_template.yaml](/resources/workflows/s3_data_contract_deploy_data_template.yaml) Databricks workflow executes [step 4](/notebooks/s4_data_contract_deploy_data.py) in the previous section.  This yaml template workflow is parameterized (see below), and variables from the [base_params.yaml](/resources/python/base_params.yaml) are injected into this yaml template using the [inject_base_params.py](/resources/python/inject_base_params.py) Python script.  
+
+![s3_data_contract_deploy_data_template.png](/readme_images/s3_data_contract_deploy_data_template.png)
+
+The 'inject_base_params.py' Python script saves yaml template with updated variables as 's3_data_contract_deploy_data.yaml' during the CICD pipeline run, and this Databricks workflow 'data_contract_deploy_data.yaml' is deployed to the Databricks workspace using Databricks Asset Bundles (DABs).
+
 ## How do I run the DABS + CICD deployment?
 
 __Prerequisites__: After you have forked this repository, created a feature branch, updated all the user input files to reflect your data product requirements, updated UC volumes path, it is time to run the CICD pipeline to deploy the DAB and workflows to your Databricks workspace.
