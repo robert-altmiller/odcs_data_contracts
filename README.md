@@ -132,13 +132,13 @@ The the [s1_data_contract_create_template.yaml](/resources/workflows/s1_data_con
 
 ![s1_data_contract_create_template.png](/readme_images/s1_data_contract_create_template.png)
 
-The 'inject_base_params.py' Python script saves yaml template with updated variables as 'data_contract_create.yaml' during the CICD pipeline run, and this Databricks workflow 'data_contract_create.yaml' is deployed to the Databricks workspace using Databricks Asset Bundles (DABs).
+The 'inject_base_params.py' Python script saves yaml template with updated variables as 's1_data_contract_create.yaml' during the CICD pipeline run, and this Databricks workflow 's1_data_contract_create.yaml' is deployed to the Databricks workspace using Databricks Asset Bundles (DABs).
 
-The the [data_contract_deploy_template.yaml](/resources/workflows/data_contract_deploy_template.yaml) Databricks workflow executes [steps 2-5](/notebooks/) in the previous section.  This yaml template workflow is parameterized (see below), and variables from the [base_params.yaml](/resources/python/base_params.yaml) are injected into this yaml template using the [inject_base_params.py](/resources/python/inject_base_params.py) Python script.  
+The the [s2_data_contract_deploy_tabes_tags_template.yaml](/resources/workflows/s2_data_contract_deploy_tabes_tags_template.yaml) Databricks workflow executes [steps 2-3](/notebooks/) in the previous section.  This yaml template workflow is parameterized (see below), and variables from the [base_params.yaml](/resources/python/base_params.yaml) are injected into this yaml template using the [inject_base_params.py](/resources/python/inject_base_params.py) Python script.  
 
-![data_contract_deploy_template.png](/readme_images/data_contract_deploy_template.png)
+![s2_data_contract_deploy_template.png](/readme_images/s2_data_contract_deploy_template.png)
 
-The 'inject_base_params.py' Python script saves yaml template with updated variables as 'data_contract_deploy.yaml' during the CICD pipeline run, and this Databricks workflow 'data_contract_deploy.yaml' is deployed to the Databricks workspace using Databricks Asset Bundles (DABs).
+The 'inject_base_params.py' Python script saves yaml template with updated variables as 's2_data_contract_deploy_tables_tags.yaml' during the CICD pipeline run, and this Databricks workflow 'data_contract_deploy_tables_tags.yaml' is deployed to the Databricks workspace using Databricks Asset Bundles (DABs).
 
 ## How do I run the DABS + CICD deployment?
 
