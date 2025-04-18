@@ -7,7 +7,7 @@ resources:
           notebook_task:
             notebook_path: notebooks/s1_data_contract_generate
             base_parameters:
-              contract_build_method: "contract_first"
+              contract_build_method: ${var.odcs_contract_build_method}
               source_catalog: ${var.odcs_contract_source_catalog}
               source_schema: ${var.odcs_contract_source_schema}
               yaml_folder_path: "{{ params.base_path }}/{{ params.yaml_folder_path }}"

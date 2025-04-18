@@ -20,6 +20,9 @@ variables:
   odcs_contract_source_schema:
     default: default
     description: Default ODCS source schema
+  odcs_contract_build_method:
+    default: default
+    description: Default ODCS build method
 
 
 targets:
