@@ -2,7 +2,7 @@
     {
         "property": "data_freshness",
         "value": 7,
-        "unit": "d",
+        "unity": "d",
         "element": "flights"
     },
     {

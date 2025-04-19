@@ -194,6 +194,30 @@ def read_json_file(file_path: str = None, json_str: str = None):
 
 # COMMAND ----------
 
+def write_json_file(data, file_path: str, indent: int = 2):
+    """
+    Writes a Python object to a JSON file with optional indentation.
+    Parameters:
+        data (dict or list): The data to write to the file.
+        file_path (str): Path to the output JSON file.
+        indent (int): Number of spaces to use for indentation. Default is 2.
+    """
+    try:
+        dir_path = os.path.dirname(file_path)
+        if dir_path and not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=indent, ensure_ascii=False)
+        print(f"JSON written to {file_path}")
+    except Exception as e:
+        print(f"Error writing JSON to file: {e}")
+
+# Unit Test
+# sample_data = {"key": "value", "list": [1, 2, 3]}
+# write_json_file(sample_data, "test.json")
+
+# COMMAND ----------
+
 # DBTITLE 1,Replace None With Empty Strings in JSON
 def replace_none_with_empty_string_in_json(json_obj):
     """
@@ -496,8 +520,3 @@ pricing_metadata_input = read_json_file(file_path = pricing_metadata_input_path)
 schema_metadata_input_path = f"{input_base_path}/schema_metadata_input/schema_metadata.json"
 schema_metadata_input = read_json_file(file_path = schema_metadata_input_path)
 # print(f"schema_metadata_input:\n{schema_metadata_input}\n")
-
-# Tags metadata input (contract first approach)
-tags_metadata_input_path = f"{input_base_path}/tags_metadata_input/tags_metadata.json"
-tags_metadata_input = read_json_file(file_path = tags_metadata_input_path)
-# print(f"tags_metadata_input:\n{tags_metadata_input}\n")

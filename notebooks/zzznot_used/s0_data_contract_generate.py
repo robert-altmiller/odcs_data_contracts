@@ -77,7 +77,7 @@ databricks_pat = dbutils.notebook.entry_point.getDbutils().notebook().getContext
 
 
 # Contract or data first approach widget
-dbutils.widgets.text("contract_build_method", "data_first")  # value: "contract_first" or "data_first"
+dbutils.widgets.text("contract_build_method", "contract_first")  # value: "contract_first" or "data_first"
 contract_build_method = dbutils.widgets.get("contract_build_method")
 print(f"contract_build_method: {contract_build_method}")
 
@@ -232,4 +232,7 @@ else: # then contract first approach
     data_contract_odcs_yaml = {}
     # Apply metadata updates to the ODCS YAML contract
     data_contract_odcs_yaml = update_odcs_contract_metadata(data_contract_odcs_yaml, contract_metadata_input, source_catalog, source_schema)
-    data_contract_odcs_yaml = update_odcs_schema_metadata(data_contract_odcs_yaml, schema_metadata_input)
+    
+    # Get the contract first approach schema block
+    schema_block = schema_metadata_input.get("schema", schema_metadata_input)
+    data_contract_odcs_yaml["schema"] = schema_block

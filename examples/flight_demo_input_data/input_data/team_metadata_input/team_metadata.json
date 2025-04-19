@@ -2,25 +2,25 @@
   {
     "username": "ceastwood",
     "role": "Data Scientist",
-    "dateIn": "2024-08-02",
-    "dateOut": "2024-10-01",
-    "replacedByUsername": "mhopper"
+    "datein": "2024-08-02",
+    "dateout": "2024-10-01",
+    "replacedbyusername": "mhopper"
   },
   {
     "username": "mhopper",
     "role": "Data Scientist",
-    "dateIn": "2024-10-01"
+    "datein": "2024-10-01"
   },
   {
     "username": "rcrabtree",
     "role": "Data Engineer",
-    "dateIn": "2024-10-01"
+    "datein": "2024-10-01"
   },
   {
     "username": "daustin",
     "role": "Owner",
     "comment": "Full owner admin access",
     "name": "David Austin",
-    "dateIn": "2024-10-01"
+    "datein": "2024-10-01"
   }
 ]

@@ -1,5 +1,5 @@
 {
-  "priceamount": "9.95",
-  "pricecurrency": "USD",
-  "priceunit": "megabyte"
+  "priceAmount": 9.95,
+  "priceCurrency": "USD",
+  "priceUnit": "megabyte"
 }

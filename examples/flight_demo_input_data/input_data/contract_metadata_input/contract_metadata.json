@@ -1,6 +1,9 @@
 [
   {
     "name": "Flight Stats",
+    "apiversion": "v3.0.0",
+    "kind": "DataContract",
+    "id": "flight-stats-data-contract",
     "version": "1.0.0",
     "domain": "flight",
     "status": "active",
@@ -11,6 +14,6 @@
       "limitations": "No limitations",
       "usage": "All"
     },
-    "tags": ["team:passenger_flights", "scope:altmiller_test"]
+    "tags": ["team:passenger_flights", "scope:test_scope"]
   }
 ]
