@@ -1,0 +1,29 @@
+# Base data contract creation parameters
+#base_path:  /dbfs/mnt/bronze
+base_path: /Volumes/flightstats_historical_dev_azr_westus/data_contract_dev/contracts
+
+# Target schema to deploy data contract
+target_schema: data_contract_prod
+
+# Workflow Git Source
+git_source:  github
+git_repo_url: https://github.com/altmiller/flight_demo_input_data.git
+git_branch: main
+
+#---DO NOT MODIFY ANY OF THE VARIABLES BELOW---
+
+
+avro_folder_path: data_contracts/avro_data
+csv_folder_path: data_contracts/csv_data
+parquet_folder_path: data_contracts/parquet_data
+sql_folder_path: data_contracts/sql_data
+yaml_folder_path: data_contracts/data_contracts_data
+
+# Data contract folder path
+data_contract_folder_path: data_contracts/data_contracts_data
+
+# Data contract data quality folder path
+dq_folder_path: "data_contracts/data_quality"
+
+
+#-----------------------------------------------

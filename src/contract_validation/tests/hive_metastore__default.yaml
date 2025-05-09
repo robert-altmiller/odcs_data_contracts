@@ -1,0 +1,545 @@
+name: Flight Stats
+apiVersion: v3.0.0
+kind: DataContract
+id: flight-stats-data-contract
+version: 1.0.0
+domain: flight
+status: active
+dataProduct: Passenger Flights Data Product
+tenant: Altmiller Airlines
+description:
+  purpose: The data_contracts_dev schema contains information about passenger flights
+  limitations: No limitations
+  usage: All
+tags:
+- team:passenger_flights
+- scope:test_scope
+schema:
+- name: baggage
+  physicalName: baggage
+  logicalType: object
+  physicalType: table
+  properties:
+  - name: baggage_id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: ticket_id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: weight
+    logicalType: number
+    physicalType: float
+    description: ''
+    tags: []
+  - name: baggage_type
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  description: mydescripotopn
+  tags: []
+  quality:
+  - type: sql
+    description: Ensures 'baggage' table has data
+    dimension: completeness
+    query: SELECT COUNT(*) FROM baggage
+    mustBeGreaterThanOrEqualTo: 0
+- name: customer
+  physicalName: customer
+  logicalType: object
+  physicalType: table
+  properties:
+  - name: customer_id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: first_name
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: last_name
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: email
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: phone
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: address
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: city
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: state
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: zip_code
+    logicalType: object
+    physicalType: DOUBLE
+    description: ''
+    tags: []
+  - name: join_date
+    logicalType: date
+    physicalType: date
+    description: ''
+    tags: []
+  description: hi
+  tags: []
+  quality:
+  - type: sql
+    description: Ensures 'customer' table has data
+    dimension: completeness
+    query: SELECT COUNT(*) FROM customer
+    mustBeGreaterThanOrEqualTo: 0
+- name: customer2
+  physicalName: customer2
+  logicalType: object
+  physicalType: table
+  properties:
+  - name: customer_id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: first_name
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: last_name
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: email
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: phone
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: address
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: city
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: state
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: zip_code
+    logicalType: object
+    physicalType: DOUBLE
+    description: ''
+    tags: []
+  - name: join_date
+    logicalType: date
+    physicalType: date
+    description: ''
+    tags: []
+  description: ''
+  tags: []
+  quality:
+  - type: sql
+    description: Ensures 'customer2' table has data
+    dimension: accuracy
+    query: SELECT COUNT(*) FROM customer2
+    mustBeGreaterThanOrEqualTo: 0
+- name: flights
+  physicalName: flights
+  logicalType: object
+  physicalType: table
+  properties:
+  - name: flight_id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: flight_number
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: airline
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: origin
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: destination
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: departure_time
+    logicalType: date
+    physicalType: timestamp
+    description: ''
+    tags: []
+  - name: arrival_time
+    logicalType: date
+    physicalType: timestamp
+    description: ''
+    tags: []
+  - name: status
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: ingestion_datetime
+    logicalType: date
+    physicalType: timestamp
+    description: ''
+    tags: []
+  description: ''
+  tags: []
+  quality:
+  - type: sql
+    description: Ensures 'flights' table has data
+    dimension: completeness
+    query: SELECT COUNT(*) FROM flights
+    mustBeGreaterThanOrEqualTo: 0
+- name: my_complex_variant_table
+  physicalName: my_complex_variant_table
+  logicalType: object
+  physicalType: table
+  properties:
+  - name: id
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: created_at
+    logicalType: date
+    physicalType: timestamp
+    description: ''
+    tags: []
+  - name: user_profile
+    logicalType: object
+    physicalType: VARIANT
+    description: ''
+    tags: []
+  - name: metrics
+    logicalType: object
+    physicalType: VARIANT
+    description: ''
+    tags: []
+  - name: diagnostics
+    logicalType: object
+    physicalType: VARIANT
+    description: ''
+    tags: []
+  - name: metadata
+    logicalType: object
+    physicalType: VARIANT
+    description: ''
+    tags: []
+  - name: tags
+    logicalType: object
+    physicalType: VARIANT
+    description: ''
+    tags: []
+  - name: audit_trail
+    logicalType: object
+    physicalType: VARIANT
+    description: ''
+    tags: []
+  - name: data_quality_issues
+    logicalType: object
+    physicalType: VARIANT
+    description: ''
+    tags: []
+  - name: list_of_strings
+    logicalType: object
+    physicalType: ARRAY<STRING>
+    description: ''
+    tags: []
+  - name: array_of_structs
+    logicalType: object
+    physicalType: 'ARRAY<STRUCT<step: STRING, status: STRING, timestamp: TIMESTAMP>>'
+    description: ''
+    tags: []
+  description: ''
+  tags: []
+  quality:
+  - type: sql
+    description: Ensures 'my_complex_variant_table' table has data
+    dimension: completeness
+    query: SELECT COUNT(*) FROM my_complex_variant_table
+    mustBeGreaterThanOrEqualTo: 0
+- name: my_managed_table
+  physicalName: my_managed_table
+  logicalType: object
+  physicalType: table
+  properties:
+  - name: id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: name
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: age
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: city
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  description: my_managed_table description
+  tags: []
+  quality:
+  - type: sql
+    description: Ensures 'my_managed_table' table has data
+    dimension: completeness
+    query: SELECT COUNT(*) FROM my_managed_table
+    mustBeGreaterThanOrEqualTo: 0
+- name: my_managed_table2
+  physicalName: my_managed_table2
+  logicalType: object
+  physicalType: table
+  properties:
+  - name: id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: name
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: age
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: city
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  description: my_managed_table2 description
+  tags: []
+  quality:
+  - type: sql
+    description: Ensures 'my_managed_table2' table has data
+    dimension: completeness
+    query: SELECT COUNT(*) FROM my_managed_table2
+    mustBeGreaterThanOrEqualTo: 0
+- name: passengers
+  physicalName: passengers
+  logicalType: object
+  physicalType: table
+  properties:
+  - name: passenger_id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: first_name
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: last_name
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: email
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: phone
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: dob
+    logicalType: date
+    physicalType: date
+    description: ''
+    tags: []
+  - name: nationality
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  description: ''
+  tags: []
+  quality:
+  - type: sql
+    description: Ensures 'passengers' table has data
+    dimension: completeness
+    query: SELECT COUNT(*) FROM passengers
+    mustBeGreaterThanOrEqualTo: 0
+- name: tickets
+  physicalName: tickets
+  logicalType: object
+  physicalType: table
+  properties:
+  - name: ticket_id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: passenger_id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: flight_id
+    logicalType: integer
+    physicalType: int
+    description: ''
+    tags: []
+  - name: seat_number
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  - name: ticket_price
+    logicalType: number
+    physicalType: float
+    description: ''
+    tags: []
+  - name: booking_time
+    logicalType: date
+    physicalType: timestamp
+    description: ''
+    tags: []
+  - name: status
+    logicalType: string
+    physicalType: string
+    description: ''
+    tags: []
+  description: ''
+  tags: []
+  quality:
+  - type: sql
+    description: Ensures 'tickets' table has data
+    dimension: completeness
+    query: SELECT COUNT(*) FROM tickets
+    mustBeGreaterThanOrEqualTo: 0
+servers:
+- server: development
+  type: databricks
+  host: https://adb-4191419936804633.13.azuredatabricks.net/
+  catalog: hive_metastore
+  schema: default
+support:
+- channel: Test Teams Channel (Interactive)
+  tool: teams
+  scope: interactive
+  url: https://teams.microsoft.com/channel/Test
+- channel: Test Teams Channel (Announcements)
+  tool: teams
+  scope: announcements
+  url: https://teams.microsoft.com/channel/Test/announcements
+- channel: Test Email
+  tool: email
+  scope: announcements
+  url: mailto:test@altmiller.com
+  description: Team email for all team announcements
+slaDefaultElement: partitionColumn
+slaProperties:
+- property: data_freshness
+  value: 7
+  unity: ''
+  element: flights
+- property: retention
+  value: 3
+  unity: y
+  element: flights.ingestion_datetime
+- property: frequency
+  value: 1
+  unity: d
+  element: flights.ingestion_datetime
+- property: timeOfAvailability
+  value: 08:00-08:00
+  unity: ''
+  element: flights.ingestion_datetime
+  driver: analytics
+team:
+- username: ceastwood
+  role: Data Scientist
+  dateIn: '2024-08-02'
+  dateOut: '2024-10-01'
+  replacedByUsername: mhopper
+- username: mhopper
+  role: Data Scientist
+  dateIn: '2024-10-01'
+- username: rcrabtree
+  role: Data Engineer
+  dateIn: '2024-10-01'
+- username: daustin
+  role: Owner
+  dateIn: '2024-10-01'
+  comment: Full owner admin access
+  name: David Austin
+roles:
+- role: data_contract_user
+  access: read
+  firstlevelApprovers: Product Domain Manager
+  secondlevelApprovers: Product Domain Manager
+- role: data_contract_contributors
+  access: write
+  firstlevelApprovers: Product Domain Manager
+  secondlevelApprovers: Product Domain Manager
+- role: data_contract_admins
+  access: admin
+  firstlevelApprovers: Product Domain Manager
+  secondlevelApprovers: Product Domain Manager
+- role: data_contract_owners
+  access: owner
+  firstlevelApprovers: Product Domain Manager
+  secondlevelApprovers: Product Domain Manager
+- role: data_contract_owners_ALAN
+  access: owner
+  firstlevelApprovers: Product Domain Manager
+  secondlevelApprovers: Product Domain Manager
+price:
+  priceAmount: 9.95
+  priceCurrency: USD
+  priceUnit: megabyte

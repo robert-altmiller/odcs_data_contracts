@@ -1,0 +1,84 @@
+dataContractSpecification: 1.1.0
+id: my-data-contract-id
+info:
+  version: 0.0.1
+models:
+  accounts:
+    fields:
+      account_number:
+        maxLength: 20
+        required: true
+        type: varchar
+      account_status:
+        maxLength: 10
+        type: varchar
+      created_by:
+        type: text
+      created_by_fixed_length:
+        maxLength: 10
+        type: variant
+      customer_id_bigint:
+        type: variant
+      customer_id_decimal:
+        type: decimal
+      customer_id_double:
+        type: variant
+      customer_id_int:
+        type: integer
+      customer_id_real:
+        type: variant
+      customer_id_smallint:
+        type: variant
+      id:
+        primary: true
+        required: true
+        type: variant
+        unique: true
+      last_opened_time:
+        type: variant
+      open_date:
+        type: date
+      open_timestamp:
+        type: timestamp
+      payload_bytes:
+        type: variant
+    type: table
+  balances:
+    fields:
+      account_number:
+        maxLength: 20
+        primary: true
+        required: true
+        type: varchar
+        unique: true
+      account_status:
+        maxLength: 10
+        type: varchar
+      balance:
+        type: variant
+      create_time:
+        type: timestamp
+    type: table
+  mapping:
+    fields:
+      key:
+        type: text
+      value:
+        type: text
+    type: table
+  transactions:
+    fields:
+      account_number:
+        maxLength: 20
+        required: true
+        type: varchar
+      amount:
+        type: variant
+      create_time:
+        required: true
+        type: timestamp
+      transaction_id:
+        maxLength: 20
+        required: true
+        type: varchar
+    type: table

@@ -1,0 +1,23 @@
+# Base data contract creation parameters
+# base_path:  /dbfs/mnt/bronze # modify
+base_path: /Workspace/Users
+#base_path: /Volumes/csc_uc/csc_schema/csc_uc_csc_schema_volume # modify
+
+
+#---DO NOT MODIFY ANY OF THE VARIABLES BELOW---
+
+author_folder_path: data_contracts/input_data
+avro_folder_path: data_contracts/avro_data
+csv_folder_path: data_contracts/csv_data
+parquet_folder_path: data_contracts/parquet_data
+sql_folder_path: data_contracts/sql_data
+yaml_folder_path: data_contracts/data_contracts_data
+
+# Data contract folder path
+data_contract_folder_path: data_contracts/data_contracts_data
+
+# Data contract data quality folder path
+dq_folder_path: "data_contracts/data_quality"
+
+
+#-----------------------------------------------

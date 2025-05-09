@@ -1,0 +1,68 @@
+resources:
+  jobs:
+    data_contract_deploy:
+      name: data_contract_deploy
+      tasks:
+        - task_key: Data_Contract_Tables
+          notebook_task:
+            notebook_path: notebooks/s2_data_contract_deploy_tables
+            base_parameters:
+              data_contract_filename_catalog: ${var.odcs_contract_catalog} # PARAMETERIZED
+              data_contract_filename_schema:  ${var.odcs_contract_schema} # PARAMETERIZED
+              data_contract_folder_path: /dbfs/mnt/bronze/data_contracts/data_contracts_data
+            source: GIT
+          job_cluster_key: Job_cluster
+        - task_key: Data_Contract_Data
+          depends_on:
+            - task_key: Data_Contract_Tables
+          notebook_task:
+            notebook_path: notebooks/s3_data_contract_deploy_data
+            base_parameters:
+              source_schema: "{{tasks.Data_Contract_Tables.values.data_contract_filename_sche\
+                ma}}"
+              data_contract_folder_path: "{{tasks.Data_Contract_Tables.values.data_contract_folder_path}}"
+              target_schema: default4
+              source_catalog: "{{tasks.Data_Contract_Tables.values.data_contract_filename_cat\
+                alog}}"
+            source: GIT
+          job_cluster_key: Job_cluster
+        - task_key: Data_Contract_DQ_Rules
+          depends_on:
+            - task_key: Data_Contract_Data
+          notebook_task:
+            notebook_path: notebooks/s4_data_contract_dq_checks
+            base_parameters:
+              dq_catalog: "{{tasks.Data_Contract_Tables.values.data_contract_filename_catalog\
+                }}"
+              dq_folder_path: /dbfs/mnt/bronze/data_contracts/data_quality
+              source_schema: "{{tasks.Data_Contract_Tables.values.data_contract_filename_sche\
+                ma}}"
+              yaml_file_path: "{{tasks.Data_Contract_Tables.values.yaml_file_path}}"
+              dq_schema: "{{tasks.Data_Contract_Data.values.target_schema}}"
+            source: GIT
+          job_cluster_key: Job_cluster
+      job_clusters:
+        - job_cluster_key: Job_cluster
+          new_cluster:
+            cluster_name: ""
+            spark_version: 15.4.x-scala2.12
+            azure_attributes:
+              first_on_demand: 1
+              availability: SPOT_WITH_FALLBACK_AZURE
+              spot_bid_max_price: -1
+            node_type_id: Standard_D4ds_v5
+            spark_env_vars:
+              PYSPARK_PYTHON: /databricks/python3/bin/python3
+            enable_elastic_disk: true
+            data_security_mode: LEGACY_SINGLE_USER_STANDARD
+            runtime_engine: PHOTON
+            num_workers: 2
+      git_source:
+        git_url: https://github.com/robert-altmiller/odcs_data_contracts.git
+        git_provider: gitHub
+        git_branch: main
+      queue:
+        enabled: true
+
+
+

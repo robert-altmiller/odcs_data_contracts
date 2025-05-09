@@ -1,0 +1,19 @@
+[
+  {
+    "name": "Flight Stats",
+    "apiversion": "v3.0.0",
+    "kind": "DataContract",
+    "id": "flight-stats-data-contract",
+    "version": "1.0.0",
+    "domain": "flight",
+    "status": "active",
+    "dataproduct": "Passenger Flights Data Product",
+    "tenant": "Altmiller Airlines",
+    "description": {
+      "purpose": "The data_contracts_dev schema contains information about passenger flights",
+      "limitations": "No limitations",
+      "usage": "All"
+    },
+    "tags": ["team:passenger_flights", "scope:test_scope"]
+  }
+]

@@ -1,0 +1,27 @@
+apiVersion: v3.0.0
+domain: Flight
+id: my-data-contract-id
+kind: DataContract
+name: My Data Contract
+schema:
+- logicalType: null
+  name: null
+  physicalName: null
+  physicalType: null
+  tags: []
+  properties:
+  - description: null
+    logicalType: null
+    name: null
+    physicalType: null
+    unique: false
+    tags: []
+tags: []
+servers:
+- catalog: null
+  host: null
+  schema: null
+  server: null
+  type: databricks
+status: draft
+version: 0.0.1

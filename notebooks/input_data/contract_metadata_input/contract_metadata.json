@@ -1,0 +1,30 @@
+[
+  {
+    "apiversion": "v3.0.0", 
+    "kind": "DataContract",
+    "name": "Flight Statistics Data Contract",
+    "id": "flight-stats-data-contract",
+    "version": "1.0.0",
+    "status": "active",
+    "dataproduct": "Passenger Flights",
+    "tenant": "Airlines",
+    "description": {
+      "purpose": "This data contract defines the schema and quality rules for passenger flight data including flight details, baggage tracking, and passenger information",
+      "usage": "Used by data teams to analyze flight operations, track baggage handling efficiency, and monitor passenger trends",
+      "definitions": [
+        {
+          "label": "Flight Data Schema",
+          "url": "https://airline-docs.example.com/flight-data-schema"
+        },
+        {
+          "label": "Baggage Tracking Standards", 
+          "url": "https://airline-docs.example.com/baggage-standards"
+        },
+        {
+          "label": "Passenger Data Guidelines",
+          "url": "https://airline-docs.example.com/passenger-guidelines"
+        }
+      ]
+    }
+  }
+]

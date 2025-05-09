@@ -1,0 +1,154 @@
+name: Deploy Databricks Contracts Workflows
+
+on:
+  workflow_dispatch:
+    inputs:
+      DATABRICKS_HOST: # variable
+        description: 'Databricks Host URL:'
+        required: False
+        default: ''
+      DATABRICKS_TOKEN: # variable
+        description: 'Databricks Personal Access Token (PAT):'
+        required: False
+        default: ''
+      ENVIRONMENT: # variable
+        description: 'Deploy Environment (dev/test/prod)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
+      USER_EMAIL: # variable
+        description: 'User Email Address'
+        required: true
+        default: 'robert.altmiller@databricks.com'
+      ODCS_CONTRACT_SOURCE_CATALOG: # variable
+        description: 'ODCS Contract Source Catalog'
+        required: true
+        default: 'hive_metastore'
+      ODCS_CONTRACT_SOURCE_SCHEMA: # variable
+        description: 'ODCS Contract Source Schema'
+        required: true
+        default: 'default'
+
+jobs:
+  deploy:
+    name: Deploy Data Contract Workdflows with Databricks Asset Bundles (DABS)
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_CFG_PATH: "/home/runner/.databrickscfg"
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: databricks/setup-cli@main
+      - uses: actions/setup-python@v4
+
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+
+      - name: Pip Install Requirements
+        run: pip install -r requirements.txt
+
+
+      - name: Setup Environment Variables
+        run: |
+          set -x
+
+          # Get Databricks host url
+          DATABRICKS_HOST="${{ github.event.inputs.DATABRICKS_HOST != '' && github.event.inputs.DATABRICKS_HOST || secrets.DATABRICKS_HOST }}"
+          echo "DATABRICKS_HOST: $DATABRICKS_HOST"
+
+          # Get Databricks personal access token (PAT)
+          DATABRICKS_TOKEN="${{ github.event.inputs.DATABRICKS_TOKEN != '' && github.event.inputs.DATABRICKS_TOKEN || secrets.DATABRICKS_TOKEN }}"
+          echo "DATABRICKS_TOKEN: $DATABRICKS_TOKEN"
+
+          # Get target environment for DABs
+          TARGET="${{ github.event.inputs.ENVIRONMENT || 'dev' }}"
+          echo "TARGET: $TARGET"
+          
+          # Get branch name
+          export BRANCH_NAME="$GITHUB_REF_NAME"
+          echo "BRANCH_NAME: $BRANCH_NAME"
+
+          # Get ODCS contract catalog name
+          USER_EMAIL="${{ github.event.inputs.USER_EMAIL || 'robert.altmiller@databricks.com' }}"
+          echo "USER_EMAIL: $USER_EMAIL"
+          
+          # Get ODCS contract source catalog
+          ODCS_CONTRACT_SOURCE_CATALOG="${{ github.event.inputs.ODCS_CONTRACT_SOURCE_CATALOG || 'hive_metastore' }}"
+          echo "ODCS_CONTRACT_SOURCE_CATALOG: $ODCS_CONTRACT_SOURCE_CATALOG"
+
+          # Get ODCS contract source schema
+          ODCS_CONTRACT_SOURCE_SCHEMA="${{ github.event.inputs.ODCS_CONTRACT_SOURCE_SCHEMA || 'default' }}"
+          echo "ODCS_CONTRACT_SOURCE_SCHEMA: $ODCS_CONTRACT_SOURCE_SCHEMA"
+
+          # Convert email to username
+          USER_NAME=$(echo "$USER_EMAIL" | cut -d '@' -f 1 | tr '.' '_')
+          echo "USER_NAME: $USER_NAME"
+      
+          # Optionally make them available to later steps
+          echo "DATABRICKS_HOST=$DATABRICKS_HOST" >> $GITHUB_ENV
+          echo "DATABRICKS_TOKEN=$DATABRICKS_TOKEN" >> $GITHUB_ENV
+          echo "TARGET=$TARGET" >> $GITHUB_ENV
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "ODCS_CONTRACT_SOURCE_CATALOG=$ODCS_CONTRACT_SOURCE_CATALOG" >> $GITHUB_ENV
+          echo "ODCS_CONTRACT_SOURCE_SCHEMA=$ODCS_CONTRACT_SOURCE_SCHEMA" >> $GITHUB_ENV
+          echo "USER_EMAIL=$USER_EMAIL" >> $GITHUB_ENV
+          echo "USER_NAME=$USER_NAME" >> $GITHUB_ENV
+          echo "GIT_REPO_URL=https://github.com/${GITHUB_REPOSITORY}.git" >> $GITHUB_ENV
+
+          if [[ "$GITHUB_ACTIONS" == "true" ]]; then
+            echo "Running inside GitHub CI/CD"
+            echo "GIT_SOURCE=gitHub" >> $GITHUB_ENV
+          elif [[ "$GITLAB_CI" == "true" ]]; then
+            echo "Running inside GitLab CI/CD"
+            echo "GIT_SOURCE=gitLab" >> $GITHUB_ENV
+          else
+            echo "Not running inside GitHub or GitLab"
+          fi
+
+      - name: Setup Databricks Asset Bundles Authentication
+        run: |
+          set -x
+          echo "Creating $DATABRICKS_CFG_PATH"
+          CONFIG_FILE=$DATABRICKS_CFG_PATH
+          echo "[DEFAULT]" > "$CONFIG_FILE"
+          echo "host=$DATABRICKS_HOST" >> "$CONFIG_FILE"
+          echo "token=$DATABRICKS_TOKEN" >> "$CONFIG_FILE"
+          cat "$CONFIG_FILE"
+
+
+      - name: Create Create Contracts Databricks Workflow Templates
+        run: |
+          python3 resources/python/inject_base_params.py
+          cat resources/workflows/s0_data_contract_author_metadata.yml
+          cat resources/workflows/s1_data_contract_create.yml
+          cat resources/workflows/s2_data_contract_deploy_tables_tags.yml
+          cat resources/workflows/s3_data_contract_deploy_data.yml
+          cat resources/workflows/s4_data_contract_run_dq_rules.yml
+
+
+      - name: Validate and Deploy Databricks Asset Bundles
+        working-directory: .  
+        run: |
+          set -x
+          
+          export DATABRICKS_HOST=$DATABRICKS_HOST
+          envsubst < databricks.yml > /tmp/databricks.yml && mv /tmp/databricks.yml databricks.yml
+          
+          # Validate and deploy DABS
+          output=$(databricks bundle validate --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="git_repo_url=$GIT_REPO_URL" --var="git_source=$GIT_SOURCE")
+          if echo $output | grep -q "Validation OK!"; then
+            echo "Databricks Bundle Deploy Validation OK = True"
+            echo "Deploying Databricks Asset Bundle to Workspace"
+            databricks bundle deploy --profile DEFAULT --target $TARGET --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="git_repo_url=$GIT_REPO_URL" --var="git_source=$GIT_SOURCE"
+          else
+            echo "Databricks Bundle Deploy Validation OK = False"
+            exit 1
+          fi

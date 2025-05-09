@@ -1,0 +1,27 @@
+[
+    {
+        "property": "data_freshness",
+        "value": 7,
+        "unity": "d",
+        "element": "flights"
+    },
+    {
+        "property": "retention",
+        "value": 3,
+        "unit": "y",
+        "element": "flights.ingestion_datetime"
+    },
+    {
+        "property": "frequency",
+        "value": 1,
+        "valueExt": 1,
+        "unit": "d",
+        "element": "flights.ingestion_datetime"
+    },
+    {
+        "property": "timeOfAvailability",
+        "value": "08:00-08:00",
+        "element": "flights.ingestion_datetime",
+        "driver": "analytics"
+    }
+]

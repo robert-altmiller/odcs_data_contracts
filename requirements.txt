@@ -1,0 +1,9 @@
+jinja2
+pyyaml
+pydantic
+setuptools
+datacontract-cli[databricks]
+pyspark[sql,connect]
+numpy
+pandas
+fastavro

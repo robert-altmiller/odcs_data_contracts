@@ -1,0 +1,71 @@
+bundle:
+  name: data_contracts
+
+include:
+  - resources/workflows/*.yml
+
+variables:
+  git_source:
+    default: default
+    description: Default git source
+  git_repo_url:
+    default: default
+    description: Default repo url
+  branch_name:
+    default: default
+    description: Default branch name
+  user_name:
+    default: default
+    description: Default user name
+  user_email:
+    default: default
+    description: Default user email
+  odcs_contract_source_catalog:
+    default: default
+    description: Default ODCS source catalog
+  odcs_contract_source_schema:
+    default: default
+    description: Default ODCS source schema
+
+
+targets:
+
+  dev:
+    git:
+      branch: ${var.branch_name}
+    default: true
+    presets:
+      name_prefix: ${var.user_name}_
+      pipelines_development: true
+      trigger_pause_status: UNPAUSED
+    workspace:
+      host: ${DATABRICKS_HOST}
+      root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
+    run_as:
+      user_name: ${var.user_email}
+  
+  test:
+    git:
+      branch: ${var.branch_name}
+    mode: testing
+    workspace:
+      host: ${DATABRICKS_HOST}
+      root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
+    permissions:
+      - user_name: ${var.user_email}
+        level: CAN_MANAGE
+    run_as:
+      user_name: ${var.user_email}
+
+  prod:
+    git:
+      branch: ${var.branch_name}
+    mode: production
+    workspace:
+      host: ${DATABRICKS_HOST}
+      root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
+    permissions:
+      - user_name: ${var.user_email}
+        level: CAN_MANAGE
+    run_as:
+      user_name: ${var.user_email}

@@ -1,0 +1,136 @@
+stages:
+  - set-env-vars
+  - create-databrickscfg-auth
+  - create-dbricks-workflows-yaml
+  - validate-and-deploy-dabs
+
+variables:
+  DATABRICKS_HOST: "https://adb-4191419936804633.13.azuredatabricks.net/"
+  DATABRICKS_CFG_PATH: "$CI_PROJECT_DIR/.databrickscfg"
+  PYTHON_VERSION: "3.12"
+  ENVIRONMENT: "dev"
+  USER_EMAIL: "raltmiller@altmiller.com"
+  ODCS_CONTRACT_SOURCE_CATALOG: "flightstats_historical_old_dev_azr_westus"
+  ODCS_CONTRACT_SOURCE_SCHEMA: "data_contract_dev"
+  BRANCH_NAME: "$CI_COMMIT_REF_NAME"
+
+.install_databricks_cli:
+  before_script:
+    - curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+    - apt-get update && apt-get install -y gettext 
+
+
+.install_python_dependencies:
+  before_script:
+    - echo "Installing Python dependencies..."
+    - pip install -r requirements.txt
+
+
+set-env-vars:
+  stage: set-env-vars
+  image: python:${PYTHON_VERSION}
+  script:
+    - set "DATABRICKS_HOST=${DATABRICKS_HOST}" >> env_vars.env
+    - echo "BRANCH_NAME=$CI_COMMIT_REF_NAME" >> env_vars.env
+    - echo "ENVIRONMENT=${ENVIRONMENT}"
+    - echo "TARGET=${ENVIRONMENT}" >> env_vars.env
+    - echo "USER_EMAIL=${USER_EMAIL}" >> env_vars.env
+    - echo "USER_NAME=$(echo $USER_EMAIL | cut -d '@' -f 1 | tr '.' '_')" >> env_vars.env
+    - echo "ODCS_CONTRACT_SOURCE_CATALOG=${ODCS_CONTRACT_SOURCE_CATALOG}" >> env_vars.env
+    - echo "ODCS_CONTRACT_SOURCE_SCHEMA=${ODCS_CONTRACT_SOURCE_SCHEMA}" >> env_vars.env
+    - echo "GIT_REPO_URL=https://gitlab-ext.digitalaviationservices.com/${CI_PROJECT_PATH}.git" >> env_vars.env
+    - |
+      if [[ "$GITHUB_ACTIONS" == "true" ]]; then
+        echo "Running inside GitHub CI/CD"
+        echo "GIT_SOURCE=gitHub" >> env_vars.env
+      elif [[ "$GITLAB_CI" == "true" ]]; then
+        echo "Running inside GitLab CI/CD"
+        echo "GIT_SOURCE=gitLab" >> env_vars.env
+      else
+        echo "Not running inside GitHub or GitLab"
+      fi
+    - cat env_vars.env
+  artifacts:
+    paths:
+      - env_vars.env
+
+
+create-databrickscfg-auth:
+  stage: create-databrickscfg-auth
+  image: python:${PYTHON_VERSION}
+  dependencies:
+    - set-env-vars
+  script:
+    - set -x
+    - source env_vars.env
+    # Convert ENVIRONMENT to uppercase
+    - export ENV_UPPERCASE=$(echo "$ENVIRONMENT" | tr '[:lower:]' '[:upper:]')
+    # Create the .databrickscfg file
+    - echo "[DEFAULT]" > "$DATABRICKS_CFG_PATH"
+    - eval echo "host=\$DATABRICKS_HOST_${ENV_UPPERCASE}" >> "$DATABRICKS_CFG_PATH"
+    - eval echo "token=\$DATABRICKS_TOKEN_${ENV_UPPERCASE}" >> "$DATABRICKS_CFG_PATH"
+    - cat "$DATABRICKS_CFG_PATH"
+  artifacts:
+    paths:
+      - env_vars.env
+      - $DATABRICKS_CFG_PATH
+
+
+create-dbricks-workflows-yaml:
+  stage: create-dbricks-workflows-yaml
+  extends: .install_python_dependencies
+  image: python:${PYTHON_VERSION}
+  script:
+    - set -x
+    - echo "Injecting base parameters for contracts Databricks workflows..."
+    - python3 resources/python/inject_base_params.py
+    - cat resources/workflows/s0_data_contract_author_metadata.yml
+    - cat resources/workflows/s1_data_contract_create.yml
+    - cat resources/workflows/s2_data_contract_deploy_tables_tags.yml
+    - cat resources/workflows/s3_data_contract_deploy_data.yml
+    - cat resources/workflows/s4_data_contract_run_dq_rules.yml
+  artifacts:
+    paths:
+      - resources/workflows/s0_data_contract_author_metadata.yml
+      - resources/workflows/s1_data_contract_create.yml
+      - resources/workflows/s2_data_contract_deploy_tables_tags.yml
+      - resources/workflows/s3_data_contract_deploy_data.yml
+      - resources/workflows/s4_data_contract_run_dq_rules.yml
+
+
+validate-and-deploy-dabs:
+  extends: .install_databricks_cli
+  stage: validate-and-deploy-dabs
+  image: python:3.12
+  dependencies:
+    - set-env-vars
+    - create-databrickscfg-auth
+    - create-dbricks-workflows-yaml
+  script:
+    - set -x
+    - source env_vars.env
+
+    - export DATABRICKS_HOST=$DATABRICKS_HOST
+    - envsubst < databricks.yml > /tmp/databricks.yml
+    - mv /tmp/databricks.yml databricks.yml
+
+    - mv $DATABRICKS_CFG_PATH /root/.databrickscfg
+    - echo "Using TARGET=$TARGET"
+    - output=$(databricks bundle validate --profile DEFAULT --target "$TARGET" --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="git_repo_url=$GIT_REPO_URL" --var="git_source=$GIT_SOURCE")
+    - |
+      if echo "$output" | grep -q "Found 1 error"; then
+        echo "❌ Databricks Bundle Deploy Validation OK = False"
+        exit 1
+      else
+        echo "✅ Databricks Bundle Deploy Validation OK = True"
+        databricks bundle deploy --profile DEFAULT --target "$TARGET" --var="branch_name=$BRANCH_NAME" --var="user_email=$USER_EMAIL" --var="user_name=$USER_NAME" --var="odcs_contract_source_catalog=$ODCS_CONTRACT_SOURCE_CATALOG" --var="odcs_contract_source_schema=$ODCS_CONTRACT_SOURCE_SCHEMA" --var="git_repo_url=$GIT_REPO_URL" --var="git_source=$GIT_SOURCE"
+      fi
+  artifacts:
+    paths:
+      - env_vars.env
+      - $DATABRICKS_CFG_PATH
+      - resources/workflows/s0_data_contract_author_metadata.yml
+      - resources/workflows/s1_data_contract_create.yml
+      - resources/workflows/s2_data_contract_deploy_tables_tags.yml
+      - resources/workflows/s3_data_contract_deploy_data.yml
+      - resources/workflows/s4_data_contract_run_dq_rules.yml

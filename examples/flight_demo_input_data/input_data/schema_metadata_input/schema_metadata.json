@@ -1,0 +1,116 @@
+{
+  "schema": [
+    {
+      "logicalType": "object",
+      "name": "baggage",
+      "physicalName": "baggage",
+      "physicalType": "object",
+      "properties": [
+        {
+          "name": "baggage_id",
+          "required": true,
+          "logicalType": "bigint",
+          "physicalType": "bigint",
+          "tags": ["scope:baggage", "pii:false"]
+        },
+        {
+          "name": "ticket_id",
+          "required": true,
+          "logicalType": "bigint",
+          "physicalType": "bigint",
+          "tags": ["scope:baggage", "pii:false"]
+        },
+        {
+          "name": "baggage_type",
+          "logicalType": "string",
+          "physicalType": "string",
+          "tags": ["scope:baggage", "pii:false"]
+        },
+        {
+          "name": "weight",
+          "description": "Weight of the baggage",
+          "logicalType": "decimal(10,0)",
+          "physicalType": "decimal(10,0)",
+          "tags": ["scope:baggage", "pii:false"]
+        }
+      ],
+      "description": "Baggage details associated with tickets"
+    },
+    {
+      "logicalType": "object",
+      "name": "flights",
+      "physicalName": "flights",
+      "physicalType": "object",
+      "properties": [
+        {
+          "name": "flight_id",
+          "required": true,
+          "logicalType": "bigint",
+          "physicalType": "bigint",
+          "tags": ["scope:flights"]
+        },
+        {
+          "name": "airline",
+          "logicalType": "string",
+          "physicalType": "string",
+          "tags": []
+        },
+        {
+          "name": "flight_number",
+          "logicalType": "string",
+          "physicalType": "string",
+          "tags": ["scope:flights"]
+        },
+        {
+          "name": "origin",
+          "logicalType": "string",
+          "physicalType": "string",
+          "tags": []
+        },
+        {
+          "name": "destination",
+          "logicalType": "string",
+          "physicalType": "string",
+          "tags": ["scope:flights"]
+        },
+        {
+          "name": "departure_time",
+          "logicalType": "timestamp",
+          "physicalType": "timestamp",
+          "tags": []
+        },
+        {
+          "name": "arrival_time",
+          "logicalType": "timestamp",
+          "physicalType": "timestamp",
+          "tags": ["scope:flights"]
+        },
+        {
+          "name": "status",
+          "logicalType": "string",
+          "physicalType": "string",
+          "tags": ["scope:flights"]
+        },
+        {
+          "name": "ingestion_datetime",
+          "logicalType": "timestamp",
+          "physicalType": "timestamp",
+          "tags": []
+        },
+        {
+          "name": "passengers",
+          "logicalType": "object",
+          "physicalType": "ARRAY<STRUCT<passenger_id: BIGINT, seat_number: STRING>>",
+          "tags": []
+        },
+        {
+          "name": "flight_log",
+          "logicalType": "object",
+          "physicalType": "STRUCT<blocks: ARRAY<STRUCT<text: STRING, title: STRING, type: STRING>>, column_additions: ARRAY<STRING>, column_deletions: ARRAY<STRING>, column_type_mismatches: STRUCT<array_of_structs: STRUCT<actual_type: STRING, expected_type: STRING>>, fail: STRUCT<greaterThan: DOUBLE, greaterThanOrEqual: DOUBLE, lessThan: DOUBLE>, missing_column_names: ARRAY<STRING>, preferredChart: STRING, present_column_names: ARRAY<STRING>, value: DOUBLE, valueLabel: STRING, valueSeries: STRUCT<values: ARRAY<STRUCT<label: STRING, outcome: STRING, value: BIGINT>>>>",
+          "tags": ["scope:flights"]
+        }
+      ],
+      "description": "Passenger flight information"
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+[
+  {
+    "tickets": {
+      "quality": [
+        {
+          "type": "sql",
+          "description": "Ensures that the ticket_price in tickets table is less than $300",
+          "query": "SELECT ticket_price FROM tickets",
+          "mustBeLessThan": 300,
+          "dimension": "accuracy"
+        },
+        {
+          "type": "sql",
+          "description": "Ensures status in 'tickets' table is Confirmed or Checked-in",
+          "query": "
+            SELECT
+              CASE
+                WHEN total = valid THEN 0
+                ELSE 1
+              END AS status_evaluation
+            FROM (
+              SELECT
+                COUNT(*) AS total,
+                SUM(CASE WHEN status IN ('Checked-in', 'Confirmed') THEN 1 ELSE 0 END) AS valid
+              FROM tickets
+            )",
+          "mustBe": 0,
+          "dimension": "consistency"
+        }
+      ]
+    },
+    "passengers": {
+      "quality": [
+        {
+          "type": "sql",
+          "description": "Ensures passenger first name and last name are populated in the 'passengers' table",
+          "query": "
+            SELECT COUNT(*) AS null_record_count
+            FROM passengers
+            WHERE first_name IS NULL OR last_name IS NULL;",
+          "mustBe": 0,
+          "dimension": "completeness"
+        },
+        {
+          "type": "sql",
+          "description": "Ensures phone numbers in the 'passengers' table are formatted correctly (XXX-XXX-XXXX)",
+          "query": "
+            SELECT DISTINCT phone_format_evaluation
+            FROM 
+            (
+            SELECT 
+                passenger_id,
+                phone,
+                CASE 
+                    WHEN phone RLIKE '^[0-9]{3}-[0-9]{3}-[0-9]{4}$' 
+                    THEN 0
+                    ELSE 1
+                END AS phone_format_evaluation
+            FROM passengers
+            );",
+          "mustBe": 0,
+          "dimension": "accuracy"
+        }
+      ]
+    },
+    "flights": {
+      "quality": [
+        {
+          "type": "sql",
+          "description": "Ensures passenger arrival time in the 'flights' table is always greater than the departure time",
+          "query": "
+              SELECT DISTINCT a.time_consistency_check
+              FROM (
+              SELECT 
+              flight_id,
+              CASE 
+                  WHEN arrival_time <= departure_time 
+                  THEN 1
+                  ELSE 0
+              END AS time_consistency_check
+              FROM flights
+              ) a;",
+          "mustBe": 0,
+          "dimension": "consistency"
+        },
+        {
+          "type": "sql",
+          "description": "Ensures flight statuses in the 'flights' table are scheduled, delayed or cancelled",
+          "query":"
+              SELECT 
+                  CASE 
+                  WHEN COUNT(*) = SUM(CASE WHEN status IN ('Scheduled', 'Delayed', 'Cancelled') THEN 1 ELSE 0 END)
+                  THEN 0
+                  ELSE 1
+                  END AS status_evaluation
+              FROM flights;",
+          "mustBe": 0,
+          "dimension": "completeness"
+        }
+      ]
+    },
+    "baggage": {
+      "quality": [
+        {
+          "type": "sql",
+          "description": "Ensures that baggage_type in 'baggage' table contains only valid values: Checked, Carry-on",
+          "query": "
+            SELECT DISTINCT a.baggage_type_check
+            FROM (
+                SELECT 
+                    baggage_id,
+                    baggage_type,
+                    CASE 
+                        WHEN baggage_type NOT IN ('Checked', 'Carry-on') 
+                        THEN 1
+                        ELSE 0
+                    END AS baggage_type_check
+                FROM baggage
+            ) a;",
+          "mustBe": 0,
+          "dimension": "consistency"
+        },
+        {
+          "type": "sql",
+          "description": "Ensures that the baggage weight in 'baggage' table is <= 50 pounds",
+          "query": "SELECT weight from baggage",
+          "mustBeLessThanOrEqualTo": 50,
+          "dimension": "accuracy"
+        },
+        {
+          "type": "sql",
+          "description": "Ensures baggage IDs in 'baggage' table are unique",
+          "query": "
+            SELECT 
+              CASE 
+                WHEN COUNT(baggage_id) = COUNT(DISTINCT baggage_id) THEN 0
+                ELSE 1
+              END AS uniqueness_check
+            FROM baggage",
+          "mustBe": 0,
+          "dimension": "uniqueness"
+        }
+      ]
+    }
+  }
+]

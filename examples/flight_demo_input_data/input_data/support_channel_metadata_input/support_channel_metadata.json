@@ -1,0 +1,21 @@
+[ 
+  {
+    "channel": "Test Teams Channel (Interactive)",
+    "tool": "teams",
+    "scope": "interactive",
+    "url": "https://teams.microsoft.com/channel/Test"
+  },
+  {
+    "channel": "Test Teams Channel (Announcements)",
+    "tool": "teams",
+    "scope": "annoucements",
+    "url": "https://teams.microsoft.com/channel/Test/announcements"
+  },
+  {
+    "channel": "Test Email",
+    "tool": "email",
+    "scope": "announcements",
+    "url": "mailto:test@altmiller.com",
+    "description": "Team email for all team announcements"
+  }
+]

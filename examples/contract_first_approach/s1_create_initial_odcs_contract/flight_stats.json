@@ -1,0 +1,165 @@
+{
+    "models": [
+        {
+            "catalog": "flightstats_historical_dev_azr_westus",
+            "tags": {
+                "segment": "historical"
+            },
+            "schema": {
+                "name": "data_contract_dev",
+                "tags": {
+                    "segment": "departure"
+                },
+                "tables": [
+                    {
+                        "name": "flightstats",
+                        "tags": {
+                            "segment": "departure",
+                            "pii": "false"
+                        },
+                        "fields": [
+                            {
+                                "name": "departure_airport",
+                                "type": "string",
+                                "tags": {
+                                    "segment": "departure",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            },
+                            {
+                                "name": "departure_gate",
+                                "type": "integer",
+                                "tags": {
+                                    "segment": "departure",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": true
+                            },
+                            {
+                                "name": "economy_number_of_seats",
+                                "type": "integer",
+                                "tags": {
+                                    "segment": "seating",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            },
+                            {
+                                "name": "aircraftmanufacturer",
+                                "type": "string",
+                                "tags": {
+                                    "segment": "manufacturer",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            },
+                            {
+                                "name": "airline",
+                                "type": "string",
+                                "tags": {
+                                    "segment": "airline",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            },
+                            {
+                                "name": "flight_number",
+                                "type": "string",
+                                "tags": {
+                                    "segment": "airline",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            }
+                        ],
+                        "quality": [
+                            {
+                                "name": "Count of null values in departure_gate ",
+                                "type": "sql",
+                                "query": "select count(*) from  flightstats where departure_gate is null",
+                                "mustBe": 0
+
+                            }
+                        ]
+                    },
+                    {
+                        "name": "flightdeparture",
+                        "tags": {
+                            "segment": "departure",
+                            "pii": "false"
+                        },
+                        "fields": [
+                            {
+                                "name": "departure_airport",
+                                "type": "string",
+                                "tags": {
+                                    "segment": "departure",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            },
+                            {
+                                "name": "departure_gate",
+                                "type": "integer",
+                                "tags": {
+                                    "segment": "departure",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": true
+                            },
+                            {
+                                "name": "economy_number_of_seats",
+                                "type": "integer",
+                                "tags": {
+                                    "segment": "seating",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            },
+                            {
+                                "name": "aircraftmanufacturer",
+                                "type": "string",
+                                "tags": {
+                                    "segment": "manufacturer",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            },
+                            {
+                                "name": "airline",
+                                "type": "string",
+                                "tags": {
+                                    "segment": "airline",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            },
+                            {
+                                "name": "flight_number",
+                                "type": "string",
+                                "tags": {
+                                    "segment": "airline",
+                                    "pii": "false"
+                                },
+                                "unique": false,
+                                "nullable": false
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
