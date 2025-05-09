@@ -59,7 +59,7 @@ jobs:
       - name: Setup Environment Variables
         run: |
           set +x
-          ./scripts/set_env_vars.sh
+          ./.github/scripts/set_env_vars.sh
 
       - name: Setup Databricks Asset Bundles Authentication
         run: |
