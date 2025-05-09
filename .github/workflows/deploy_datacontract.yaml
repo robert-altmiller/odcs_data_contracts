@@ -55,6 +55,8 @@ jobs:
       - name: Pip Install Requirements
         run: pip install -r requirements.txt
 
+      - name: Make scripts executable
+        run: chmod +x ./.github/scripts/*.sh
 
       - name: Setup Environment Variables
         run: |
