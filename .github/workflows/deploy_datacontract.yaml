@@ -58,8 +58,6 @@ jobs:
 
       - name: Setup Environment Variables
         run: |
-          set -x
-
           # Get Databricks host url
           DATABRICKS_HOST="${{ github.event.inputs.DATABRICKS_HOST != '' && github.event.inputs.DATABRICKS_HOST || secrets.DATABRICKS_HOST }}"
           echo "::add-mask::$DATABRICKS_HOST"
