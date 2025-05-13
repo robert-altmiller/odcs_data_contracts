@@ -427,7 +427,7 @@ def get_general_data_quality_rules(table, columns=None):
                     "description": f"Ensures '{table}' table has data",
                     "query": f"SELECT COUNT(*) FROM {table}",
                     "dimension": "completeness",
-                    "mustBeGreaterThanOrEqualTo": 0,
+                    "mustBeGreaterThan": 0,
                 }
             ]
         }

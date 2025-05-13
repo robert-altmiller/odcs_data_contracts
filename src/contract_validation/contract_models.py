@@ -82,9 +82,9 @@ class QualityMetadata(BaseModel):
     mustBe: Optional[int | float] = None
     mustNotBe: Optional[int | float] = None
     mustBeGreaterThan: Optional[int | float] = None
-    mustBeGreaterThanOrEqualTo: Optional[int | float] = None
+    mustBeGreaterThan: Optional[int | float] = None
     mustBeLessThan: Optional[int | float] = None
-    mustBeLessThanOrEqualTo: Optional[int | float] = None
+    mustBeLessThan: Optional[int | float] = None
     mustBeBetween: Optional[tuple[int | float, int | float]] = None
     mustNotBeBetween: Optional[tuple[int | float, int | float]] = None
 

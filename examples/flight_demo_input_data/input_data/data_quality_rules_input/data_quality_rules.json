@@ -117,7 +117,7 @@
           "type": "sql",
           "description": "Ensures that the baggage weight in 'baggage' table is <= 50 pounds",
           "query": "SELECT weight from baggage",
-          "mustBeLessThanOrEqualTo": 50
+          "mustBeLessThan": 50
         }
       ]
     }
