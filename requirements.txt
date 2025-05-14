@@ -7,3 +7,4 @@ pyspark[sql,connect]
 numpy
 pandas
 fastavro
+databricks-sdk
