@@ -58,24 +58,9 @@ author_folder_path = dbutils.widgets.get("author_folder_path")
 print(f"author_folder_path: {author_folder_path}")
 
 
-dbutils.widgets.text("avro_folder_path", f"{author_folder_path.split('/input_data')[0]}/avro_data")  # should be a UC volume
-avro_folder_path = dbutils.widgets.get("avro_folder_path")
-print(f"avro_folder_path: {avro_folder_path}")
-
-
-dbutils.widgets.text("csv_folder_path", f"{author_folder_path.split('/input_data')[0]}/csv_data")  # should be a UC volume
-csv_folder_path = dbutils.widgets.get("csv_folder_path")
-print(f"csv_folder_path: {csv_folder_path}")
-
-
-dbutils.widgets.text("parquet_folder_path", f"{author_folder_path.split('/input_data')[0]}/parquet_data")  # should be a UC volume
-parquet_folder_path = dbutils.widgets.get("parquet_folder_path")
-print(f"parquet_folder_path: {parquet_folder_path}")
-
-
-dbutils.widgets.text("sql_folder_path", f"{author_folder_path.split('/input_data')[0]}/sql_data")  # should be a UC volume
-sql_folder_path = dbutils.widgets.get("sql_folder_path")
-print(f"sql_folder_path: {sql_folder_path}")
+dbutils.widgets.text("json_folder_path", f"{author_folder_path.split('/input_data')[0]}/json_data")  # should be a UC volume
+json_folder_path = dbutils.widgets.get("json_folder_path")
+print(f"avro_folder_path: {json_folder_path}")
 
 
 # yaml folder path for where to store data contract
@@ -215,40 +200,11 @@ else: print("there is no existing data contract to create authoring files for")
 # DBTITLE 1,Get a List of Tables in the User Specified Catalog.Schema
 # Get a list of the tables in a Catalog.Schema
 # list_tables_in_schema() Python function is in the helpers notebook
+
+# This section below uses the helper Python function 'list_tables_in_schema()' in the helpers folder --> general_helpers.py to generate a list of table_names for a user specified Databricks catalog and schema.
+# remove data quality tables created by the data contract framework if they exist
+
 tables_list, tables_with_desc_dict = list_tables_in_schema(source_catalog, source_schema)
-
-# COMMAND ----------
-
-# DBTITLE 1,Update Schema Metadata Authoring JSON File
-# Update schema_metadata.json with existing catalog.schema metadata
-if not contract_exists and catalog_exists(source_catalog) and schema_exists(source_catalog, source_schema) and len(tables_list) > 0:
-
-    # Initialize Data Contract object
-    data_contract_obj = DataContract(spark=spark)
-
-    # This section below uses the helper Python function 'list_tables_in_schema()' in the helpers folder --> general_helpers.py to generate a list of table_names for a user specified Databricks catalog and schema.
-
-    # remove data quality tables created by the data contract framework if they exist
-    tables_list = [t for t in tables_list if "data_quality" not in t]
-    tables_with_desc_dict = {k: v for k, v in tables_with_desc_dict.items() if "data_quality" not in k}
-    print(f"tables_list: {tables_list}")
-
-
-    # This section below creates a 'folder_path_dict' Python dictionary to enable seamless lookup of the Avro, CSV, Parquet, and SQL folder paths specified in the notebook widgets above.
-
-    # Create a folder path dictionary
-    folder_path_dict = {
-        "avro": avro_folder_path,
-        "csv": csv_folder_path,
-        "parquet": parquet_folder_path,
-        "sql": sql_folder_path
-    }
-else:
-    print("--> INFO: can only update the schema_metadata authoring file if data contract does NOT EXIST and source_schema tables EXIST <--")
-    print(f"contract_exists: {contract_exists}")
-    print(f"source_catalog exists: {catalog_exists(source_catalog)}")
-    print(f"source_schema exists: {catalog_exists(source_catalog)}")
-    print(f"source_schema tables: {tables_list}")
 
 # COMMAND ----------
 
@@ -271,10 +227,8 @@ else:
 # Update schema_metadata.json with existing catalog.schema metadata
 if not contract_exists and catalog_exists(source_catalog) and schema_exists(source_catalog, source_schema) and len(tables_list) > 0:
     
-    # Read the Tables and Save as Avro, CSV, Parquet, or SQL
-    methods = ["sql"] # OR ["avro", "parquet", "csv", "sql"]
-    for method in methods:
-        create_local_data(source_catalog, source_schema, tables_list, folder_path_dict[method], method = method)
+    create_local_data(source_catalog, source_schema, tables_list, json_folder_path)
+
 else:
     print("--> INFO: can only update the schema_metadata authoring file if data contract does NOT EXIST and source_schema tables EXIST <--")
     print(f"contract_exists: {contract_exists}")
@@ -311,8 +265,7 @@ if not contract_exists and catalog_exists(source_catalog) and schema_exists(sour
 
     # Create Data Contracts For Each Table and Combine
     # you can print an individual contract using print(json.dumps(data_contracts_dict["table_name"])) for testing.  Table name comes from the name of the avro, csv, parquet, or sql files 
-    method = "sql" # or csv or parquet or sql
-    data_contracts_combined, data_contracts_dict = combine_data_contract_models(source_catalog, source_schema, tables_with_desc_dict, folder_path_dict[method], method = method)
+    data_contracts_combined, data_contracts_dict = combine_data_contract_models(source_catalog, source_schema, tables_with_desc_dict, json_folder_path)
     data_contract_odcs_yaml = data_contracts_combined
 
     # Extract schema metadata and remove dq rules
