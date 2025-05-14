@@ -25,19 +25,22 @@ def get_uc_table_ddl(catalog, schema, table):
             # Create an empty table from the view's schema (structure only)
             view_tbl_name = create_view_as_table(source_catalog, source_schema, table)
             # Retrieve the DDL for the newly created table
-            table_ddl = spark.sql(f"""SHOW CREATE TABLE {catalog}.{schema}.{view_tbl_name};""").first()[0]
+            table_ddl = spark.sql(
+                f"""SHOW CREATE TABLE {catalog}.{schema}.{view_tbl_name};"""
+            ).first()[0]
             table_ddl = table_ddl.replace(view_tbl_name, table)
             # Drop the temporary table (commented out)
             spark.sql(f"DROP TABLE {catalog}.{schema}.{view_tbl_name}")
         else:
             # If it's already a table, get the DDL directly
-            table_ddl = spark.sql(f"""SHOW CREATE TABLE {catalog}.{schema}.{table};""").first()[0]
+            table_ddl = spark.sql(
+                f"""SHOW CREATE TABLE {catalog}.{schema}.{table};"""
+            ).first()[0]
         # Return the generated DDL
         return table_ddl
     except Exception as e:
         print(f"error: {e}")
         return None
-
 
 
 # COMMAND ----------
@@ -101,7 +104,7 @@ def convert_complex_type_cols_to_str(df_pandas: pd.DataFrame) -> pd.DataFrame:
     return df_pandas
 
 
-def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"):
+def create_local_data(catalog, schema, uc_tables_list, folder_path):
     """
     Creates local data files for given tables in specified formats (AVRO, CSV, PARQUET, SQL) and saves them to a designated folder path.
     Args:
@@ -120,45 +123,11 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path, method="csv"
     for table in uc_tables_list:
         file_name = f"{table}"
         os.makedirs(folder_path, exist_ok=True)
-        file_path = f"{folder_path}/{file_name}.{method}"
-        
-        if method != "sql":
-            df_initial = spark.read.table(f"{catalog}.{schema}.{table}").limit(5000)
-            # Use agg() with first() to get the first non-null value for each column
-            df = df_initial.select(
-                [F.first(F.col(c), ignorenulls=True).alias(c) for c in df_initial.columns]
-            ).dropna(how="all")
+        file_path = f"{folder_path}/{file_name}.json"
 
-        if df.count() > 0:
-            if method == "avro":
-                df_avro = df.toPandas()
-                for col_avro in df_avro.select_dtypes(
-                    include=["datetime64", "datetime", "timedelta", "object"]
-                ).columns:
-                    df_avro[col_avro] = df_avro[col_avro].astype(str)
-                avro_records = df_avro.to_dict(orient="records")
-                # infer_avro_schema() Python function is in the helpers notebook
-                avro_schema = infer_avro_schema(df_avro)
-                with open(file_path, "wb") as out:
-                    fastavro.writer(out, avro_schema, avro_records)
-                print(f"✅ AVRO file saved at: {file_path}")
-            elif method == "csv":
-                df.toPandas().to_csv(file_path, index=False)
-                print(f"✅ CSV file saved at: {file_path}")
-            elif method == "parquet":
-                df_pandas = df.toPandas()
-                df_pandas.attrs.clear()  # Clears non-serializable metadata (IMPORTANT)
-                df_pandas = convert_complex_type_cols_to_str(df_pandas)
-                df_pandas.to_parquet(file_path)
-                # print(f"✅ PARQUET file saved at: {file_path}")
-            elif method == "sql":
-                sql_ddl = get_uc_table_ddl(catalog, schema, table)
-                if sql_ddl != None:
-                    with open(file_path, "w+") as out:
-                        out.write(sql_ddl)
-                    print(f"✅ SQL file saved at: {file_path}")
-            else:
-                print(f"method ({method}) not recognized")
+        json_schema = w.tables.get(f"{catalog}.{schema}.{table}").as_dict()
+        with open(file_path, "w") as out:
+            json.dump(json_schema, out, indent=4)
 
 
 # COMMAND ----------
@@ -305,9 +274,7 @@ def generate_odcs_base_contract(data_contract):
 
 
 # DBTITLE 1,Create Data Contracts For Each Table and Combine
-def combine_data_contract_models(
-    catalog, schema, uc_tables_dict, folder_path, method="csv"
-):
+def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path):
     """
     Combines multiple data contract models into a single data contract object.
     This function iterates through a dictionary of table names and descriptions, importing
@@ -330,62 +297,58 @@ def combine_data_contract_models(
     data_contracts_dict = {}
     counter = 0
 
-    # FIX ****************!!!! get all table and column level tags here and then pass the dictionary into the for loop below !!!**************** FIX
-    # tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
-    # col_tags = tag_dict_to_list(get_data_contract_column_tags(catalog, schema, table))
+    # Get table and column level tags
+    # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
+    try:
+        tbl_tags = tag_dict_to_list(
+            get_existing_uc_tags(
+                input_catalog=catalog, input_schema=schema, tag_level="table"
+            )
+        )
+        col_tags = tag_dict_to_list(
+            get_existing_uc_tags(
+                input_catalog=catalog,
+                input_schema=schema,
+                tag_level="column",
+            )
+        )
+    except Exception as e:
+        tbl_tags = col_tags = None
+        print("unable to get table and column level tags")
+        print(e)
 
     for table, table_desc in uc_tables_dict.items():
         try:
             # Try to import data contract model from file; skip if the file doesn't exist or is empty (e.g. empty table)
-            source = f"{folder_path}/{table}.{method}"
+            source = f"{folder_path}/{table}.json"
             print(f"\n✅START✅ --> reading local table: {source} <-- ✅START✅")
-            data_contracts_table = generate_odcs_base_contract(
-                data_contract_obj.import_from_source(
-                    format=method, source=f"{source}", dialect="databricks"
-                )
+            data_contracts_table = yaml.safe_load(
+                DataContract(
+                    data_contract=data_contract_obj.import_from_source(
+                        "unity", f"{source}"
+                    )
+                ).export("odcs")
             )
         except Exception as e:
-            print(f"No rows of data exists: {e}")
+            print(str(e))
             continue
 
-        # Get table column level comments
-        # column_comments() Python function is in the helpers notebook
-        column_comments = get_column_comments(catalog, schema, table)
-
-        # Get table and column level tags
-        # get_data_contract_table_tags() and get_data_contract_column_tags Python functiona are in the helpers notebook
-        try:
-            tbl_tags = tag_dict_to_list(get_data_contract_tags(catalog, schema, table))
-            col_tags = tag_dict_to_list(
-                get_data_contract_column_tags(catalog, schema, table)
-            )
-        except Exception as e:
-            tbl_tags = col_tags = None
-            print("unable to get table and column level tags")
-            print(e)
-
-        # Update schema properties
         schema_obj = data_contracts_table["schema"][0]  # Hold constant per table
-        schema_obj["description"] = table_desc  # Table level description
 
         if tbl_tags != None:
-            schema_obj["tags"] = tbl_tags["tags"][table]
+            schema_obj["tags"] = tbl_tags.get(f"{catalog}.{schema}.{table}")
         else:
             schema_obj["tags"] = []
 
         for col in schema_obj["properties"]:
-            col["description"] = column_comments[f"{catalog}.{schema}.{table}"][
-                col["name"]
-            ]  # Column level descriptions
-
             if col_tags != None:
-                col["tags"] = col_tags["tags"][col["name"]]
+                col["tags"] = col_tags.get(f"{catalog}.{schema}.{table}.{col['name']}")
             else:
                 col["tags"] = []
 
-        data_contracts_table = replace_none_with_empty_string_in_json(
-            data_contracts_table
-        )
+        # data_contracts_table = replace_none_with_empty_string_in_json(
+        #     data_contracts_table
+        # )
         data_contracts_dict[table] = data_contracts_table
 
         if counter == 0:
@@ -893,7 +856,7 @@ def update_odcs_pricing_metadata(data_contract, pricing_metadata_input):
         updated_pricing_metadata = {
             "priceAmount": pricing_metadata_input.get("priceAmount"),
             "priceCurrency": pricing_metadata_input.get("priceCurrency"),
-            "priceUnit": pricing_metadata_input.get("priceUnit")
+            "priceUnit": pricing_metadata_input.get("priceUnit"),
         }
 
         # Check if Pricing metadata already exists
@@ -915,51 +878,73 @@ def update_odcs_pricing_metadata(data_contract, pricing_metadata_input):
 
 
 # DBTITLE 1,Save ODCS Data Contract Locally
-def save_odcs_data_contract_local(data_contract, catalog, schema, base_yaml_folder_path):
+def save_odcs_data_contract_local(
+    data_contract, catalog, schema, base_yaml_folder_path
+):
     """
     Saves the ODCS data contract locally in both current_versions and historical_versions folders.
-    
+
     Args:
         data_contract (dict): The ODCS data contract dictionary to save.
         catalog (str): The Unity Catalog catalog name (used in the filename).
         schema (str): The Unity Catalog schema name (used in the filename).
         base_yaml_folder_path (str): Base path where the folders will be created.
-    
+
     Returns:
         dict: A dictionary with keys 'current_version_path' and 'historical_version_path'.
     """
     # Get a timestamp for historical contract version
     timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-    
+
     # Define paths
     current_version_path = os.path.join(base_yaml_folder_path, f"catalog={catalog}")
-    historical_versions_path = os.path.join(base_yaml_folder_path, f"catalog={catalog}", "versions")
-    
+    historical_versions_path = os.path.join(
+        base_yaml_folder_path, f"catalog={catalog}", "versions"
+    )
+
     os.makedirs(current_version_path, exist_ok=True)
     os.makedirs(historical_versions_path, exist_ok=True)
-    
+
     # File paths
-    current_version_file = os.path.join(current_version_path, f"{catalog}__{schema}.yaml")
-    historical_version_file = os.path.join(historical_versions_path, f"{catalog}__{schema}__{timestamp}.yaml")
-    
+    current_version_file = os.path.join(
+        current_version_path, f"{catalog}__{schema}.yaml"
+    )
+    historical_version_file = os.path.join(
+        historical_versions_path, f"{catalog}__{schema}__{timestamp}.yaml"
+    )
+
     # Serialize data contract
     yaml_content = yaml.dump(data_contract, default_flow_style=False, sort_keys=False)
-    
+
     # Copy existing contract current version into the historical_versions folder if it exists
     # Then remove the existing contract current version
     if os.path.exists(current_version_file):
-        print(f"moving '{current_version_file}' to versions folder named as '{historical_version_file}'")
+        print(
+            f"moving '{current_version_file}' to versions folder named as '{historical_version_file}'"
+        )
         shutil.copy2(current_version_file, historical_version_file)
         os.remove(current_version_file)
-    
+
     # Save current version (overwrite clean)
     with open(current_version_file, "w+") as f:
         f.write(yaml_content)
     print(f"✅ Current version saved at: {current_version_file}")
-    
+
     # Return the data contract current_version data file path
     return current_version_file
 
+def remove_databricks_config(obj):
+  """Removes the config attribute from each field in the data contract model specification so that the cli
+  type converter will function properly"""
+  if isinstance(obj, dict):
+    return {k: remove_databricks_config(v) if k != 'config' else None for k, v in obj.items()}
+  elif isinstance(obj, list):
+    return [remove_databricks_config(item) for item in obj]
+  elif hasattr(obj, '__dict__'):
+    obj.__dict__ = {k: remove_databricks_config(v) if k != 'config' else None for k, v in obj.__dict__.items()}
+    return obj
+  else:
+    return obj
 
 def validate_data_contract(data_contract_dict: dict, spark: SparkSession):
     # Load the contract from YAML file
@@ -972,7 +957,10 @@ def validate_data_contract(data_contract_dict: dict, spark: SparkSession):
 
     results = []
     for check in test_results.checks:
-        if str(check.result) != "ResultEnum.passed" and check.name not in ["Linter 'Objects have descriptions'", "Linter 'Fields use valid constraints'"]:
+        if str(check.result) != "ResultEnum.passed" and check.name not in [
+            "Linter 'Objects have descriptions'",
+            "Linter 'Fields use valid constraints'",
+        ]:
             results.append(
                 {
                     "reason": check.reason,
@@ -991,7 +979,11 @@ def validate_data_contract(data_contract_dict: dict, spark: SparkSession):
     error_count = 0
 
     # Validate the sql queries are valid using sqlglot
-    queries_ddl_list = data_contract.export("sql")[:-1].split(";")
+    data_contract_spec = data_contract.get_data_contract_specification()
+    data_contract_spec = remove_databricks_config(data_contract_spec)
+
+    data_contract = DataContract(data_contract=data_contract_spec)
+    queries_ddl_list = data_contract.export("sql", dialect="databricks")[:-1].split(";")
     for query in queries_ddl_list:
         try:
             spark.sql(f"EXPLAIN {query}")
@@ -1024,11 +1016,13 @@ def validate_data_contract(data_contract_dict: dict, spark: SparkSession):
             warning_count += 1 if error.get("type") in warning_error_types else 0
             error_count += 1 if error.get("type") not in warning_error_types else 0
             if len(location) > 1 and location[0] == "schema":
-                table_name = (
-                    data_contract_dict.get("schema", [])[location[1]].get("name", "")
+                table_name = data_contract_dict.get("schema", [])[location[1]].get(
+                    "name", ""
                 )
                 column_name = (
-                    data_contract_dict.get("schema", [])[location[1]].get("properties", {})[location[3]].get("name", "")
+                    data_contract_dict.get("schema", [])[location[1]]
+                    .get("properties", {})[location[3]]
+                    .get("name", "")
                     if location[2] == "properties"
                     else None
                 )
@@ -1064,5 +1058,9 @@ def validate_data_contract(data_contract_dict: dict, spark: SparkSession):
         raise PydanticCustomError(
             "validation_error",
             "Data contract validation failed with {error_count} errors and {warning_count} warnings: {error_types}",
-            {"error_count": error_count, "warning_count": warning_count, "error_types": list(error_types)},
+            {
+                "error_count": error_count,
+                "warning_count": warning_count,
+                "error_types": list(error_types),
+            },
         )
