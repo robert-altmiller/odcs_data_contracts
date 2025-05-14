@@ -7,10 +7,7 @@ base_path: /Workspace/Users
 #---DO NOT MODIFY ANY OF THE VARIABLES BELOW---
 
 author_folder_path: data_contracts/input_data
-avro_folder_path: data_contracts/avro_data
-csv_folder_path: data_contracts/csv_data
-parquet_folder_path: data_contracts/parquet_data
-sql_folder_path: data_contracts/sql_data
+json_folder_path: data_contracts/json_data
 yaml_folder_path: data_contracts/data_contracts_data
 
 # Data contract folder path

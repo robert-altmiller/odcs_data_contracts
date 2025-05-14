@@ -10,10 +10,7 @@ resources:
             base_parameters:
               git_repo_url: ${var.git_repo_url}
               user_email: ${var.user_email}
-              avro_folder_path: "{{params.base_path}}/${var.user_email}/odcs_data_contracts/notebooks/{{ params.avro_folder_path }}"
-              csv_folder_path: "{{params.base_path}}/${var.user_email}/odcs_data_contracts/notebooks/{{ params.csv_folder_path }}"
-              parquet_folder_path: "{{params.base_path}}/${var.user_email}/odcs_data_contracts/notebooks/{{ params.parquet_folder_path }}"
-              sql_folder_path: "{{params.base_path}}/${var.user_email}/odcs_data_contracts/notebooks/{{ params.sql_folder_path }}"
+              json_folder_path: "{{params.base_path}}/${var.user_email}/odcs_data_contracts/notebooks/{{ params.json_folder_path }}"
               yaml_folder_path: "{{params.base_path}}/${var.user_email}/odcs_data_contracts/notebooks/{{ params.yaml_folder_path }}"
               source_catalog: ${var.odcs_contract_source_catalog}
               source_schema: ${var.odcs_contract_source_schema}

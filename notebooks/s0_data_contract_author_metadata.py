@@ -60,7 +60,7 @@ print(f"author_folder_path: {author_folder_path}")
 
 dbutils.widgets.text("json_folder_path", f"{author_folder_path.split('/input_data')[0]}/json_data")  # should be a UC volume
 json_folder_path = dbutils.widgets.get("json_folder_path")
-print(f"avro_folder_path: {json_folder_path}")
+print(f"json_folder_path: {json_folder_path}")
 
 
 # yaml folder path for where to store data contract
