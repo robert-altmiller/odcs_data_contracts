@@ -129,7 +129,9 @@ class SchemaMetadata(BaseModel):
         description="The properties of the schema"
     )
     description: str = Field(description="The description of the schema", min_length=5)
-    tags: list[str] = Field(description="The tags of the schema", min_length=1)
+    tags: Optional[list[str]] = Field(
+        description="The tags of the schema", default=None
+    )
     quality: Optional[list[QualityMetadata]] = Field(
         default=None, description="The quality of the schema"
     )
