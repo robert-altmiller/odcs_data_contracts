@@ -2,7 +2,7 @@ jinja2
 pyyaml
 pydantic
 setuptools
-datacontract-cli[databricks]
+datacontract-cli[databricks]==0.10.25
 pyspark[sql,connect]
 numpy
 pandas
