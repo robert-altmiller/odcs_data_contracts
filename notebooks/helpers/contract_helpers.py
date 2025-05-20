@@ -561,6 +561,7 @@ def update_odcs_contract_metadata(
             data_contract["dataProduct"] = metadata.get("dataproduct")
             data_contract["tenant"] = metadata.get("tenant")
             data_contract["description"] = metadata.get("description")
+            data_contract["authored_date"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
             print(f"appended general metadata to ODCS data contract: {metadata}")
     return data_contract
 
