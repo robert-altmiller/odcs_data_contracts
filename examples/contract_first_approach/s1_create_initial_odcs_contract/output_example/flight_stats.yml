@@ -59,7 +59,7 @@ schema:
     unique: false
   quality:
   - description: Ensures 'flightstats' table has data
-    mustBeGreaterThanOrEqualTo: 0
+    mustBeGreaterThan: 0
     query: SELECT COUNT(*) FROM flightstats
     type: sql
   - mustBe: 0
@@ -124,7 +124,7 @@ schema:
     unique: false
   quality:
   - description: Ensures 'flightdeparture' table has data
-    mustBeGreaterThanOrEqualTo: 0
+    mustBeGreaterThan: 0
     query: SELECT COUNT(*) FROM flightdeparture
     type: sql
   tags:

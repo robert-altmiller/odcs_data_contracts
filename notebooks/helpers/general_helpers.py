@@ -27,6 +27,7 @@ import pyspark.sql.functions as F
 from pyspark.sql.types import *
 from pyspark.sql.utils import AnalysisException
 from pyspark.sql import SparkSession
+from databricks.sdk import WorkspaceClient
 
 
 # ODCS data contract SDK
@@ -34,11 +35,12 @@ from datacontract.data_contract import DataContract
 from pydantic import ValidationError
 from pydantic_core import PydanticCustomError
 
-sys.path.append(os.path.abspath('../src/'))
+sys.path.append(os.path.abspath("../src/"))
 print(sys.path)
 from contract_validation.contract_models import DataContractMetadata
 
 # COMMAND ----------
+w = WorkspaceClient()
 
 
 # DBTITLE 1,Check if Running in a Workflow
@@ -75,7 +77,7 @@ def catalog_exists(catalog_name: str) -> bool:
         bool: True if the catalog exists, False otherwise.
     """
     try:
-        spark.sql(f"DESCRIBE CATALOG `{catalog_name}`")
+        w.catalogs.get(catalog_name)
         return True
     except AnalysisException:
         return False
@@ -91,13 +93,14 @@ def schema_exists(catalog_name: str, schema_name: str) -> bool:
         bool: True if the schema exists, False otherwise.
     """
     try:
-        spark.sql(f"DESCRIBE SCHEMA `{catalog_name}`.`{schema_name}`")
+        w.schemas.get(f"{catalog_name}.{schema_name}")
         return True
     except AnalysisException:
         return False
 
 
 # COMMAND ----------
+
 
 # DBTITLE 1,Make a Random String
 def make_random():
@@ -110,6 +113,7 @@ def make_random():
         random_string = make_random()()       # Generates a 16-character string
         random_string = make_random()(k=8)    # Generates an 8-character string
     """
+
     def inner(k=16) -> str:
         """
         Generates a random alphanumeric string.
@@ -125,11 +129,14 @@ def make_random():
         # Define the character set: uppercase, lowercase, and digits
         charset = string.ascii_uppercase + string.ascii_lowercase + string.digits
         # Randomly select `k` characters from the character set and return as a string
-        return ''.join(random.choices(charset, k=int(k)))
+        return "".join(random.choices(charset, k=int(k)))
+
     # Return the inner function to be called later
     return inner
 
+
 # COMMAND ----------
+
 
 # DBTITLE 1,Check If an SQL Object is a View and Create View  as a Table
 def check_if_object_is_view(catalog, schema, obj_name):
@@ -172,11 +179,15 @@ def create_view_as_table(catalog, schema, view_name):
     SQL = f"CREATE OR REPLACE TABLE {view_tbl_name} AS SELECT * FROM {catalog}.{schema}.{view_name} WHERE FALSE"
     spark.sql(SQL)
     # Output status message
-    print(f"Created table named '{view_tbl_name}' from view named '{view_name}' in catalog.schema '{catalog}.{schema}'")
+    print(
+        f"Created table named '{view_tbl_name}' from view named '{view_name}' in catalog.schema '{catalog}.{schema}'"
+    )
     # Return the name of the created table
     return view_tbl_name
 
+
 # COMMAND ----------
+
 
 # DBTITLE 1,List All the Tables in a Catalog.Schema (Works with Single Node and Shared Clusters)
 def list_tables_in_schema(catalog: str, schema: str) -> tuple[list, dict]:
@@ -192,24 +203,13 @@ def list_tables_in_schema(catalog: str, schema: str) -> tuple[list, dict]:
     tables_dict = {}
 
     try:
-        full_schema = f"{catalog}.{schema}"
-        tables_df = spark.sql(f"SHOW TABLES IN {full_schema}")
-        table_names = [row.tableName for row in tables_df.collect()]
+        for table in w.tables.list(catalog_name=catalog, schema_name=schema):
+            tables_list.append(table.name)
+            tables_dict[table.name] = table.comment
 
-        for table_name in table_names:
-            tables_list.append(table_name)
-
-            # Get description for each table
-            desc_df = spark.sql(f"DESCRIBE TABLE EXTENDED {full_schema}.{table_name}")
-            desc_dict = {
-                row.col_name.strip(): row.data_type
-                for row in desc_df.collect()
-                if row.col_name and row.col_name.strip()
-            }
-
-            # Extract comment from extended description
-            comment = desc_dict.get("Comment", "")
-            tables_dict[table_name] = comment
+        tables_list = [t for t in tables_list if "data_quality" not in t]
+        tables_dict = {k: v for k, v in tables_dict.items() if "data_quality" not in k}
+        print(f"tables_list: {tables_list}")
 
         return tables_list, tables_dict
 
@@ -431,12 +431,10 @@ def get_existing_uc_tags(
     where_clauses = []
     if input_catalog is not None:
         where_clauses.append(f"catalog_name = '{input_catalog}'")
-    if tag_level in ["schema", "table", "column"] and input_schema is not None:
+    if tag_level in ["table", "column"] and input_schema is not None:
         where_clauses.append(f"schema_name = '{input_schema}'")
-    if tag_level in ["table", "column"] and input_table is not None:
+    if tag_level in ["column"] and input_table is not None:
         where_clauses.append(f"table_name = '{input_table}'")
-    if tag_level == "column" and input_column is not None:
-        where_clauses.append(f"column_name = '{input_column}'")
 
     where_clause = " AND ".join(where_clauses)
     sql_query = f"SELECT * FROM {table_name} WHERE {where_clause}"
@@ -444,17 +442,21 @@ def get_existing_uc_tags(
     print(f"Running SQL: {sql_query}\n")
     records = spark.sql(sql_query).collect()
 
-    # Build the identifier key (like catalog.schema.table.column)
-    identifier_parts = [input_catalog]
-    if input_schema:
-        identifier_parts.append(input_schema)
-    if input_table:
-        identifier_parts.append(input_table)
-    if input_column:
-        identifier_parts.append(input_column)
-    key = ".".join(identifier_parts)
-
-    existing_tags = {key: {row.tag_name: row.tag_value for row in records}}
+    existing_tags = {}
+    for row in records:
+        key = ".".join(
+            [
+                x
+                for x in [
+                    getattr(row, 'catalog_name', None),
+                    getattr(row, 'schema_name', None), 
+                    getattr(row, 'table_name', None),
+                    getattr(row, 'column_name', None)
+                ]
+                if x is not None
+            ]
+        )
+        existing_tags[key] = {row.tag_name: row.tag_value}
     return existing_tags
 
 
@@ -472,22 +474,20 @@ def get_existing_uc_tags(
 
 
 # DBTITLE 1,Format UC Tags For Data Contract
-def tag_dict_to_list(input_list: list) -> dict:
+def tag_dict_to_list(input_dict: dict) -> dict:
     """
     Converts a list of dicts in the format:
     [{'catalog.schema.table.column': {'tag1': 'value1'}}]
     Into:
     {'tags': {'column_name': ['tag1:value1', ...]}}
     """
-    tags_by_column = {}
+    result_dict = {}
 
-    for tag_entry in input_list:
-        for fq_name, tag_dict in tag_entry.items():
-            # Extract the column name from the full FQN
-            column_name = fq_name.split(".")[-1]
-            tags = [f"{k}:{v}" for k, v in tag_dict.items()]
-            tags_by_column[column_name] = tags
-    return {"tags": tags_by_column}
+    for fq_name, tag_dict in input_dict.items():
+        # Extract the column name from the full FQN
+        tags = [f"{k}:{v}" for k, v in tag_dict.items()]
+        result_dict[fq_name] = tags
+    return result_dict
 
 
 def get_data_contract_tags(catalog: str, schema: str = None, table: str = None) -> list:
@@ -676,6 +676,6 @@ def get_authoring_data(base_dir="./input_data", contract_exists=False):
         elif check_file_exists(author_path):  # and the contract also exists
             print(f"{author_path}")
             inputs[folder_name] = read_json_file(author_path)
-        else: 
+        else:
             inputs[folder_name] = None
     return inputs

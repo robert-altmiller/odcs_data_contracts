@@ -82,9 +82,9 @@ class QualityMetadata(BaseModel):
     mustBe: Optional[int | float] = None
     mustNotBe: Optional[int | float] = None
     mustBeGreaterThan: Optional[int | float] = None
-    mustBeGreaterThanOrEqualTo: Optional[int | float] = None
+    mustBeGreaterThan: Optional[int | float] = None
     mustBeLessThan: Optional[int | float] = None
-    mustBeLessThanOrEqualTo: Optional[int | float] = None
+    mustBeLessThan: Optional[int | float] = None
     mustBeBetween: Optional[tuple[int | float, int | float]] = None
     mustNotBeBetween: Optional[tuple[int | float, int | float]] = None
 
@@ -129,7 +129,9 @@ class SchemaMetadata(BaseModel):
         description="The properties of the schema"
     )
     description: str = Field(description="The description of the schema", min_length=5)
-    tags: list[str] = Field(description="The tags of the schema", min_length=1)
+    tags: Optional[list[str]] = Field(
+        description="The tags of the schema", default=None
+    )
     quality: Optional[list[QualityMetadata]] = Field(
         default=None, description="The quality of the schema"
     )

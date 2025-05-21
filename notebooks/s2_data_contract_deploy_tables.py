@@ -82,6 +82,10 @@ print(f"yaml_file_path: {yaml_file_path}")
 
 # DBTITLE 1,Initialize the Data Contract Object
 data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
+data_contract_spec = data_contract.get_data_contract_specification()
+data_contract_spec = remove_databricks_config(data_contract_spec)
+
+data_contract = DataContract(data_contract=data_contract_spec)
 
 # COMMAND ----------
 
