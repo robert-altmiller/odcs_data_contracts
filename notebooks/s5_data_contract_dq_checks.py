@@ -11,12 +11,6 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Remove DB Widgets
-dbutils.widgets.removeAll()
-time.sleep(2)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ## Step: Collect Parameter to Indicate Whether the Notebook was Triggered from a Databricks Workflow
 # MAGIC
@@ -46,36 +40,15 @@ print(f"is_running_in_databricks_workflow: {is_running_in_databricks_workflow(jo
 # COMMAND ----------
 
 # DBTITLE 1,Workflow Widget Parameters
-# Widget Parameters
-dbutils.widgets.text("user_email", dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get())
-user_email = dbutils.widgets.get("user_email")
-print(f"user_email: {user_email}")
+current_directory = os.getcwd()
 
+dbutils.widgets.text("data_contract_path", f"{current_directory}data_contracts_data/")  
+data_contract_path = dbutils.widgets.get("data_contract_path")
+print(f"data_contract_path: {data_contract_path}")
 
-dbutils.widgets.text("author_folder_path", f"/Workspace/Users/{user_email}/odcs_data_contracts/notebooks/input_data")  # should be a Workspace Users folder
-author_folder_path = dbutils.widgets.get("author_folder_path")
-print(f"author_folder_path: {author_folder_path}")
-
-
-dbutils.widgets.text("dq_folder_path", f"{author_folder_path.split('/input_data')[0]}/data_quality")
-dq_folder_path = dbutils.widgets.get("dq_folder_path")
-print(f"dq_folder_path: {dq_folder_path}")
-
-
-dbutils.widgets.text("source_catalog", "hive_metastore")
-source_catalog = dbutils.widgets.get("source_catalog")
-print(f"source_catalog: {source_catalog}")
-
-
-dbutils.widgets.text("source_schema", "default")
-source_schema = dbutils.widgets.get("source_schema")
-print(f"source_schema: {source_schema}")
-
-
-# yaml_file_path = sourcecatalog__sourceschema.yaml
-dbutils.widgets.text("yaml_file_path", f"{author_folder_path.split('/input_data')[0]}/data_contracts_data/catalog={source_catalog}/{source_catalog}__{source_schema}.yaml")
-yaml_file_path = dbutils.widgets.get("yaml_file_path")
-print(f"yaml_file_path: {yaml_file_path}")
+dbutils.widgets.text("server_name", "dev")  
+server_name = dbutils.widgets.get("server_name")
+print(f"server_name: {server_name}")
 
 # COMMAND ----------
 
@@ -87,34 +60,8 @@ print(f"yaml_file_path: {yaml_file_path}")
 # COMMAND ----------
 
 # DBTITLE 1,Initialize the Data Contract Object
-data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ## Step: Read in the Data Contract Yaml
-# MAGIC
-# MAGIC This step defines reads in the existing data contract yaml as a dictionary.
-
-# COMMAND ----------
-
-# DBTITLE 1,Read in the Data Contract Yaml
-with open(yaml_file_path, 'r') as f:
-    data_contract_odcs_yaml = yaml.safe_load(f)
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ## Step: Read Target Catalog and Target Schema From Data Contract
-# MAGIC
-# MAGIC This step reads in the target catalog and schema from the ODCS data contract.
-
-# COMMAND ----------
-
-# DBTITLE 1,Read Target Catalog and Target Schema From Data Contract
-# Get the data contract catalog and schema
-target_catalog = data_contract_odcs_yaml["servers"][0]["catalog"] # This represents target catalog
-target_schema = data_contract_odcs_yaml["servers"][0]["schema"] # This represents target schema
+data_contracts = get_list_of_contract_objects(data_contract_path)
+data_contracts
 
 # COMMAND ----------
 
@@ -126,7 +73,7 @@ target_schema = data_contract_odcs_yaml["servers"][0]["schema"] # This represent
 # COMMAND ----------
 
 # DBTITLE 1,Run Data Quality Tests Function
-def run_data_quality_tests(data_contract, yaml_file_path, dq_path="./data_quality", dq_file="data_quality.json"):
+def run_data_quality_tests(data_contract):
     """
     Executes data quality tests defined in an ODCS data contract and writes the results to a JSON file.
 
@@ -134,14 +81,11 @@ def run_data_quality_tests(data_contract, yaml_file_path, dq_path="./data_qualit
     1. Loads a data contract from the provided YAML path.
     2. Runs the `.test()` method to evaluate all defined data quality checks.
     3. Extracts and structures the results into a list of dictionaries.
-    4. Saves the results as a JSON file at the specified output path.
-    5. Loads the results into a Spark DataFrame and displays rows where the tested field is null.
+    4. Loads the results into a Spark DataFrame and displays rows where the tested field is null.
 
     Args:
-        yaml_file_path (str): Path to the ODCS data contract YAML file.
         spark (SparkSession): Active Spark session to run the test and load results.
-        dq_path (str, optional): Directory where the JSON results file will be saved. Default is "./data_quality".
-        dq_file (str, optional): Filename for the JSON results. Default is "data_quality.json".
+        data_contract(DataContract): DataContract object
 
     Returns:
         DataFrame: A Spark DataFrame containing the test results.
@@ -155,27 +99,40 @@ def run_data_quality_tests(data_contract, yaml_file_path, dq_path="./data_qualit
         json_results = {item[0]: item[1] for item in result}
         list_results.append(json_results)
 
-    # Save results to a local JSON file
-    os.makedirs(dq_path, exist_ok=True)
-    dq_file_path = f"{dq_path}/{dq_file}"
+    json_data = json.dumps(list_results)
 
-    # Remove local dq results file if exists
-    if os.path.exists(dq_file_path):
-        os.remove(dq_file_path)
+    df_schema = ArrayType(
+        StructType(
+            [
+                StructField("category", StringType(), True),
+                StructField("details", StringType(), True),
+                StructField("diagnostics", VariantType(), True),
+                StructField("engine", StringType(), True),
+                StructField("field", StringType(), True),
+                StructField("id", StringType(), True),
+                StructField("implementation", StringType(), True),
+                StructField("key", StringType(), True),
+                StructField("language", StringType(), True),
+                StructField("model", StringType(), True),
+                StructField("name", StringType(), True),
+                StructField("reason", StringType(), True),
+                StructField("result", StringType(), True),
+                StructField("type", StringType(), True),
+                StructField("ingestion_timestamp", TimestampType(), True),
+            ]
+        )
+    )
 
-    with open(dq_file_path, "w+") as json_file:
-        json_file.write(json.dumps(list_results))
-
-    # Load results into Spark DataFrame
-    if is_running_in_databricks_workflow(job_context) == True:
-        data_path = f"{dq_folder_path.replace('/dbfs', '')}/{dq_file}"
-    else: 
-        data_path = f"file:{dq_folder_path}/{dq_file}"
-    df = spark.read.json(data_path)
+    df = spark.createDataFrame([json_data], "string")
+    df = df.withColumn("value", F.explode(F.from_json(F.col("value"), df_schema))).select(
+        "value.*"
+    )
     df = df.withColumn("ingestion_timestamp", F.current_timestamp())
 
     # Print overall test result summary
-    print(f"'{yaml_file_path}' ODCS data quality result: {test_results.result}")
+    print(
+        f"'{data_contract.get_data_contract_specification().info.title}' ODCS data quality result: {test_results.result}"
+    )
 
     return df
 
@@ -189,11 +146,19 @@ def run_data_quality_tests(data_contract, yaml_file_path, dq_path="./data_qualit
 # COMMAND ----------
 
 # DBTITLE 1,Run ODCS Contract Data Quality Tests and Store in DF
-# Example usage
-dq_results_df = run_data_quality_tests(data_contract, yaml_file_path, dq_path = dq_folder_path, dq_file = f"{target_catalog}__{target_schema}_odcs_data_quality.json")
+for contract in data_contracts:
+    # Extract contract specification details
+    contract_details = contract.get_data_contract_specification()
 
-# Write to a managed Delta table (overwrite mode)
-dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{target_catalog}.{target_schema}.odcs_data_quality")
+    # Get target catalog and schema from server configuration
+    target_catalog = contract_details.servers.get(server_name).catalog
+    target_schema = contract_details.servers.get(server_name).schema_
 
-# Display the results
-display(dq_results_df)
+    # Example usage
+    dq_results_df = run_data_quality_tests(contract)
+
+    # Write to a managed Delta table (overwrite mode)
+    dq_results_df.write.format("delta").option("mergeSchema", "true").mode("append").saveAsTable(f"{target_catalog}.{target_schema}.odcs_data_quality")
+
+    # Display the results
+    display(dq_results_df)

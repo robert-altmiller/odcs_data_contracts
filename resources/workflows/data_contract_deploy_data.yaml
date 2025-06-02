@@ -1,0 +1,17 @@
+resources:
+  jobs:
+    data_contract_deploy_data:
+      name: data_contract_deploy_data
+      tasks:
+        - task_key: Data_Contract_Data
+          notebook_task:
+            notebook_path: ../../notebooks/s4_data_contract_deploy_data.py
+            base_parameters:
+              source_catalog: ${var.odcs_contract_source_catalog}
+              source_schema: ${var.odcs_contract_source_schema}
+          job_cluster_key: Job_cluster
+
+      job_clusters: "${var.job_cluster_config}"
+
+      queue:
+        enabled: true

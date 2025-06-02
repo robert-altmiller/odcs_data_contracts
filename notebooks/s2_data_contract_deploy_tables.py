@@ -20,12 +20,6 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Remove DB Widgets
-dbutils.widgets.removeAll()
-time.sleep(2)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ## Step: Workflow Widget Parameters
 # MAGIC
@@ -34,42 +28,15 @@ time.sleep(2)
 # COMMAND ----------
 
 # DBTITLE 1,Workflow Widget Parameters
-# Widget Parameters
-dbutils.widgets.text("user_email", dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get())
-user_email = dbutils.widgets.get("user_email")
-print(f"user_email: {user_email}")
+current_directory = os.getcwd()
 
+dbutils.widgets.text("data_contract_path", f"{current_directory}data_contracts_data/")  
+data_contract_path = dbutils.widgets.get("data_contract_path")
+print(f"data_contract_path: {data_contract_path}")
 
-dbutils.widgets.text("author_folder_path", f"/Workspace/Users/{user_email}/odcs_data_contracts/notebooks/input_data")  # should be a Workspace Users folder
-author_folder_path = dbutils.widgets.get("author_folder_path")
-print(f"author_folder_path: {author_folder_path}")
-
-
-dbutils.widgets.text("source_catalog", "hive_metastore")
-source_catalog = dbutils.widgets.get("source_catalog")
-# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="source_catalog", value=source_catalog)
-print(f"source_catalog: {source_catalog}")
-
-
-dbutils.widgets.text("source_schema", "default")
-source_schema = dbutils.widgets.get("source_schema")
-# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="source_schema", value=source_schema)
-print(f"source_schema: {source_schema}")
-
-
-dbutils.widgets.text("yaml_folder_path", f"{author_folder_path.split('/input_data')[0]}/data_contracts_data") # should be a volume
-yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
-print(f"yaml_folder_path: {yaml_folder_path}")
-
-
-# This variable below is used in the workflow named 'data_contract_deploy' and task 's5_data_contract_dq_checks' (IMPORTANT)
-# yaml_file_path syntax --> "{source_catalog}__{source_schema}.yaml"
-yaml_file_path = f"{yaml_folder_path}/catalog={source_catalog}/{source_catalog}__{source_schema}.yaml"
-# BELOW IS IMPORTANT TO PASS PARAMETER BETWEEN WORKFLOW STEPS
-dbutils.jobs.taskValues.set(key="yaml_file_path", value=yaml_file_path)
-print(f"yaml_file_path: {yaml_file_path}")
+dbutils.widgets.text("server_name", "dev")  
+server_name = dbutils.widgets.get("server_name")
+print(f"server_name: {server_name}")
 
 # COMMAND ----------
 
@@ -81,11 +48,8 @@ print(f"yaml_file_path: {yaml_file_path}")
 # COMMAND ----------
 
 # DBTITLE 1,Initialize the Data Contract Object
-data_contract = DataContract(data_contract_file=yaml_file_path, spark=spark)
-data_contract_spec = data_contract.get_data_contract_specification()
-data_contract_spec = remove_databricks_config(data_contract_spec)
-
-data_contract = DataContract(data_contract=data_contract_spec)
+data_contracts = get_list_of_contract_objects(data_contract_path)
+data_contracts
 
 # COMMAND ----------
 
@@ -97,7 +61,12 @@ data_contract = DataContract(data_contract=data_contract_spec)
 # COMMAND ----------
 
 # DBTITLE 1,Get Data Contract Custom DDL
-queries_ddl_list = data_contract.export("sql")[:-1].split(";")
+queries_ddl_list = []
+for data_contract in data_contracts:
+    try:
+        queries_ddl_list.extend(data_contract.export("sql", server=server_name)[:-1].split(";"))
+    except KeyError as e:
+        raise KeyError(f"Server Name provided not found in data contract: {server_name}. Valid servers: {data_contract.get_data_contract_specification().servers}")
 print(queries_ddl_list)
 
 # COMMAND ----------
