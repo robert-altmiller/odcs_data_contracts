@@ -45,8 +45,8 @@ def get_uc_table_ddl(catalog, schema, table):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Read the Tables and Save as CSV File
+
 def is_scalar(val):
     """
     Determines if a value is a scalar type (e.g., str, int, float, bool, None, or numpy scalar).
@@ -132,8 +132,8 @@ def create_local_data(catalog, schema, uc_tables_list, folder_path):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Extract Complex Variant Types From Data Contract Specification
+
 def dcs_extract_variant_columns_and_physicaltypes(
     data_contract_specification: dict,
 ) -> dict:
@@ -175,8 +175,8 @@ def dcs_extract_variant_columns_and_physicaltypes(
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Import Complex Variant Types into ODCS Contract
+
 def odcs_import_variant_columns_and_physicaltypes(
     data_contract_odcs: dict, variants_data: dict
 ) -> dict:
@@ -227,8 +227,8 @@ def odcs_import_variant_columns_and_physicaltypes(
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Generate ODCS Base Contract
+
 def generate_odcs_base_contract(data_contract):
     """
     Converts a unified DataContract object into an ODCS-compatible YAML dictionary.
@@ -271,7 +271,6 @@ def generate_odcs_base_contract(data_contract):
 
 
 # COMMAND ----------
-
 
 # DBTITLE 1,Create Data Contracts For Each Table and Combine
 def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path):
@@ -364,8 +363,8 @@ def combine_data_contract_models(catalog, schema, uc_tables_dict, folder_path):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Define Generic Data Quality Rules For All Tables (Custom)
+
 def get_general_data_quality_rules(table, columns=None):
     """
     Generates a generic set of data quality SQL rules for a given data contract.
@@ -422,8 +421,8 @@ def get_general_data_quality_rules(table, columns=None):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Define Custom Data Quality Rules (Custom)
+
 def get_custom_data_quality_rules(table_name, custom_dq_rules_input):
     """
     Generates a custom set of data quality SQL rules for a given data contract table.
@@ -438,6 +437,8 @@ def get_custom_data_quality_rules(table_name, custom_dq_rules_input):
     Raises:
         KeyError: If no custom rules are defined for the specified table.
     """
+    if not isinstance(custom_dq_rules_input, list):
+        raise TypeError("custom_data_quality_rules must be a list")
 
     if table_name not in str(custom_dq_rules_input):
         raise KeyError(f"No custom data quality rules defined for table: {table_name}")
@@ -451,8 +452,8 @@ def get_custom_data_quality_rules(table_name, custom_dq_rules_input):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Add Data Quality Rules to ODCS Contract
+
 def update_data_quality_rules(data_contract, catalog, schema, custom_dq_rules_input):
     """
     Appends general and custom data quality SQL rules to each table in a data contract schema.
@@ -523,7 +524,6 @@ def update_data_quality_rules(data_contract, catalog, schema, custom_dq_rules_in
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Update ODCS Metadata (Custom)
 def update_odcs_contract_metadata(
     data_contract, contract_metadata_input, catalog, schema
@@ -561,15 +561,20 @@ def update_odcs_contract_metadata(
             data_contract["dataProduct"] = metadata.get("dataproduct")
             data_contract["tenant"] = metadata.get("tenant")
             data_contract["description"] = metadata.get("description")
-            data_contract["authored_date"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            data_contract["customProperties"] = metadata.get("customProperties", [])
+            data_contract["customProperties"].append(
+                {
+                    "property": "authored_date",
+                    "value": datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            )
             print(f"appended general metadata to ODCS data contract: {metadata}")
     return data_contract
 
-
 # COMMAND ----------
 
-
 # DBTITLE 1,Update ODCS Server Configuration (Custom)
+
 def update_odcs_server_config(
     data_contract, server_metadata_input, catalog=None, schema=None
 ):
@@ -615,8 +620,8 @@ def update_odcs_server_config(
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Update ODCS Support Channel (Custom)
+
 def update_odcs_support_channel(data_contract, support_channel_metadata_input):
     """
     Appends a support channel configuration to the ODCS data contract.
@@ -669,8 +674,8 @@ def update_odcs_support_channel(data_contract, support_channel_metadata_input):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Update ODCS SLA (Custom)
+
 def update_odcs_sla_metadata(data_contract, sla_metadata_input):
     """
     Appends SLA metadata to the ODCS data contract.
@@ -727,8 +732,8 @@ def update_odcs_sla_metadata(data_contract, sla_metadata_input):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Update ODCS Team (Custom)
+
 def update_odcs_team_metadata(data_contract, team_metadata_input):
     """
     Appends Team metadata to the ODCS data contract.
@@ -786,8 +791,8 @@ def update_odcs_team_metadata(data_contract, team_metadata_input):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Update ODCS Roles (Custom)
+
 def update_odcs_roles_metadata(data_contract, roles_metadata_input):
     """
     Appends Roles metadata to the ODCS data contract.
@@ -833,8 +838,8 @@ def update_odcs_roles_metadata(data_contract, roles_metadata_input):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Update ODCS Pricing (Custom)
+
 def update_odcs_pricing_metadata(data_contract, pricing_metadata_input):
     """
     Appends Pricing metadata to the ODCS data contract.
@@ -877,7 +882,6 @@ def update_odcs_pricing_metadata(data_contract, pricing_metadata_input):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Save ODCS Data Contract Locally
 def save_odcs_data_contract_local(
     data_contract, catalog, schema, base_yaml_folder_path
@@ -898,9 +902,9 @@ def save_odcs_data_contract_local(
     timestamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
     # Define paths
-    current_version_path = os.path.join(base_yaml_folder_path, f"catalog={catalog}")
+    current_version_path = base_yaml_folder_path
     historical_versions_path = os.path.join(
-        base_yaml_folder_path, f"catalog={catalog}", "versions"
+        base_yaml_folder_path, "versions"
     )
 
     os.makedirs(current_version_path, exist_ok=True)
@@ -1004,7 +1008,7 @@ def validate_data_contract(data_contract_dict: dict, spark: SparkSession):
                 }
             )
 
-    warning_error_types = ["too_short", "string_too_short"]
+    warning_error_types = []
 
     try:
         DataContractMetadata(**data_contract_dict)
@@ -1065,3 +1069,16 @@ def validate_data_contract(data_contract_dict: dict, spark: SparkSession):
                 "error_types": list(error_types),
             },
         )
+
+# COMMAND ----------
+
+def get_list_of_contract_files(data_contract_path):
+    return [f for f in os.listdir(data_contract_path) if f.endswith('.yaml')]
+
+def get_list_of_contract_objects(data_contract_path):
+    data_contracts = []
+    for contract in get_list_of_contract_files(data_contract_path):
+        data_contracts.append(
+            DataContract(data_contract_file=f"{data_contract_path}/{contract}", spark=spark)
+        )
+    return data_contracts

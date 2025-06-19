@@ -1,0 +1,24 @@
+resources:
+  jobs:
+    data_contract_run_dq_checks:
+      name: data_contract_run_dq_checks
+      parameters:
+        - name: data_contract_path
+          default: "${var.base_path}/${var.yaml_folder_path}"
+        - name: running_in_workflow
+          default: "True"
+        - name: server_name
+          default: "${var.server_name}"
+      tasks:
+        - task_key: Data_Contract_DQ_Rules
+          notebook_task:
+            notebook_path: ../../notebooks/s5_data_contract_dq_checks.py
+          job_cluster_key: Job_cluster
+          libraries:
+            - pypi:
+                package: datacontract-cli[databricks]
+
+      job_clusters: "${var.job_cluster_config}"
+
+      queue:
+        enabled: true

@@ -11,19 +11,29 @@ dbutils.library.restartPython()
 
 # DBTITLE 1,Library Imports
 # Standard library imports
-import ast, json, os, re, random, shutil, string, subprocess, time, sys
-from datetime import datetime, date
+import ast
+import json
+import os
+import random
+import re
+import shutil
+import string
+import subprocess
+import sys
+import time
 
 # Concurrent futures multi-threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import date, datetime
+from typing import Optional
 
 # Third-party libraries
 import numpy as np
 import pandas as pd
-import yaml
 
 # PySpark imports
 import pyspark.sql.functions as F
+import yaml
 from pyspark.sql.types import *
 from pyspark.sql.utils import AnalysisException
 from pyspark.sql import SparkSession
@@ -32,7 +42,7 @@ from databricks.sdk import WorkspaceClient
 
 # ODCS data contract SDK
 from datacontract.data_contract import DataContract
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from pydantic_core import PydanticCustomError
 
 sys.path.append(os.path.abspath("../src/"))
@@ -42,8 +52,8 @@ from contract_validation.contract_models import DataContractMetadata
 # COMMAND ----------
 w = WorkspaceClient()
 
-
 # DBTITLE 1,Check if Running in a Workflow
+
 def is_running_in_databricks_workflow(job_context):
     """Detect if running inside a Databricks Workflow job."""
     return bool(job_context.get("running_in_workflow"))
@@ -51,8 +61,8 @@ def is_running_in_databricks_workflow(job_context):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Check if a File Exists
+
 def check_file_exists(filepath):
     """Return whether a file or directory exists at *filepath*.
     Args:
@@ -66,8 +76,8 @@ def check_file_exists(filepath):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Check if Databricks Catalog and Schema Existswhat
+
 def catalog_exists(catalog_name: str) -> bool:
     """
     Checks if a specified Databricks catalog exists.
@@ -223,8 +233,8 @@ def list_tables_in_schema(catalog: str, schema: str) -> tuple[list, dict]:
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Get Column Comments
+
 def get_column_comments(catalog: str, schema: str, table: str) -> dict:
     """
     Returns a dictionary mapping column names to comments for a given table.
@@ -258,8 +268,8 @@ def get_column_comments(catalog: str, schema: str, table: str) -> dict:
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Infer Avro Schema
+
 def infer_avro_schema(df):
     """
     Infers an Avro schema from a given pandas DataFrame based on data types of the DataFrame's columns.
@@ -287,8 +297,8 @@ def infer_avro_schema(df):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Read Input JSON File
+
 def read_json_file(file_path: str = None, json_str: str = None):
     """
     Reads a JSON file and returns the data as a Python object.
@@ -347,8 +357,8 @@ def write_json_file(data, file_path: str, indent: int = 2):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Replace None With Empty Strings in JSON
+
 def replace_none_with_empty_string_in_json(json_obj):
     """
     Recursively traverses a nested dictionary or list and replaces all None values
@@ -373,8 +383,8 @@ def replace_none_with_empty_string_in_json(json_obj):
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Get Table Columns
+
 def get_columns_in_table(catalog: str, schema: str, table: str) -> list:
     """
     Returns the list of column names in a specified Unity Catalog table.
@@ -394,8 +404,8 @@ def get_columns_in_table(catalog: str, schema: str, table: str) -> list:
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Get UC Tags From Information_Schema
+
 def get_existing_uc_tags(
     input_catalog: str = None,
     input_schema: str = None,
@@ -471,7 +481,6 @@ def get_existing_uc_tags(
 # print(f"column_tags: {column_tags}")
 
 # COMMAND ----------
-
 
 # DBTITLE 1,Format UC Tags For Data Contract
 def tag_dict_to_list(input_dict: dict) -> dict:
@@ -568,74 +577,182 @@ def get_data_contract_column_tags(catalog: str, schema: str, table: str) -> list
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Deploy Tags to UC Tables
-def apply_uc_tags(level: str, fully_qualified_name: str, tags: dict):
+
+def format_tags(tags_list):
     """
-    Apply Unity Catalog tags to a catalog, schema, table, or column.
-    Automatically creates tags if they do not exist.
+    Converts a list of tag strings in the format "key:value" into a dictionary.
     Args:
-        level (str): One of 'catalog', 'schema', 'table', or 'column'.
-        fully_qualified_name (str): Dot-delimited name depending on tag level:
-            - catalog
-            - catalog.schema
-            - catalog.schema.table
-            - catalog.schema.table.column
-        tags (dict): Dictionary of tags to apply, e.g. { "sensitivity": "high" }
+        tags_list (list): A list of strings representing tags, where each string is in "key:value" format.
+    Returns:
+        dict: A dictionary where keys are tag names and values are tag values.
+              Example: ["pii:true", "classification:high"] → {"pii": "true", "classification": "high"}
     """
-    if level not in ["catalog", "schema", "table", "column"]:
-        raise ValueError(
-            "Level must be one of: 'catalog', 'schema', 'table', or 'column'."
+    try:
+        tags_formatted = {}
+        for tag in tags_list:
+            tag_name = tag.split(":")[0]
+            tag_value = tag.split(":")[1]
+            tags_formatted[tag_name] = tag_value
+        return tags_formatted
+    except: return {} # Unable to format tags
+
+class BaseMetadata(BaseModel):
+    fqn: str
+    description: Optional[str] = None
+    tags: Optional[dict] = None
+
+class TableMetadata(BaseMetadata):
+    columns: Optional[list[BaseMetadata]] = []
+
+class ContractMetadata(BaseMetadata):
+    tables: Optional[list[TableMetadata]] = []
+
+def apply_uc_metadata(contract_metadata: ContractMetadata):
+    """
+    Applies metadata (tags and descriptions) to Unity Catalog objects (schema, tables, and columns) 
+    based on the provided contract metadata.
+
+    This function:
+    1. Applies tags and descriptions to the schema level
+    2. For each table in the schema:
+       - Applies table-level tags and description
+       - Applies column-level tags and descriptions
+       - Updates column comments
+
+    Args:
+        contract_metadata (ContractMetadata): A Pydantic model containing metadata for schema, 
+            tables and columns including FQNs, descriptions and tags.
+
+    Note:
+        - Tags are applied using ALTER statements
+        - Descriptions are applied using COMMENT statements
+        - Column metadata is updated using ALTER COLUMN statements
+        - Existing tags are not unset (TODO: Consider adding tag unset functionality)
+    """
+    def transform_tags(tag_dict):
+        """
+        Transforms a dictionary of tags into a SQL-compatible string format.
+        
+        Args:
+            tag_dict (dict): Dictionary of tag key-value pairs
+            
+        Returns:
+            str: Comma-separated string of tags in format "'key' = 'value'"
+        """
+        return ", ".join([f"'{k}' = '{v}'" for k, v in tag_dict.items()])
+
+    # Apply schema-level metadata
+    if contract_metadata.tags:
+        # Set schema tags if they exist
+        spark.sql(
+            f"ALTER SCHEMA {contract_metadata.fqn} SET TAGS ({transform_tags(contract_metadata.tags)})"
+        )
+        print(f"Successfully applied tags to schema {contract_metadata.fqn}")
+    
+    # Set schema description
+    spark.sql(
+        f"COMMENT ON SCHEMA {contract_metadata.fqn} IS '{contract_metadata.description}'"
+    )
+    print(f"Successfully applied comments to schema {contract_metadata.fqn}")
+
+    # Apply table and column-level metadata
+    for table in contract_metadata.tables:
+        # Initialize SQL expression for column comments
+        sql_expression = f"ALTER TABLE {table.fqn} ALTER COLUMN "
+        
+        # Apply table-level tags if they exist
+        if table.tags:
+            spark.sql(
+                f"ALTER TABLE {table.fqn} SET TAGS ({transform_tags(table.tags)})"
+            )
+            print(f"Successfully applied tags to table {table.fqn}")
+        
+        # Build column comment SQL expression
+        sql_expression += ", ".join(
+            f"{col.fqn} COMMENT '{col.description if col.description is not None else ''}'"
+            for col in table.columns
+        )
+        
+        # Apply column-level tags and comments
+        for col in table.columns:
+            if col.tags:
+                spark.sql(
+                    f"ALTER TABLE {table.fqn} ALTER COLUMN {col.fqn} SET TAGS ({transform_tags(col.tags)})"
+                )
+                print(f"Successfully applied tags to column {col.fqn}")
+        
+        # Execute column comment updates
+        spark.sql(sql_expression)
+        print(f"Successfully applied comments to columns on table {table.fqn}")
+        
+        # Apply table description
+        spark.sql(f"COMMENT ON TABLE {table.fqn} IS '{table.description}'")
+        print(f"Successfully applied comments to table {table.fqn}")
+
+def deploy_contract_metadata(contract):
+    """
+    Deploys metadata from a data contract to Unity Catalog tables and schemas.
+    
+    This function extracts metadata from a data contract specification and applies it to the target
+    Unity Catalog objects. It handles:
+    - Schema-level metadata (description, tags)
+    - Table-level metadata (description, tags)
+    - Column-level metadata (description, tags)
+    
+    Args:
+        contract: A data contract object containing the specification to deploy
+        
+    Note:
+        The function assumes the contract has been validated and contains valid server,
+        catalog, and schema information. It uses the global server_name variable to
+        determine which server configuration to use from the contract.
+    """
+    # Extract contract specification details
+    contract_details = contract.get_data_contract_specification()
+
+    # Get target catalog and schema from server configuration
+    target_catalog = contract_details.servers.get(server_name).catalog
+    target_schema = contract_details.servers.get(server_name).schema_
+
+    # Create schema metadata object with contract-level information
+    schema_metadata = ContractMetadata(
+        fqn=f"{target_catalog}.{target_schema}",
+        description=contract_details.info.description,
+        tags=format_tags(contract_details.tags),
+    )
+
+    # Process each table in the contract models
+    for name, table in contract_details.models.items():
+        # Create table metadata object with table-level information
+        schema_metadata.tables.append(
+            TableMetadata(
+                fqn=f"{schema_metadata.fqn}.{name}",
+                # Use None for empty descriptions to avoid empty strings in UC
+                description=(table.description if table.description != "" else None),
+                tags=format_tags(table.tags),
+                # Process each column in the table
+                columns=[
+                    BaseMetadata(
+                        fqn=col_name,
+                        # Use None for empty descriptions to avoid empty strings in UC
+                        description=(
+                            col.description if col.description != "" else None
+                        ),
+                        tags=format_tags(col.tags),
+                    )
+                    for col_name, col in table.fields.items()
+                ],
+            )
         )
 
-    if not tags or not isinstance(tags, dict):
-        raise ValueError("Tags must be a dictionary of {tag_name: tag_value}.")
-
-    parts = fully_qualified_name.split(".")
-
-    if (
-        (level == "catalog" and len(parts) != 1)
-        or (level == "schema" and len(parts) != 2)
-        or (level == "table" and len(parts) != 3)
-        or (level == "column" and len(parts) != 4)
-    ):
-        raise ValueError(
-            f"Invalid object name format for level '{level}': {fully_qualified_name}"
-        )
-
-    # Build tag assignment clause
-    tag_fragments = ", ".join([f"'{k}' = '{v}'" for k, v in tags.items()])
-
-    # Build SQL command
-    if level == "catalog":
-        catalog = parts[0]
-        sql = f"ALTER CATALOG {catalog} SET TAGS ({tag_fragments})"
-
-    elif level == "schema":
-        catalog, schema = parts
-        sql = f"ALTER SCHEMA {catalog}.{schema} SET TAGS ({tag_fragments})"
-
-    elif level == "table":
-        catalog, schema, table = parts
-        sql = f"ALTER TABLE {catalog}.{schema}.{table} SET TAGS ({tag_fragments})"
-
-    elif level == "column":
-        catalog, schema, table, column = parts
-        sql = f"ALTER TABLE {catalog}.{schema}.{table} ALTER COLUMN {column} SET TAGS ({tag_fragments})"
-
-    print(f"Running SQL:\n{sql}\n")
-    spark.sql(sql)
-
-
-# Unit test
-# mydict = {'hive_metastore.default': {'retention_policy': '3_years', 'domain': 'customer_data'}}
-# for key, val in mydict.items():
-#     apply_uc_tags("schema", key, val)
+    # Apply all metadata to Unity Catalog objects
+    apply_uc_metadata(schema_metadata)
 
 # COMMAND ----------
 
-
 # DBTITLE 1,Ingest Input JSON Data for Data Contract
+
 def get_authoring_data(base_dir="./input_data", contract_exists=False):
     """
     Initializes and loads input metadata files for authoring a data contract.

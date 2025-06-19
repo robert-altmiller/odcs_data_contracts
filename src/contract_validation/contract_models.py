@@ -31,7 +31,9 @@ class ContractDescription(BaseModel):
         default=None,
         description="Technical, compliance, and legal limitations for data use.",
     )
-    usage: str = Field(description="Recommended usage of the data.")
+    usage: Optional[str] = Field(
+        default=None, description="Recommended usage of the data."
+    )
     definitions: Optional[list[AuthoritativeDefinition]] = Field(
         default=None, description="A list of authoritative definitions for the contract"
     )

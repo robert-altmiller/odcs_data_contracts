@@ -22,23 +22,21 @@
 
 # COMMAND ----------
 
-# DBTITLE 1,Remov DB Widgets
-dbutils.widgets.removeAll()
-time.sleep(2)
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC
-# MAGIC ## Step: Workflow Widget Parameters
+# MAGIC ## Step: Widget Parameters
 # MAGIC
-# MAGIC This section below sets up dynamic configuration for use within Databricks workflows and notebooks.  We initialize folder paths and catalog parameters via widgets, enabling seamless, parameterized execution across multiple workflow tasks.
+# MAGIC This section below sets up dynamic configuration for use when running the notebook.  We initialize folder paths and catalog parameters via widgets, enabling flexible execution.
 # MAGIC
 # MAGIC ---
 # MAGIC
 # MAGIC ### Folder Path Parameters
 # MAGIC
-# MAGIC The 'yaml_folder_path' specifies where to store the generated ODCS data contract.
+# MAGIC The folder and file path parameters instruct the notebook in where to find the necessary input files and where to write the final contract.
+# MAGIC
+# MAGIC `authoring_files_path`: derived from the current working directory and dictates where the input authoring files should be found.
+# MAGIC
+# MAGIC `contract_folder_path`: should be input by the user as the location to which the contract should be written.
 # MAGIC
 # MAGIC ---
 # MAGIC
@@ -49,21 +47,17 @@ time.sleep(2)
 # COMMAND ----------
 
 # DBTITLE 1,Workflow Widget Parameters
-# Widget Parameters
-dbutils.widgets.text("user_email", dbutils.notebook.entry_point.getDbutils().notebook().getContext().userName().get())
-user_email = dbutils.widgets.get("user_email")
-print(f"user_email: {user_email}")
+current_directory = os.getcwd()
 
-
-dbutils.widgets.text("author_folder_path", f"/Workspace/Users/{user_email}/odcs_data_contracts/notebooks/input_data")  # should be a Workspace Users folder
-author_folder_path = dbutils.widgets.get("author_folder_path")
-print(f"author_folder_path: {author_folder_path}")
+dbutils.widgets.text("authoring_files_path", f"{current_directory}/input_data")  # should be a UC volume
+authoring_files_path = dbutils.widgets.get("authoring_files_path")
+print(f"authoring_files_path: {authoring_files_path}")
 
 
 # yaml folder path for where to store data contract
-dbutils.widgets.text("yaml_folder_path", f"{author_folder_path.split('/input_data')[0]}/data_contracts_data")  # should be a UC volume
-yaml_folder_path = dbutils.widgets.get("yaml_folder_path")
-print(f"yaml_folder_path: {yaml_folder_path}")
+dbutils.widgets.text("contract_folder_path", f"{current_directory}/data_contracts_data")  # should be a UC volume
+contract_folder_path = dbutils.widgets.get("contract_folder_path")
+print(f"contract_folder_path: {contract_folder_path}")
 
 
 # Source catalog parameter
@@ -91,12 +85,12 @@ print(f"source_schema: {source_schema}")
 
 # DBTITLE 1,Get Authoring Metadata Inputs Dictionary
 # yaml_file_path syntax --> "{source_catalog}__{source_schema}.yaml"
-yaml_file_path = f"{yaml_folder_path}/catalog={source_catalog}/{source_catalog}__{source_schema}.yaml"
+yaml_file_path = f"{contract_folder_path}/{source_catalog}__{source_schema}.yaml"
 contract_exists = check_file_exists(yaml_file_path)
 print(f"yaml_file_path: {yaml_file_path} exists: {contract_exists}")
 
 # Get authoring metadata inputs dictionary
-inputs = get_authoring_data(base_dir=author_folder_path, contract_exists=contract_exists)
+inputs = get_authoring_data(base_dir=authoring_files_path, contract_exists=contract_exists)
 
 # COMMAND ----------
 
@@ -307,4 +301,4 @@ validate_data_contract(data_contract_odcs_yaml, spark)
 
 # DBTITLE 1,Save ODCS Data Contract Locally
 # Save the ODCS data contract locally
-yaml_file_path = save_odcs_data_contract_local(data_contract_odcs_yaml, source_catalog, source_schema, yaml_folder_path)
+yaml_file_path = save_odcs_data_contract_local(data_contract_odcs_yaml, source_catalog, source_schema, contract_folder_path)

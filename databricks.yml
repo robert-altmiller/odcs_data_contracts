@@ -2,70 +2,76 @@ bundle:
   name: data_contracts
 
 include:
-  - resources/workflows/*.yml
+  - resources/workflows/*.yaml
+
+permissions:
+  - service_principal_name: "${MANAGED_IDENTITY_CLIENT_ID}"
+    level: "CAN_MANAGE"
 
 variables:
-  git_source:
-    default: default
-    description: Default git source
-  git_repo_url:
-    default: default
-    description: Default repo url
-  branch_name:
-    default: default
-    description: Default branch name
-  user_name:
-    default: default
-    description: Default user name
-  user_email:
-    default: default
-    description: Default user email
   odcs_contract_source_catalog:
-    default: default
+    default: hive_metastore
     description: Default ODCS source catalog
   odcs_contract_source_schema:
     default: default
     description: Default ODCS source schema
-
+  base_path:
+    default: /Workspace/Users/${MANAGED_IDENTITY_CLIENT_ID}/.bundle/odcs_data_contracts/notebooks
+    description: Base path for all data contract related folders
+  yaml_folder_path:
+    default: data_contracts/data_contracts_data
+    description: Path where generated YAML data contracts are stored
+  ADMIN_GROUP_NAME:
+    description: Data mesh admin team group name
+    default: "datamesh-admins-${ENV}"
+  ADMIN_PERMISSION_LEVEL:
+    description: Data mesh admin team group permission level
+    default: "CAN_MANAGE"
+  DEV_GROUP_NAME:
+    description: Data mesh dev team group name
+    default: "datamesh-developers-${ENV}"
+  DEV_PERMISSION_LEVEL:
+    description: Data mesh dev team group permission level
+    default: "CAN_RUN"
+  server_name:
+    description: Server name corresponding to the environment in the data contract
+    default: "${ENV}"
+  job_cluster_config:
+    type: complex
+    default:
+      - job_cluster_key: Job_cluster
+        new_cluster:
+          cluster_name: ""
+          spark_version: 16.4.x-scala2.13
+          azure_attributes:
+            first_on_demand: 1
+            availability: SPOT_WITH_FALLBACK_AZURE
+            spot_bid_max_price: -1
+          node_type_id: Standard_D4ds_v5
+          spark_env_vars:
+            PYSPARK_PYTHON: /databricks/python3/bin/python3
+          enable_elastic_disk: true
+          data_security_mode: SHARED # USER_ISOLATION # SINGLE_USER
+          runtime_engine: PHOTON
+          num_workers: 2
 
 targets:
+  default:
+    workspace:
+      host: "${DATABRICKS_HOST}"
+    run_as:
+      service_principal_name: "${MANAGED_IDENTITY_CLIENT_ID}"
 
   dev:
-    git:
-      branch: ${var.branch_name}
+    mode: development
     default: true
-    presets:
-      name_prefix: ${var.user_name}_
-      pipelines_development: true
-      trigger_pause_status: UNPAUSED
-    workspace:
-      host: ${DATABRICKS_HOST}
-      root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
-    run_as:
-      user_name: ${var.user_email}
-  
-  test:
-    git:
-      branch: ${var.branch_name}
-    mode: testing
-    workspace:
-      host: ${DATABRICKS_HOST}
-      root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
     permissions:
-      - user_name: ${var.user_email}
-        level: CAN_MANAGE
-    run_as:
-      user_name: ${var.user_email}
+      - group_name: ${var.ADMIN_GROUP_NAME}
+        level: ${var.ADMIN_PERMISSION_LEVEL}
+      - group_name: ${var.DEV_GROUP_NAME}
+        level: ${var.DEV_PERMISSION_LEVEL}
 
-  prod:
-    git:
-      branch: ${var.branch_name}
+  uat:
     mode: production
-    workspace:
-      host: ${DATABRICKS_HOST}
-      root_path: /Workspace/Users/${var.user_email}/.bundle/${bundle.name}
-    permissions:
-      - user_name: ${var.user_email}
-        level: CAN_MANAGE
-    run_as:
-      user_name: ${var.user_email}
+  prod:
+    mode: production

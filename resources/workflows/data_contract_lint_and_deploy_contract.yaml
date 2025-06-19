@@ -1,0 +1,39 @@
+resources:
+  jobs:
+    data_contract_lint_and_deploy_contract:
+      name: data_contract_lint_and_deploy_contract
+      parameters:
+        - name: data_contract_path
+          default: "${var.base_path}/${var.yaml_folder_path}"
+        - name: server_name
+          default: "${var.server_name}"
+      tasks:
+        - task_key: Lint_Data_Contracts
+          notebook_task:
+            notebook_path: ../../notebooks/data_contract_lint.py
+          job_cluster_key: Job_cluster
+          libraries:
+            - pypi:
+                package: datacontract-cli[databricks]
+
+        - task_key: Deploy_Tables
+          depends_on:
+            - task_key: Lint_Data_Contracts
+          notebook_task:
+            notebook_path: ../../notebooks/s2_data_contract_deploy_tables.py
+          job_cluster_key: Job_cluster
+          libraries:
+            - pypi:
+                package: datacontract-cli[databricks]
+
+        - task_key: Deploy_Metadata
+          depends_on:
+            - task_key: Deploy_Tables
+          notebook_task:
+            notebook_path: ../../notebooks/s3_data_contract_deploy_metadata.py
+          job_cluster_key: Job_cluster
+
+      job_clusters: "${var.job_cluster_config}"
+
+      queue:
+        enabled: true
